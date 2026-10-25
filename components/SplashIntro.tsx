@@ -1,3 +1,5 @@
+import { CRESCENT_PATH } from "./Logo";
+
 // 起動の演出(約3秒): 伊達政宗の兜の三日月が、金の線で一筆に描かれる。
 // 横に一閃の線が走り、その線の下から「Date」がせり上がって、「伊達 × date」が添えられる。
 // 飾りの絵は使わず、三日月と文字だけで見せる。動きは globals.css の .intro-* に置く。
@@ -15,11 +17,11 @@ export function SplashIntro({ onSkip }: { onSkip: () => void }) {
     >
       <span className="absolute inset-0 flex flex-col items-center justify-center">
         {/* 三日月(兜の前立て)。両端が上を向いた細く長い弧を、線で描いてから金で満たす */}
-        <svg viewBox="0 0 240 90" className="intro-moon w-64" aria-hidden>
+        <svg viewBox="0 0 240 120" className="intro-moon w-64" aria-hidden>
           <path
             className="intro-moon-path"
             pathLength="1"
-            d="M6 14C40 80 200 80 234 14C192 56 48 56 6 14Z"
+            d={CRESCENT_PATH}
             fill="var(--accent)"
             stroke="var(--accent)"
             strokeWidth="1.5"

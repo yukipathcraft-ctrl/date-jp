@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, PartyPopper, Send } from "lucide-react";
+import { Calculator, Check, Copy, PartyPopper, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { decide } from "@/app/actions";
@@ -10,6 +10,7 @@ import type { Shop } from "@/lib/shops";
 import type { Decision } from "@/lib/store/types";
 import type { DateRank } from "@/lib/summary";
 import { saveAdminToken } from "./CreateForm";
+import { SPLIT_NAMES_KEY } from "./SplitClient";
 import { BUTTON_LINE, BUTTON_PRIMARY, BUTTON_SUB } from "./ui";
 
 type Props = {
@@ -21,6 +22,8 @@ type Props = {
   bestDate: string | null;
   shops: Shop[];
   decision: Decision | null;
+  /** その日に行く人の名前。傾斜会計に持っていく */
+  attendees: string[];
 };
 
 function CopyButton({ text, label }: { text: string; label: string }) {
@@ -43,7 +46,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   );
 }
 
-export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision }: Props) {
+export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees }: Props) {
   const router = useRouter();
   const [origin, setOrigin] = useState("");
   const [date, setDate] = useState<string | null>(decision?.date ?? bestDate);
@@ -109,6 +112,20 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             <Send className="size-4" aria-hidden />
             LINEで「決まったよ」を送る
           </a>
+          <button
+            type="button"
+            onClick={() => {
+              // 名前は URL に載せず、このタブの中だけで渡す
+              try {
+                sessionStorage.setItem(SPLIT_NAMES_KEY, JSON.stringify(attendees));
+              } catch {}
+              router.push("/split");
+            }}
+            className={`${BUTTON_SUB} mt-2 w-full gap-2`}
+          >
+            <Calculator className="size-4" aria-hidden />
+            この会の傾斜会計({attendees.length}人)
+          </button>
           <button type="button" onClick={() => submit(null)} disabled={pending} className={`${BUTTON_SUB} mt-2 w-full`}>
             決定を取り消す
           </button>

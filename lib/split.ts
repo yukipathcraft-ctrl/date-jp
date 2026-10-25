@@ -3,21 +3,24 @@ import type { Audience } from "./audience";
 // 傾斜の割り勘。金額は整数(円)で扱う純粋関数
 // 重みは 0.1 単位を10倍した整数で持つ(1.3 → 13)。小数の誤差を出さないため
 
-export type Weight = { key: string; label: string; note: string; tenths: number };
+/** 区分の色。globals.css の .tier-* */
+export type Tone = "red" | "blue" | "yellow" | "green" | "purple";
+
+export type Weight = { key: string; label: string; note: string; tenths: number; mark: string; tone: Tone };
 
 export const WEIGHTS: Record<Audience, Weight[]> = {
   student: [
-    { key: "more", label: "多め", note: "先輩・OB", tenths: 13 },
-    { key: "normal", label: "ふつう", note: "同期", tenths: 10 },
-    { key: "less", label: "少なめ", note: "後輩・1年", tenths: 7 },
-    { key: "soft", label: "飲まない", note: "ソフトドリンク", tenths: 6 },
+    { key: "more", label: "多め", note: "先輩・OB", tenths: 13, mark: "▲", tone: "blue" },
+    { key: "normal", label: "ふつう", note: "同期", tenths: 10, mark: "●", tone: "yellow" },
+    { key: "less", label: "少なめ", note: "後輩・1年", tenths: 7, mark: "▼", tone: "green" },
+    { key: "soft", label: "飲まない", note: "ソフトドリンク", tenths: 6, mark: "◇", tone: "purple" },
   ],
   worker: [
-    { key: "boss", label: "上司", note: "部長・課長", tenths: 15 },
-    { key: "senior", label: "先輩", note: "", tenths: 12 },
-    { key: "normal", label: "ふつう", note: "同期", tenths: 10 },
-    { key: "junior", label: "新人", note: "1〜2年目", tenths: 7 },
-    { key: "soft", label: "飲まない", note: "ソフトドリンク", tenths: 7 },
+    { key: "boss", label: "上司", note: "部長・課長", tenths: 15, mark: "★", tone: "red" },
+    { key: "senior", label: "先輩", note: "", tenths: 12, mark: "▲", tone: "blue" },
+    { key: "normal", label: "ふつう", note: "同期", tenths: 10, mark: "●", tone: "yellow" },
+    { key: "junior", label: "新人", note: "1〜2年目", tenths: 7, mark: "▼", tone: "green" },
+    { key: "soft", label: "飲まない", note: "ソフトドリンク", tenths: 7, mark: "◇", tone: "purple" },
   ],
 };
 

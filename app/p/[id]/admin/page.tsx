@@ -53,6 +53,7 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
           bestDate={summary.date}
           shops={shops}
           decision={party.decision}
+          attendees={summary.attendees.map((a) => a.name)}
         />
         <div className="mt-4">
           <SummaryView summary={summary} />

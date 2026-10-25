@@ -112,3 +112,13 @@ body {
 @keyframes intro-rise { to { transform: none; } }
 @keyframes intro-sub { to { opacity: 1; transform: none; } }
 @keyframes intro-out { to { opacity: 0; visibility: hidden; } }
+
+/*
+ * 傾斜の区分の色(hasuru と同じ考え方を、黒い地に合わせて暗い地・明るい文字にした)。
+ * --ts は塗り、--tc は文字と記号。色だけで区別しないよう、必ず記号(★ ▲ ● ▼ ◇)と区分名を添える
+ */
+.tier-red { --ts: #3d1c1f; --tc: #ff9da3; --tb: #ff6b74; }
+.tier-blue { --ts: #1b2a48; --tc: #a9c4ff; --tb: #6f9bff; }
+.tier-yellow { --ts: #3a2d10; --tc: #ffd47e; --tb: #f5b83d; }
+.tier-green { --ts: #143425; --tc: #93e3b2; --tb: #4cc982; }
+.tier-purple { --ts: #2b2148; --tc: #cbb8ff; --tb: #9d7bff; }
