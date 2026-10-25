@@ -13,6 +13,30 @@ import { BUTTON_PRIMARY } from "./ui";
 
 type Phase = "loading" | "splash" | "choose" | "home";
 
+/** 名前の由来。Date は、仙台の「伊達」と、英語の date(日にち)をかけている */
+function NameStory() {
+  return (
+    <details className="group border-t border-border px-5 first:border-t-0">
+      <summary className="flex min-h-16 cursor-pointer list-none items-center gap-3">
+        <span aria-hidden className="grid size-5 shrink-0 place-items-center text-sm font-extrabold text-accent">
+          伊
+        </span>
+        <span className="flex-1 font-bold text-muted">「Date」という名前について</span>
+        <ChevronRight className="size-5 text-muted transition-transform group-open:rotate-90" aria-hidden />
+      </summary>
+      <div className="pb-5 text-sm leading-relaxed text-muted">
+        <p>
+          <span className="font-bold text-text">伊達(だて)</span>と<span className="font-bold text-text">date(日にち)</span>
+          をかけています。
+        </p>
+        <p className="mt-2">
+          伊達政宗がつくった街・仙台で、飲み会の日にちを決めるアプリだから Date。ついでに英語の date には「会う約束」の意味もあります。
+        </p>
+      </div>
+    </details>
+  );
+}
+
 /** 起動画面 → 学生か社会人か → ホーム。起動画面は毎回出す(タップで飛ばせる) */
 export function HomeClient() {
   const [phase, setPhase] = useState<Phase>("loading");
@@ -159,17 +183,18 @@ export function HomeClient() {
             <Link
               key={p.id}
               href={`/p/${p.id}/admin?token=${p.token}`}
-              className="flex min-h-16 items-center gap-3 border-b border-border px-5 last:border-b-0"
+              className="flex min-h-16 items-center gap-3 border-t border-border px-5 first:border-t-0"
             >
               <CalendarDays className="size-5 shrink-0 text-muted" aria-hidden />
               <span className="min-w-0 flex-1 truncate font-bold">{p.title}</span>
               <ChevronRight className="size-5 text-muted" aria-hidden />
             </Link>
           ))}
+          <NameStory />
           <button
             type="button"
             onClick={() => setPhase("choose")}
-            className={`flex min-h-16 w-full items-center gap-3 px-5 text-left ${parties.length > 0 ? "border-t border-border" : ""}`}
+            className="flex min-h-16 w-full items-center gap-3 border-t border-border px-5 text-left"
           >
             <Repeat className="size-5 shrink-0 text-muted" aria-hidden />
             <span className="flex-1 font-bold text-muted">

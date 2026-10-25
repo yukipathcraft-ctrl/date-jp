@@ -109,6 +109,7 @@ export function SplashIntro({ onSkip }: { onSkip: () => void }) {
           ))}
         </span>
         <span className="intro-tagline mt-3 text-sm font-bold tracking-[0.3em] text-muted">仙台の飲み会セッティング</span>
+        <span className="intro-tagline mt-2 text-xs font-bold tracking-[0.3em] text-accent">伊達 × date</span>
         <span className="sr-only">{NAME} 仙台の飲み会セッティング</span>
       </span>
     </button>
