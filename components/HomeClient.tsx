@@ -174,6 +174,16 @@ export function HomeClient() {
           </>
         )}
 
+        <SectionTitle>お店を探したいとき</SectionTitle>
+        <section className="overflow-hidden rounded-3xl border border-border bg-surface">
+          <HomeRow
+            href="/shops"
+            icon={<Store className="size-6" aria-hidden />}
+            title="お店を探す"
+            sub="場所と予算を選ぶと、合うお店がすぐに出てきます"
+          />
+        </section>
+
         <SectionTitle>飲んだあと</SectionTitle>
         <section className="overflow-hidden rounded-3xl border border-border bg-surface">
           <HomeRow
@@ -192,16 +202,6 @@ export function HomeClient() {
             }
             title="傾斜会計"
             sub={audience === "student" ? "先輩には多めに、飲まない人には少なめに割れます" : "上司には多めに、新人には少なめに割れます"}
-          />
-        </section>
-
-        <SectionTitle>お店を探したいとき</SectionTitle>
-        <section className="overflow-hidden rounded-3xl border border-border bg-surface">
-          <HomeRow
-            href="/shops"
-            icon={<Store className="size-6" aria-hidden />}
-            title="お店を探す"
-            sub="場所と予算を選ぶと、合うお店がすぐに出てきます"
           />
         </section>
 
