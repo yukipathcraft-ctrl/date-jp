@@ -54,8 +54,8 @@ export async function saveAnswer(
 export async function getMyAnswer(partyId: string, answerId: string, token: string): Promise<AnswerInput | null> {
   const answer = (await getStore().listAnswers(partyId)).find((a) => a.id === answerId);
   if (!answer || !verifyToken(token, answer.tokenHash)) return null;
-  const { name, dates, arrival, stay, budget, areas } = answer;
-  return { name, dates, arrival, stay, budget, areas };
+  const { name, dates, arrival, stay, budget, areas, memo } = answer;
+  return { name, dates, arrival, stay, budget, areas, ...(memo ? { memo } : {}) };
 }
 
 export async function decide(

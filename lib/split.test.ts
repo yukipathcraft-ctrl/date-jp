@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { splitBill } from "./split";
+import { splitBill, tenthsFromInput } from "./split";
 
 const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 
@@ -38,5 +38,19 @@ describe("splitBill", () => {
   it("合計が0や人がいなければ0", () => {
     expect(splitBill({ total: 0, weights: [10, 10], unit: 100, organizer: 0 }).amounts).toEqual([0, 0]);
     expect(splitBill({ total: 5000, weights: [], unit: 100, organizer: 0 }).amounts).toEqual([]);
+  });
+});
+
+describe("tenthsFromInput", () => {
+  it("書いた倍率を0.1単位の整数にする", () => {
+    expect(tenthsFromInput("1.2")).toBe(12);
+    expect(tenthsFromInput("２")).toBe(20);
+    expect(tenthsFromInput("1.25")).toBe(13);
+  });
+  it("範囲の外や読めないものは null", () => {
+    expect(tenthsFromInput("")).toBeNull();
+    expect(tenthsFromInput("0")).toBeNull();
+    expect(tenthsFromInput("6")).toBeNull();
+    expect(tenthsFromInput("たくさん")).toBeNull();
   });
 });

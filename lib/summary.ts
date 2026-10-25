@@ -15,6 +15,8 @@ export type Answer = {
   /** 1人あたりの予算の上限(円) */
   budget: number;
   areas: AreaKey[];
+  /** ひとこと。みんなに見える(予定の事情や、2次会は無理など) */
+  memo?: string;
 };
 
 export type DateRank = { date: string; ok: number; maybe: number };
@@ -28,6 +30,8 @@ export type Summary = {
   attendees: { name: string; arrival: number; stay: number }[];
   /** その日に「たぶん」の人 */
   maybes: string[];
+  /** ひとことを書いた人(行けない人のものも出す) */
+  notes: { name: string; memo: string }[];
   start: number | null;
   /** 開始に間に合わず、途中から来る人 */
   lateJoiners: string[];
@@ -85,6 +89,7 @@ export function summarize(dates: string[], answers: Answer[], fixedDate?: string
     date: best,
     attendees: going.map((a) => ({ name: a.name, arrival: a.arrival, stay: a.stay })),
     maybes: best ? answers.filter((a) => a.dates[best] === "maybe").map((a) => a.name) : [],
+    notes: answers.filter((a) => a.memo).map((a) => ({ name: a.name, memo: a.memo! })),
     start,
     lateJoiners: start === null ? [] : going.filter((a) => a.arrival > start).map((a) => a.name),
     firstEnd,

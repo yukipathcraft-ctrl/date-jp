@@ -48,8 +48,9 @@ export function yen(n: number): string {
 /** 何時から来られるか。分で持つ(18:00 = 1080) */
 export const ARRIVALS = [1080, 1110, 1140, 1170, 1200, 1230, 1260] as const;
 
+/** 選択肢にない時刻も書ける。5分きざみで、15:00〜24:00 の間 */
 export function isArrival(v: unknown): v is number {
-  return ARRIVALS.includes(v as (typeof ARRIVALS)[number]);
+  return Number.isInteger(v) && (v as number) % 5 === 0 && (v as number) >= 900 && (v as number) <= 1440;
 }
 
 /** いつまで残れるか。分で持つ。終電は仙台市地下鉄の最終(0時ごろ)、朝までは 30時 */
@@ -61,12 +62,32 @@ export const STAYS = [
   { minutes: 1800, label: "最後まで" },
 ] as const;
 
+/** 選択肢にない時刻も書ける。5分きざみで、18:00〜朝6:00(30:00)の間 */
 export function isStay(v: unknown): v is number {
-  return STAYS.some((s) => s.minutes === v);
+  return (
+    STAYS.some((s) => s.minutes === v) ||
+    (Number.isInteger(v) && (v as number) % 5 === 0 && (v as number) >= 1080 && (v as number) <= 1800)
+  );
 }
 
 export function stayLabel(minutes: number): string {
-  return STAYS.find((s) => s.minutes === minutes)?.label ?? clock(minutes);
+  return STAYS.find((s) => s.minutes === minutes)?.label ?? `${clock(minutes)}まで`;
+}
+
+/**
+ * 時刻の入力欄("01:30")を分にする。残れる時刻は夜をまたぐので、昼の12時より前は翌日として24時間足す
+ */
+export function minutesFromInput(value: string, overnight: boolean): number | null {
+  const m = value.match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return null;
+  const minutes = Number(m[1]) * 60 + Number(m[2]);
+  return overnight && minutes < 720 ? minutes + 1440 : minutes;
+}
+
+/** 分を時刻の入力欄の形("25:30" → "01:30")にする */
+export function inputFromMinutes(minutes: number): string {
+  const t = minutes % 1440;
+  return `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
 }
 
 /** 1080 → "18:00" */

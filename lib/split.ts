@@ -4,7 +4,7 @@ import type { Audience } from "./audience";
 // 重みは 0.1 単位を10倍した整数で持つ(1.3 → 13)。小数の誤差を出さないため
 
 /** 区分の色。globals.css の .tier-* */
-export type Tone = "red" | "blue" | "yellow" | "green" | "purple";
+export type Tone = "red" | "blue" | "yellow" | "green" | "purple" | "gray";
 
 export type Weight = { key: string; label: string; note: string; tenths: number; mark: string; tone: Tone };
 
@@ -23,6 +23,18 @@ export const WEIGHTS: Record<Audience, Weight[]> = {
     { key: "soft", label: "飲まない", note: "ソフトドリンク", tenths: 7, mark: "◇", tone: "purple" },
   ],
 };
+
+/** 自分で書く倍率の範囲(0.1〜5.0)。10倍した整数で持つ */
+export const CUSTOM_MIN = 1;
+export const CUSTOM_MAX = 50;
+
+/** 書いた倍率("1.25" や "２")を、0.1 単位の整数にする。読めなければ null */
+export function tenthsFromInput(text: string): number | null {
+  const n = Number(text.normalize("NFKC").trim());
+  if (text.trim() === "" || !Number.isFinite(n)) return null;
+  const t = Math.round(n * 10);
+  return t >= CUSTOM_MIN && t <= CUSTOM_MAX ? t : null;
+}
 
 export const ROUND_UNITS = [10, 100, 500] as const;
 

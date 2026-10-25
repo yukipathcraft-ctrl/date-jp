@@ -1,13 +1,13 @@
 "use client";
 
-import { CalendarDays, Check, Clock, MapPin, Moon, Pencil, UserRound, Wallet } from "lucide-react";
+import { CalendarDays, Check, Clock, MapPin, MessageSquareText, Moon, Pencil, UserRound, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { getMyAnswer, saveAnswer } from "@/app/actions";
 import { AUDIENCES, type Audience } from "@/lib/audience";
-import { AREAS, STAYS, clock, dateLabel, yen, type AreaKey } from "@/lib/sendai";
+import { AREAS, STAYS, clock, dateLabel, inputFromMinutes, minutesFromInput, yen, type AreaKey } from "@/lib/sendai";
 import type { DateAnswer } from "@/lib/summary";
-import type { AnswerInput } from "@/lib/validation";
+import { MAX_MEMO, type AnswerInput } from "@/lib/validation";
 import { BUTTON_PRIMARY, BUTTON_SUB, INPUT, LABEL, PILL, PILL_OFF, PILL_ON } from "./ui";
 
 type Mine = { answerId: string; token: string; name: string };
@@ -41,6 +41,72 @@ function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; c
       {on && <Check className="size-3.5 shrink-0" aria-hidden />}
       {children}
     </button>
+  );
+}
+
+/**
+ * 時刻を選ぶ。よくある時刻はボタンで、それ以外は「そのほか」から書ける(17:45 や 20:15 など)。
+ * value が 0 なら、まだ選んでいない
+ */
+function TimeChoices({
+  presets,
+  value,
+  onChange,
+  overnight,
+  hint,
+}: {
+  presets: { minutes: number; label: string }[];
+  value: number;
+  onChange: (minutes: number) => void;
+  /** 残れる時刻のように夜をまたぐもの。01:00 は 25:00 として扱う */
+  overnight: boolean;
+  hint: string;
+}) {
+  const isPreset = presets.some((p) => p.minutes === value);
+  const [other, setOther] = useState(false);
+  const showInput = other || (value !== 0 && !isPreset);
+  return (
+    <>
+      <div className="flex flex-wrap gap-2">
+        {presets.map((p) => (
+          <Choice
+            key={p.minutes}
+            on={!showInput && value === p.minutes}
+            onClick={() => {
+              setOther(false);
+              onChange(p.minutes);
+            }}
+          >
+            {p.label}
+          </Choice>
+        ))}
+        <Choice
+          on={showInput}
+          onClick={() => {
+            setOther(true);
+            if (isPreset) onChange(0);
+          }}
+        >
+          そのほか
+        </Choice>
+      </div>
+      {showInput && (
+        <label className="mt-3 flex items-center gap-3">
+          <input
+            type="time"
+            step={300}
+            className={`${INPUT} w-40 [color-scheme:dark]`}
+            value={value !== 0 && !isPreset ? inputFromMinutes(value) : ""}
+            onChange={(e) => {
+              const m = minutesFromInput(e.target.value, overnight);
+              if (m !== null) onChange(Math.round(m / 5) * 5);
+            }}
+            aria-label="時刻を入れる"
+          />
+          <span className="text-xs text-muted">{hint}</span>
+        </label>
+      )}
+    </>
   );
 }
 
@@ -187,13 +253,13 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
             <Clock className="size-4" />
             何時から来られる?
           </p>
-          <div className="flex flex-wrap gap-2">
-            {opts.arrivals.map((m) => (
-              <Choice key={m} on={form.arrival === m} onClick={() => set({ arrival: m })}>
-                {clock(m)}
-              </Choice>
-            ))}
-          </div>
+          <TimeChoices
+            presets={opts.arrivals.map((m) => ({ minutes: m, label: clock(m) }))}
+            value={form.arrival}
+            onChange={(m) => set({ arrival: m })}
+            overnight={false}
+            hint="15時から24時まで、5分きざみで書けます"
+          />
         </fieldset>
 
         <fieldset className="border-b border-border px-5 py-5">
@@ -202,13 +268,13 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
             <Moon className="size-4" />
             いつまで残れる?
           </p>
-          <div className="flex flex-wrap gap-2">
-            {STAYS.map((st) => (
-              <Choice key={st.minutes} on={form.stay === st.minutes} onClick={() => set({ stay: st.minutes })}>
-                {st.label}
-              </Choice>
-            ))}
-          </div>
+          <TimeChoices
+            presets={STAYS.map((st) => ({ minutes: st.minutes, label: st.label }))}
+            value={form.stay}
+            onChange={(m) => set({ stay: m })}
+            overnight
+            hint="夜中の1時なら 01:00 と書けます"
+          />
         </fieldset>
 
         <fieldset className="border-b border-border px-5 py-5">
@@ -241,6 +307,20 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
             ))}
           </div>
         </fieldset>
+
+        <label className="block border-t border-border px-5 py-5">
+          <span className={LABEL}>
+            <MessageSquareText className="size-4" aria-hidden />
+            ひとこと <span className="font-normal">(なくてもOK・みんなに見えます)</span>
+          </span>
+          <textarea
+            className={`${INPUT} min-h-24 resize-none py-3 leading-relaxed`}
+            value={form.memo ?? ""}
+            onChange={(e) => set({ memo: e.target.value.slice(0, MAX_MEMO) })}
+            placeholder="例: 金曜はバイト終わりの19時半から行けます / 2次会は無理そう"
+            maxLength={MAX_MEMO}
+          />
+        </label>
       </div>
 
       <div className="px-4">

@@ -6,6 +6,7 @@ type Result<T> = { ok: true; value: T } | { ok: false; error: string };
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 export const MAX_DATES = 10;
+export const MAX_MEMO = 100;
 
 function text(v: unknown, label: string, max: number): Result<string> {
   const s = typeof v === "string" ? v.trim() : "";
@@ -46,6 +47,8 @@ export function parseAnswer(input: Record<string, unknown>, partyDates: string[]
   if (!isBudget(input.budget)) return { ok: false, error: "予算を選んでください" };
   const areas = Array.isArray(input.areas) ? [...new Set(input.areas.filter(isAreaKey))] : [];
   if (areas.length === 0) return { ok: false, error: "行きやすい場所を1つ以上選んでください" };
+  const memo = typeof input.memo === "string" ? input.memo.trim() : "";
+  if (memo.length > MAX_MEMO) return { ok: false, error: `ひとことは${MAX_MEMO}文字までにしてください` };
 
   return {
     ok: true,
@@ -56,6 +59,7 @@ export function parseAnswer(input: Record<string, unknown>, partyDates: string[]
       stay: input.stay,
       budget: input.budget,
       areas: areas as AreaKey[],
+      ...(memo ? { memo } : {}),
     },
   };
 }

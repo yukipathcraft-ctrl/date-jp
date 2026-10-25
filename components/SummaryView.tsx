@@ -1,8 +1,29 @@
-import { CalendarDays, Clock, MapPin, Moon, Users, Wallet } from "lucide-react";
+import { CalendarDays, Clock, MapPin, MessageSquareText, Moon, Users, Wallet } from "lucide-react";
 import { areaLabel, clock, dateLabel, stayLabel, yen } from "@/lib/sendai";
 import type { Summary } from "@/lib/summary";
 
 // みんなの回答から決まったこと。予算は「全員が出せる額」だけを出し、誰がいくらと答えたかは出さない
+
+/** みんなのひとこと。書いた人がいなければ出さない */
+function Notes({ notes }: { notes: Summary["notes"] }) {
+  if (notes.length === 0) return null;
+  return (
+    <div className="mt-4 rounded-2xl border border-border px-4 py-3">
+      <p className="flex items-center gap-2 text-sm font-bold">
+        <MessageSquareText className="size-4" aria-hidden />
+        みんなのひとこと
+      </p>
+      <ul className="mt-2 space-y-2">
+        {notes.map((n) => (
+          <li key={n.name} className="text-sm">
+            <span className="font-bold">{n.name}</span>
+            <span className="ml-2 whitespace-pre-wrap break-words text-text/90">{n.memo}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export function SummaryView({ summary }: { summary: Summary }) {
   if (summary.answered === 0) {
@@ -18,6 +39,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
       <section className="mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
         <h2 className="text-lg font-extrabold">みんなの答え({summary.answered}人)</h2>
         <p className="mt-2 text-sm text-muted">どの日も全員が行けないと答えているので、候補の日を足して作り直してください</p>
+        <Notes notes={summary.notes} />
       </section>
     );
   }
@@ -61,6 +83,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
           </div>
         ))}
       </dl>
+      <Notes notes={summary.notes} />
 
       <details className="mt-4 rounded-2xl bg-surface-2 px-4 py-3">
         <summary className="flex min-h-10 cursor-pointer items-center gap-2 text-sm font-bold">

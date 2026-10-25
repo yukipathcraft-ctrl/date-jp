@@ -84,3 +84,13 @@ describe("summarize", () => {
     expect(s.attendees.map((a) => a.name)).toEqual(["b"]);
   });
 });
+
+describe("みんなのひとこと", () => {
+  it("書いた人だけを、行けない人のものも含めて出す", () => {
+    const s = summarize([D1], [answer("a", { memo: "2次会は無理そう" }), answer("b"), answer("c", { dates: { [D1]: "no" }, memo: "来週なら行けます" })]);
+    expect(s.notes).toEqual([
+      { name: "a", memo: "2次会は無理そう" },
+      { name: "c", memo: "来週なら行けます" },
+    ]);
+  });
+});

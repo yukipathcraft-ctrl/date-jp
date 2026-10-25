@@ -1,23 +1,24 @@
 "use client";
 
-import { Check, Copy, Crown, Plus, Send, X } from "lucide-react";
+import { Check, Copy, Crown, PencilLine, Plus, Send, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { loadAudience, type Audience } from "@/lib/audience";
 import { yen } from "@/lib/sendai";
 import { MADE_WITH, lineShareUrl } from "@/lib/share";
 import { NextHost } from "./NextHost";
-import { ROUND_UNITS, WEIGHTS, splitBill, type Weight } from "@/lib/split";
+import { ROUND_UNITS, WEIGHTS, splitBill, tenthsFromInput, type Weight } from "@/lib/split";
 import { BUTTON_LINE, BUTTON_SUB, PILL, PILL_OFF, PILL_ON } from "./ui";
 
 // 傾斜会計。hasuru と同じく、区分ごとに色・記号・頭文字の丸で人を見分ける(色だけに頼らない)
 
-type Person = { id: number; name: string; weight: string };
+/** weight は区分の key。自分で倍率を書いたときは "custom" にして、書いた文字を custom に持つ */
+type Person = { id: number; name: string; weight: string; custom: string };
 
 /** 幹事の画面から「この会の傾斜会計」で来たとき、行く人の名前を受け取る(URL には載せない) */
 export const SPLIT_NAMES_KEY = "nomi:split-names";
 
 let nextId = 1;
-const person = (weight: string, name = ""): Person => ({ id: nextId++, name, weight });
+const person = (weight: string, name = ""): Person => ({ id: nextId++, name, weight, custom: "" });
 
 function Avatar({ name, tone, size = "md" }: { name: string; tone: Weight["tone"]; size?: "sm" | "md" }) {
   const initial = [...name.trim()][0] ?? "?";
@@ -72,11 +73,17 @@ export function SplitClient() {
   }, []);
 
   const weights = WEIGHTS[audience];
-  const weightOf = (key: string) => weights.find((w) => w.key === key) ?? weights.find((w) => w.key === "normal")!;
+  const normal = weights.find((w) => w.key === "normal")!;
+  const weightOf = (p: Person): Weight => {
+    if (p.weight !== "custom") return weights.find((w) => w.key === p.weight) ?? normal;
+    // 書きかけで読めないうちは「ふつう」と同じ倍率で数える
+    const tenths = tenthsFromInput(p.custom) ?? normal.tenths;
+    return { key: "custom", label: `×${(tenths / 10).toFixed(1)}`, note: "", tenths, mark: "✎", tone: "gray" };
+  };
   const totalYen = Number(total);
   const ready = Number.isInteger(totalYen) && totalYen > 0 && people.length > 0;
   const result = ready
-    ? splitBill({ total: totalYen, weights: people.map((p) => weightOf(p.weight).tenths), unit, organizer })
+    ? splitBill({ total: totalYen, weights: people.map((p) => weightOf(p).tenths), unit, organizer })
     : null;
   const nameOf = (p: Person, i: number) => p.name.trim() || `${i + 1}人目`;
 
@@ -91,7 +98,7 @@ export function SplitClient() {
   const shareText = result
     ? [
         `お会計 ${yen(totalYen)}(${people.length}人)`,
-        ...people.map((p, i) => `${weightOf(p.weight).mark} ${nameOf(p, i)} ${yen(result.amounts[i])}`),
+        ...people.map((p, i) => `${weightOf(p).mark} ${nameOf(p, i)} ${yen(result.amounts[i])}`),
         "",
         `${MADE_WITH}(傾斜会計)`,
         origin,
@@ -137,7 +144,9 @@ export function SplitClient() {
       {/* 払う人 */}
       <ul className="mx-4 mt-3 space-y-2">
         {people.map((p, i) => {
-          const w = weightOf(p.weight);
+          const w = weightOf(p);
+          const customOn = p.weight === "custom";
+          const customBad = customOn && p.custom.trim() !== "" && tenthsFromInput(p.custom) === null;
           return (
             <li key={p.id} className={`tier-${w.tone} rounded-3xl border border-[var(--tb)]/30 bg-surface p-3`}>
               <div className="flex items-center gap-2.5">
@@ -191,7 +200,37 @@ export function SplitClient() {
                     </button>
                   );
                 })}
+                <button
+                  type="button"
+                  aria-pressed={customOn}
+                  onClick={() => update(p.id, { weight: "custom" })}
+                  className={`tier-gray inline-flex min-h-10 items-center gap-1 rounded-full border px-3 text-xs font-bold transition-colors ${
+                    customOn ? "border-[var(--tb)] bg-[var(--ts)] text-[var(--tc)]" : "border-border text-muted hover:text-text"
+                  }`}
+                >
+                  <span aria-hidden>{customOn ? <Check className="size-3" /> : <PencilLine className="size-3" />}</span>
+                  倍率を入れる
+                </button>
               </div>
+              {customOn && (
+                <label className="mt-2.5 flex items-center gap-2">
+                  <span className="text-lg font-extrabold text-[var(--tc)]" aria-hidden>
+                    ×
+                  </span>
+                  <input
+                    className="min-h-11 w-24 rounded-xl bg-surface-2 px-3 text-lg font-extrabold tabular-nums outline-none placeholder:font-normal placeholder:text-muted focus:ring-1 focus:ring-[var(--tb)]"
+                    inputMode="decimal"
+                    value={p.custom}
+                    onChange={(e) => update(p.id, { custom: e.target.value.slice(0, 4) })}
+                    placeholder="1.2"
+                    aria-label={`${nameOf(p, i)}の倍率`}
+                    autoFocus
+                  />
+                  <span className={`text-xs ${customBad ? "font-bold text-danger" : "text-muted"}`}>
+                    {customBad ? "0.1〜5.0 の数で書いてください" : "ふつうの人を 1.0 として、0.1〜5.0 で書けます"}
+                  </span>
+                </label>
+              )}
             </li>
           );
         })}
@@ -234,14 +273,14 @@ export function SplitClient() {
               {people.map((p, i) => (
                 <span
                   key={p.id}
-                  className={`tier-${weightOf(p.weight).tone} h-full bg-[var(--tb)] [&:not(:first-child)]:border-l-2 [&:not(:first-child)]:border-surface`}
+                  className={`tier-${weightOf(p).tone} h-full bg-[var(--tb)] [&:not(:first-child)]:border-l-2 [&:not(:first-child)]:border-surface`}
                   style={{ width: `${(result.amounts[i] / totalYen) * 100}%` }}
                 />
               ))}
             </div>
             <ul className="mt-3 divide-y divide-border">
               {people.map((p, i) => {
-                const w = weightOf(p.weight);
+                const w = weightOf(p);
                 return (
                   <li key={p.id} className="flex min-h-14 items-center gap-3 px-5">
                     <Avatar name={nameOf(p, i)} tone={w.tone} size="sm" />

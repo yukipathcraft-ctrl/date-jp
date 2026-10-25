@@ -33,7 +33,7 @@ export const AUDIENCES: Record<
     label: "社会人",
     note: "職場・同期・取引先",
     budgets: [3000, 4000, 5000, 6000, 8000],
-    arrivals: [1110, 1140, 1170, 1200, 1230, 1260],
+    arrivals: [1080, 1110, 1140, 1170, 1200, 1260],
     areas: ["kokubuncho", "station", "ichibancho", "nagamachi", "izumi", "katahira"],
     prefer: ["個室", "飲み放題"],
   },
