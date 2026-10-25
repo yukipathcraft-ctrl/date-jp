@@ -7,7 +7,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-14 max-w-xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 text-lg font-extrabold tracking-tight">
           <LogoMark size={28} />
-          Nomise
+          nomi
         </Link>
         <span className="rounded-full border border-border px-3 py-1 text-xs font-bold text-muted">仙台限定</span>
       </div>

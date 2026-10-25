@@ -2,7 +2,7 @@
 
 export type MyParty = { id: string; title: string; token: string; createdAt: number };
 
-const KEY = "nomise:parties";
+const KEY = "nomi:parties";
 
 export function loadMyParties(): MyParty[] {
   try {

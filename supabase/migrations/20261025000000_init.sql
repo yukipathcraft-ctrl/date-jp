@@ -1,6 +1,7 @@
+-- 表の名前には nomi_ を付ける(Kaerou と同じ Supabase のプロジェクトに置くため)
 -- 飲み会と回答。ブラウザから直接は読み書きさせない(サーバーが service role で読む)
 
-create table parties (
+create table nomi_parties (
   id text primary key,
   title text not null check (char_length(title) between 1 and 40),
   audience text not null default 'student' check (audience in ('student', 'worker')),
@@ -10,9 +11,9 @@ create table parties (
   created_at timestamptz not null default now()
 );
 
-create table answers (
+create table nomi_answers (
   id uuid primary key,
-  party_id text not null references parties (id) on delete cascade,
+  party_id text not null references nomi_parties (id) on delete cascade,
   name text not null check (char_length(name) between 1 and 20),
   token_hash text not null,
   data jsonb not null,
@@ -23,13 +24,13 @@ create table answers (
 
 -- お店のページへ飛んだ数。送客の手数料を確かめるために数える(誰が押したかは残さない)
 -- 「お店を探す」から来たときは party_id が null
-create table shop_clicks (
+create table nomi_shop_clicks (
   id bigint generated always as identity primary key,
-  party_id text references parties (id) on delete cascade,
+  party_id text references nomi_parties (id) on delete cascade,
   shop_id text not null,
   created_at timestamptz not null default now()
 );
 
-alter table parties enable row level security;
-alter table answers enable row level security;
-alter table shop_clicks enable row level security;
+alter table nomi_parties enable row level security;
+alter table nomi_answers enable row level security;
+alter table nomi_shop_clicks enable row level security;

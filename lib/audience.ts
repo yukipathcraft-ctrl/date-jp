@@ -39,7 +39,7 @@ export const AUDIENCES: Record<
   },
 };
 
-const KEY = "nomise:audience";
+const KEY = "nomi:audience";
 
 export function loadAudience(): Audience | null {
   try {

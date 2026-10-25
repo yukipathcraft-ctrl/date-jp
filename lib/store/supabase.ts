@@ -17,7 +17,7 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
   return {
     async createParty(party) {
       check(
-        await db.from("parties").insert({
+        await db.from("nomi_parties").insert({
           id: party.id,
           title: party.title,
           audience: party.audience,
@@ -30,7 +30,7 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
       const row = check<
         { id: string; title: string; audience: string; dates: string[]; admin_hash: string; decision: Decision | null } | null
       >(
-        await db.from("parties").select("id, title, audience, dates, admin_hash, decision").eq("id", id).maybeSingle(),
+        await db.from("nomi_parties").select("id, title, audience, dates, admin_hash, decision").eq("id", id).maybeSingle(),
       );
       return row ? {
             id: row.id,
@@ -43,14 +43,14 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
     },
     async listAnswers(partyId) {
       const rows = check<AnswerRow[]>(
-        await db.from("answers").select("id, name, token_hash, data").eq("party_id", partyId).order("created_at"),
+        await db.from("nomi_answers").select("id, name, token_hash, data").eq("party_id", partyId).order("created_at"),
       );
       return rows.map((r): StoredAnswer => ({ ...r.data, id: r.id, name: r.name, tokenHash: r.token_hash }));
     },
     async saveAnswer(partyId, answer) {
       const { id, name, tokenHash, ...data } = answer;
       const result = await db
-        .from("answers")
+        .from("nomi_answers")
         .upsert({ id, party_id: partyId, name, token_hash: tokenHash, data, updated_at: new Date().toISOString() });
       // 同じ飲み会で同じ名前(unique 制約)
       if (result.error?.code === "23505") return false;
@@ -58,10 +58,10 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
       return true;
     },
     async setDecision(partyId, decision) {
-      check(await db.from("parties").update({ decision }).eq("id", partyId));
+      check(await db.from("nomi_parties").update({ decision }).eq("id", partyId));
     },
     async logShopClick(partyId, shopId) {
-      check(await db.from("shop_clicks").insert({ party_id: partyId, shop_id: shopId }));
+      check(await db.from("nomi_shop_clicks").insert({ party_id: partyId, shop_id: shopId }));
     },
   };
 }

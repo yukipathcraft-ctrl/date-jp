@@ -11,10 +11,10 @@ const jp = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Nomise | 仙台の飲み会セッティング", template: "%s | Nomise" },
+  title: { default: "nomi | 仙台の飲み会セッティング", template: "%s | nomi" },
   description:
     "日にち・時間・予算・場所・何時まで残れるかを、みんなが30秒で答えるだけ。仙台のお店まで決まる、学生と社会人のための飲み会セッティング",
-  applicationName: "Nomise",
+  applicationName: "nomi",
 };
 
 export const viewport: Viewport = {

@@ -12,7 +12,7 @@ import { BUTTON_PRIMARY, INPUT, LABEL, PILL, PILL_OFF, PILL_ON } from "./ui";
 
 export function saveAdminToken(partyId: string, token: string) {
   try {
-    localStorage.setItem(`nomise:admin:${partyId}`, token);
+    localStorage.setItem(`nomi:admin:${partyId}`, token);
   } catch {}
 }
 

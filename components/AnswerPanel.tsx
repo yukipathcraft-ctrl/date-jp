@@ -12,7 +12,7 @@ import { BUTTON_PRIMARY, BUTTON_SUB, INPUT, LABEL, PILL, PILL_OFF, PILL_ON } fro
 
 type Mine = { answerId: string; token: string; name: string };
 
-const key = (partyId: string) => `nomise:me:${partyId}`;
+const key = (partyId: string) => `nomi:me:${partyId}`;
 
 function loadMine(partyId: string): Mine | null {
   try {

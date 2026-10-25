@@ -4,8 +4,8 @@ import type { Party, StoredAnswer, Store } from "./types";
 type Db = { parties: Map<string, Party>; answers: Map<string, StoredAnswer[]>; clicks: { partyId: string | null; shopId: string }[] };
 
 // 開発サーバーの再読み込みで消えないよう、globalThis に置く
-const g = globalThis as unknown as { __nomise?: Db };
-const db: Db = (g.__nomise ??= { parties: new Map(), answers: new Map(), clicks: [] });
+const g = globalThis as unknown as { __nomi?: Db };
+const db: Db = (g.__nomi ??= { parties: new Map(), answers: new Map(), clicks: [] });
 
 export const memoryStore: Store = {
   async createParty(party) {

@@ -7,11 +7,18 @@ import { AUDIENCES, loadAudience, saveAudience, type Audience } from "@/lib/audi
 import { loadMyParties, type MyParty } from "@/lib/myParties";
 import { LogoMark } from "./Logo";
 import { SiteHeader } from "./SiteHeader";
+import { SplashIntro } from "./SplashIntro";
 import { BUTTON_PRIMARY } from "./ui";
 
-const SPLASH_KEY = "nomise:splash";
+const SPLASH_KEY = "nomi:splash";
 
 type Phase = "loading" | "splash" | "choose" | "home";
+
+function markSplashSeen() {
+  try {
+    sessionStorage.setItem(SPLASH_KEY, "1");
+  } catch {}
+}
 
 /** 起動画面 → 学生か社会人か → ホーム。起動画面は、ブラウザを開いてから最初の1回だけ出す */
 export function HomeClient() {
@@ -28,7 +35,6 @@ export function HomeClient() {
     let seen = false;
     try {
       seen = sessionStorage.getItem(SPLASH_KEY) === "1";
-      sessionStorage.setItem(SPLASH_KEY, "1");
     } catch {}
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const next: Phase = saved ? "home" : "choose";
@@ -38,7 +44,11 @@ export function HomeClient() {
     }
     setPhase("splash");
     /* eslint-enable react-hooks/set-state-in-effect */
-    const t = setTimeout(() => setPhase(next), 1500);
+    // 「見た」は見終わったときに残す(開発中は初回の処理が2回走るので、先に残すと演出が飛ぶ)
+    const t = setTimeout(() => {
+      markSplashSeen();
+      setPhase(next);
+    }, 2850);
     return () => clearTimeout(t);
   }, []);
 
@@ -52,12 +62,12 @@ export function HomeClient() {
 
   if (phase === "splash") {
     return (
-      <div className="grid min-h-dvh place-items-center bg-bg">
-        <div className="anim-splash flex flex-col items-center gap-6">
-          <LogoMark size={128} />
-          <p className="text-sm font-bold tracking-[0.3em] text-muted">仙台の飲み会セッティング</p>
-        </div>
-      </div>
+      <SplashIntro
+        onSkip={() => {
+          markSplashSeen();
+          setPhase(audience ? "home" : "choose");
+        }}
+      />
     );
   }
 
