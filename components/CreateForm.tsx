@@ -8,12 +8,25 @@ import { AUDIENCES, loadAudience, type Audience } from "@/lib/audience";
 import { rememberParty } from "@/lib/myParties";
 import { dateLabel, upcomingDates, weekdayOf } from "@/lib/sendai";
 import { MAX_DATES } from "@/lib/validation";
-import { BUTTON_PRIMARY, INPUT, LABEL, PILL, PILL_OFF, PILL_ON } from "./ui";
+import { BUTTON_PRIMARY, INPUT } from "./ui";
 
 export function saveAdminToken(partyId: string, token: string) {
   try {
     localStorage.setItem(`nomi:admin:${partyId}`, token);
   } catch {}
+}
+
+/** 入力の見出し。ホームの行と同じく「アイコンの四角 → 見出しと説明」の形にする */
+function FieldHead({ icon, title, sub }: { icon: React.ReactNode; title: string; sub: string }) {
+  return (
+    <div className="flex items-center gap-4">
+      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-accent">{icon}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-extrabold">{title}</span>
+        <span className="mt-0.5 block text-xs text-muted">{sub}</span>
+      </span>
+    </div>
+  );
 }
 
 export function CreateForm() {
@@ -53,59 +66,71 @@ export function CreateForm() {
   return (
     <>
       <div className="overflow-hidden rounded-3xl border border-border bg-surface">
-        <label className="block border-b border-border px-5 py-5">
-          <span className={LABEL}>
-            <PenLine className="size-4" aria-hidden />
-            飲み会の名前
-          </span>
+        <div className="border-b border-border px-5 py-5">
+          <FieldHead icon={<PenLine className="size-6" aria-hidden />} title="飲み会の名前" sub="みんなに送る画面の見出しになります" />
           <input
-            className={INPUT}
+            className={`${INPUT} mt-4`}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder={audience === "student" ? "例: ゼミの打ち上げ" : "例: 部署の歓迎会"}
             maxLength={40}
+            aria-label="飲み会の名前"
           />
-        </label>
+        </div>
 
-        <div className="px-5 py-5">
-          <p className={LABEL}>
-            <CalendarDays className="size-4" aria-hidden />
-            候補の日 <span className="font-normal">(最大{MAX_DATES}つ)</span>
-          </p>
-          <div className="grid min-h-48 grid-cols-3 gap-2 min-[400px]:grid-cols-4">
+        <div className="border-b border-border px-5 py-5">
+          <FieldHead
+            icon={<CalendarDays className="size-6" aria-hidden />}
+            title="候補の日"
+            sub={dates.length > 0 ? `${dates.length}日選んでいます(${MAX_DATES}日まで)` : `行けそうな日を${MAX_DATES}日まで選べます`}
+          />
+          <div className="mt-4 grid min-h-48 grid-cols-4 gap-2">
             {options.map((d) => {
               const on = dates.includes(d);
               const w = weekdayOf(d);
+              const [md, wd] = dateLabel(d).split("(");
               return (
                 <button
                   key={d}
                   type="button"
                   onClick={() => toggle(d)}
                   aria-pressed={on}
-                  className={`${PILL} px-2 ${on ? PILL_ON : PILL_OFF} ${!on && w === 0 ? "text-danger" : ""} ${
-                    !on && w === 6 ? "text-[#7fb2ff]" : ""
+                  aria-label={dateLabel(d)}
+                  className={`flex min-h-14 flex-col items-center justify-center rounded-2xl border transition-colors ${
+                    on ? "border-accent bg-accent text-accent-text" : "border-transparent bg-surface-2 text-text hover:border-muted"
                   }`}
                 >
-                  {on && <Check className="size-3.5" aria-hidden />}
-                  {dateLabel(d)}
+                  <span className="flex items-center gap-0.5 text-sm font-extrabold tabular-nums">
+                    {on && <Check className="size-3.5" aria-hidden />}
+                    {md}
+                  </span>
+                  <span
+                    className={`text-[11px] font-bold ${
+                      on ? "opacity-75" : w === 0 ? "text-danger" : w === 6 ? "text-[#7fb2ff]" : "text-muted"
+                    }`}
+                  >
+                    {wd.replace(")", "")}
+                  </span>
                 </button>
               );
             })}
           </div>
         </div>
-      </div>
 
-      {error && (
-        <p role="alert" className="mt-4 text-sm font-bold text-danger">
-          {error}
-        </p>
-      )}
-      <button type="button" onClick={submit} disabled={pending} className={`${BUTTON_PRIMARY} mt-6 w-full`}>
-        {pending ? "作っています…" : "URLを作る"}
-      </button>
-      <p className="mt-3 text-center text-xs text-muted">
-        登録はいらず、{AUDIENCES[audience].label}向けの予算と時間でみんなに聞きます
-      </p>
+        <div className="px-5 py-5">
+          {error && (
+            <p role="alert" className="mb-3 text-sm font-bold text-danger">
+              {error}
+            </p>
+          )}
+          <button type="button" onClick={submit} disabled={pending} className={`${BUTTON_PRIMARY} w-full`}>
+            {pending ? "作っています…" : "URLを作る"}
+          </button>
+          <p className="mt-3 text-center text-xs text-muted">
+            登録はいらず、{AUDIENCES[audience].label}向けの予算と時間でみんなに聞きます
+          </p>
+        </div>
+      </div>
     </>
   );
 }

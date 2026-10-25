@@ -153,7 +153,8 @@ export function HomeClient() {
         </h1>
 
         {/* 見本は置かず、ここでそのまま会を作れるようにする */}
-        <div className="glow mt-6 rounded-3xl">
+        <SectionTitle>会をつくる</SectionTitle>
+        <div className="glow rounded-3xl">
           <CreateForm />
         </div>
 
