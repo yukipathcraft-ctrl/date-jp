@@ -1,0 +1,91 @@
+// 仙台で使う選択肢。エリア・予算・来られる時刻・残れる時刻
+
+export type AreaKey = "station" | "kokubuncho" | "ichibancho" | "katahira" | "nagamachi" | "izumi";
+
+export const AREAS: { key: AreaKey; label: string; note: string; lat: number; lng: number }[] = [
+  { key: "station", label: "仙台駅前", note: "集まりやすい", lat: 38.2601, lng: 140.8824 },
+  { key: "kokubuncho", label: "国分町", note: "お店が多い", lat: 38.2652, lng: 140.8706 },
+  { key: "ichibancho", label: "一番町・広瀬通", note: "駅から歩ける", lat: 38.2618, lng: 140.873 },
+  { key: "katahira", label: "五橋・片平", note: "東北大の近く", lat: 38.2533, lng: 140.8768 },
+  { key: "nagamachi", label: "長町", note: "南側に住む人向け", lat: 38.2263, lng: 140.8858 },
+  { key: "izumi", label: "泉中央", note: "北側に住む人向け", lat: 38.3233, lng: 140.8812 },
+];
+
+export function isAreaKey(v: unknown): v is AreaKey {
+  return AREAS.some((a) => a.key === v);
+}
+
+export function areaLabel(key: AreaKey): string {
+  return AREAS.find((a) => a.key === key)?.label ?? key;
+}
+
+/** 1人あたりの予算の上限(円) */
+export const BUDGETS = [2000, 3000, 4000, 5000, 6000] as const;
+export type Budget = (typeof BUDGETS)[number];
+
+export function isBudget(v: unknown): v is Budget {
+  return BUDGETS.includes(v as Budget);
+}
+
+export function yen(n: number): string {
+  return `${n.toLocaleString("ja-JP")}円`;
+}
+
+/** 何時から来られるか。分で持つ(18:00 = 1080) */
+export const ARRIVALS = [1080, 1110, 1140, 1170, 1200, 1260] as const;
+
+export function isArrival(v: unknown): v is number {
+  return ARRIVALS.includes(v as (typeof ARRIVALS)[number]);
+}
+
+/** いつまで残れるか。分で持つ。終電は仙台市地下鉄の最終(0時ごろ)、朝までは 30時 */
+export const STAYS = [
+  { minutes: 1260, label: "21時まで" },
+  { minutes: 1320, label: "22時まで" },
+  { minutes: 1380, label: "23時まで" },
+  { minutes: 1440, label: "終電まで" },
+  { minutes: 1800, label: "最後まで" },
+] as const;
+
+export function isStay(v: unknown): v is number {
+  return STAYS.some((s) => s.minutes === v);
+}
+
+export function stayLabel(minutes: number): string {
+  return STAYS.find((s) => s.minutes === minutes)?.label ?? clock(minutes);
+}
+
+/** 1080 → "18:00" */
+export function clock(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${h}:${String(m).padStart(2, "0")}`;
+}
+
+/** 一次会の長さ。飲み放題の2時間に合わせる */
+export const FIRST_PARTY_MINUTES = 120;
+
+const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
+
+/** "2026-11-14" → "11/14(土)" */
+export function dateLabel(date: string): string {
+  const [y, m, d] = date.split("-").map(Number);
+  const w = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  return `${m}/${d}(${WEEKDAYS[w]})`;
+}
+
+export function weekdayOf(date: string): number {
+  const [y, m, d] = date.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+}
+
+/** 日本時間の今日から n 日分の日付 */
+export function upcomingDates(now: Date, days: number): string[] {
+  const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const out: string[] = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date(Date.UTC(jst.getUTCFullYear(), jst.getUTCMonth(), jst.getUTCDate() + i));
+    out.push(d.toISOString().slice(0, 10));
+  }
+  return out;
+}
