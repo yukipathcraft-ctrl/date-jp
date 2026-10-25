@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { isAudience } from "../audience";
 import type { Answer } from "../summary";
+import { countShops } from "./stats";
 import type { Decision, Store, StoredAnswer } from "./types";
 
 // スキーマから型を生成していないので、行の型は呼び出し側で指定する
@@ -62,6 +63,25 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
     },
     async logShopClick(partyId, shopId) {
       check(await db.from("nomi_shop_clicks").insert({ party_id: partyId, shop_id: shopId }));
+    },
+    async getStats(since) {
+      const at = since.toISOString();
+      const count = async (q: PromiseLike<{ count: number | null; error: { message: string } | null }>) => {
+        const r = await q;
+        if (r.error) throw new Error(r.error.message);
+        return r.count ?? 0;
+      };
+      const head = { count: "exact" as const, head: true };
+      const [parties, decided, answers, totalParties, totalClicks, clickRows] = await Promise.all([
+        count(db.from("nomi_parties").select("id", head).gte("created_at", at)),
+        count(db.from("nomi_parties").select("id", head).gte("created_at", at).not("decision", "is", null)),
+        count(db.from("nomi_answers").select("id", head).gte("created_at", at)),
+        count(db.from("nomi_parties").select("id", head)),
+        count(db.from("nomi_shop_clicks").select("id", head)),
+        db.from("nomi_shop_clicks").select("shop_id").gte("created_at", at).limit(10000),
+      ]);
+      const ids = check<{ shop_id: string }[]>(clickRows).map((r) => r.shop_id);
+      return { parties, decided, answers, clicks: ids.length, topShops: countShops(ids), totalParties, totalClicks };
     },
   };
 }

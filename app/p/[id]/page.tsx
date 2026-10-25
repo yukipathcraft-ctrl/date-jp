@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { AnswerPanel } from "@/components/AnswerPanel";
 import { DecisionCard } from "@/components/DecisionCard";
+import { NextHost } from "@/components/NextHost";
 import { ShopList } from "@/components/ShopList";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SummaryView } from "@/components/SummaryView";
@@ -40,6 +41,10 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
           <SummaryView summary={summary} />
         </div>
         <ShopList partyId={party.id} shops={shops} otherArea={otherArea} chosenId={party.decision?.shopId} />
+        {/* 答えた人を、次の会の幹事にする */}
+        <div className="mx-4 mt-4">
+          <NextHost />
+        </div>
       </div>
     </>
   );

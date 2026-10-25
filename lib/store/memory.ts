@@ -1,7 +1,12 @@
-import type { Party, StoredAnswer, Store } from "./types";
+import { countShops } from "./stats";
+import type { Party, Stats, StoredAnswer, Store } from "./types";
 
 // 開発用の仮DB。再起動で消える。本番では使わない
-type Db = { parties: Map<string, Party>; answers: Map<string, StoredAnswer[]>; clicks: { partyId: string | null; shopId: string }[] };
+type Db = {
+  parties: Map<string, Party & { createdAt: number }>;
+  answers: Map<string, (StoredAnswer & { createdAt: number })[]>;
+  clicks: { partyId: string | null; shopId: string; at: number }[];
+};
 
 // 開発サーバーの再読み込みで消えないよう、globalThis に置く
 const g = globalThis as unknown as { __nomi?: Db };
@@ -9,21 +14,28 @@ const db: Db = (g.__nomi ??= { parties: new Map(), answers: new Map(), clicks: [
 
 export const memoryStore: Store = {
   async createParty(party) {
-    db.parties.set(party.id, { ...party, decision: null });
+    db.parties.set(party.id, { ...party, decision: null, createdAt: Date.now() });
   },
   async getParty(id) {
     const p = db.parties.get(id);
-    return p ? structuredClone(p) : null;
+    if (!p) return null;
+    const party: Party & { createdAt?: number } = structuredClone(p);
+    delete party.createdAt;
+    return party;
   },
   async listAnswers(partyId) {
-    return structuredClone(db.answers.get(partyId) ?? []);
+    return structuredClone(db.answers.get(partyId) ?? []).map((a): StoredAnswer => {
+      const answer: StoredAnswer & { createdAt?: number } = a;
+      delete answer.createdAt;
+      return answer;
+    });
   },
   async saveAnswer(partyId, answer) {
     const list = db.answers.get(partyId) ?? [];
     if (list.some((a) => a.id !== answer.id && a.name === answer.name)) return false;
     const i = list.findIndex((a) => a.id === answer.id);
-    if (i >= 0) list[i] = structuredClone(answer);
-    else list.push(structuredClone(answer));
+    if (i >= 0) list[i] = { ...structuredClone(answer), createdAt: list[i].createdAt };
+    else list.push({ ...structuredClone(answer), createdAt: Date.now() });
     db.answers.set(partyId, list);
     return true;
   },
@@ -32,6 +44,20 @@ export const memoryStore: Store = {
     if (p) p.decision = decision;
   },
   async logShopClick(partyId, shopId) {
-    db.clicks.push({ partyId, shopId });
+    db.clicks.push({ partyId, shopId, at: Date.now() });
+  },
+  async getStats(since) {
+    const t = since.getTime();
+    const parties = [...db.parties.values()].filter((p) => p.createdAt >= t);
+    const clicks = db.clicks.filter((c) => c.at >= t);
+    return {
+      parties: parties.length,
+      decided: parties.filter((p) => p.decision !== null).length,
+      answers: [...db.answers.values()].flat().filter((a) => a.createdAt >= t).length,
+      clicks: clicks.length,
+      topShops: countShops(clicks.map((c) => c.shopId)),
+      totalParties: db.parties.size,
+      totalClicks: db.clicks.length,
+    } satisfies Stats;
   },
 };

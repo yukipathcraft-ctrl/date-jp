@@ -4,7 +4,8 @@ import { Check, Copy, Crown, Plus, Send, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { loadAudience, type Audience } from "@/lib/audience";
 import { yen } from "@/lib/sendai";
-import { lineShareUrl } from "@/lib/share";
+import { MADE_WITH, lineShareUrl } from "@/lib/share";
+import { NextHost } from "./NextHost";
 import { ROUND_UNITS, WEIGHTS, splitBill, type Weight } from "@/lib/split";
 import { BUTTON_LINE, BUTTON_SUB, PILL, PILL_OFF, PILL_ON } from "./ui";
 
@@ -50,6 +51,7 @@ export function SplitClient() {
   const [unit, setUnit] = useState<number>(100);
   const [organizer, setOrganizer] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [origin, setOrigin] = useState("");
 
   useEffect(() => {
     const a = loadAudience() ?? "student";
@@ -60,6 +62,7 @@ export function SplitClient() {
     } catch {}
     /* eslint-disable react-hooks/set-state-in-effect */
     setAudience(a);
+    setOrigin(location.origin);
     setPeople(
       names.length > 0
         ? names.slice(0, 30).map((n) => person("normal", String(n).slice(0, 20)))
@@ -89,7 +92,9 @@ export function SplitClient() {
     ? [
         `お会計 ${yen(totalYen)}(${people.length}人)`,
         ...people.map((p, i) => `${weightOf(p.weight).mark} ${nameOf(p, i)} ${yen(result.amounts[i])}`),
-        "Date で傾斜会計しました",
+        "",
+        `${MADE_WITH}(傾斜会計)`,
+        origin,
       ].join("\n")
     : "";
 
@@ -282,6 +287,11 @@ export function SplitClient() {
           <p className="px-5 pt-2 pb-5 text-sm text-muted">合計を入れると、一人ずつの金額が出ます</p>
         )}
       </section>
+      {result && (
+        <div className="mx-4 mt-4">
+          <NextHost />
+        </div>
+      )}
     </>
   );
 }
