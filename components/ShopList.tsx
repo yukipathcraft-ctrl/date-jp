@@ -63,7 +63,9 @@ export function ShopList({
             <a
               href={`/go/${partyId}/${s.id}`}
               className="mt-3 flex min-h-11 items-center justify-center gap-1 rounded-xl border border-border text-sm font-bold"
-              rel="nofollow"
+              // お店のページは新しいタブで開き、Date の画面(選んだ条件や回答)をそのまま残す
+              target="_blank"
+              rel="nofollow noopener"
             >
               {s.sample ? "見本なのでお店のページはありません" : "お店のページで予約する"}
               {!s.sample && <ExternalLink className="size-4" aria-hidden />}
