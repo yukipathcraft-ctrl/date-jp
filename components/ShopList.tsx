@@ -45,7 +45,8 @@ export function ShopList({
                 {chosenId === s.id && <p className="text-xs font-bold text-match-text">★ このお店に決定</p>}
                 <p className="font-extrabold">{s.name}</p>
                 <p className="text-xs text-muted">
-                  {s.genre} ・ {areaLabel(s.area)} ・ {s.access}
+                  {/* 実際のお店は、場所を最寄り駅からの道のりで示す(エリア名は検索の条件で、お店の住所とずれることがある) */}
+                  {s.sample ? `${s.genre} ・ ${areaLabel(s.area)} ・ ${s.access}` : `${s.genre} ・ ${s.access}`}
                 </p>
                 <p className="mt-1 text-sm font-bold">{s.budgetLabel}</p>
                 {s.features.length > 0 && (

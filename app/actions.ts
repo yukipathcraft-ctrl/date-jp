@@ -1,6 +1,6 @@
 "use server";
 
-import { isAudience } from "@/lib/audience";
+import { AUDIENCES, isAudience } from "@/lib/audience";
 import { isAreaKey, isBudget, isGenreKey } from "@/lib/sendai";
 import { findShop, searchShops, type Shop } from "@/lib/shops";
 import { getStore } from "@/lib/store";
@@ -92,14 +92,17 @@ export async function findShops(input: {
   audience: string;
 }): Promise<{ shops: Shop[]; otherArea: boolean }> {
   if (!isAreaKey(input.area)) return { shops: [], otherArea: false };
+  const audience = isAudience(input.audience) ? input.audience : "student";
+  // 予算を「決めない」にしても、学生なら5,000円、社会人なら8,000円までのお店にとどめる
+  const cap = Math.max(...AUDIENCES[audience].budgets);
   return searchShops(
     {
       area: input.area,
       genre: isGenreKey(input.genre) ? input.genre : null,
-      budget: isBudget(input.budget) ? input.budget : null,
+      budget: isBudget(input.budget) ? input.budget : cap,
       privateRoom: input.privateRoom === true,
       size: 2,
-      audience: isAudience(input.audience) ? input.audience : undefined,
+      audience,
     },
     6,
   );

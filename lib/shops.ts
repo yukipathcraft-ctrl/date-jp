@@ -102,6 +102,7 @@ export function pickSamples(q: ShopQuery, limit = 3): { shops: Shop[]; otherArea
 
 // ホットペッパーのディナー予算コードと、その上限(円)
 const BUDGET_CODES: [string, number][] = [
+  ["B009", 500],
   ["B010", 1000],
   ["B011", 1500],
   ["B001", 2000],
@@ -109,15 +110,12 @@ const BUDGET_CODES: [string, number][] = [
   ["B003", 4000],
   ["B008", 5000],
   ["B004", 7000],
+  ["B005", 10000],
+  ["B006", 15000],
+  ["B012", 20000],
+  ["B013", 30000],
+  ["B014", Number.POSITIVE_INFINITY],
 ];
-
-/** 予算以内のコードのうち、高いほうから2つ(API は2つまで指定できる) */
-export function budgetCodes(budget: number | null): string[] {
-  if (budget === null) return [];
-  return BUDGET_CODES.filter(([, max]) => max <= budget)
-    .slice(-2)
-    .map(([code]) => code);
-}
 
 type HotpepperShop = {
   id: string;
@@ -137,8 +135,21 @@ type HotpepperShop = {
 
 const API = "https://webservice.recruit.co.jp/hotpepper/gourmet/v1/";
 
+/**
+ * 予算コードがないお店は、目安の文(「12,000円」「7000円～8000円」「昼750円/夜1000円」)から夜の額を読む。
+ * 読めなければ 0 にして、予算の条件では落とさない
+ */
+export function budgetFromText(text: string | undefined): number {
+  if (!text) return 0;
+  const t = text.normalize("NFKC");
+  const night = t.match(/夜[^0-9]*([0-9][0-9,]*)/);
+  const first = t.match(/([0-9][0-9,]*)\s*円/);
+  const n = Number((night?.[1] ?? first?.[1] ?? "").replace(/,/g, ""));
+  return Number.isFinite(n) ? n : 0;
+}
+
 function fromHotpepper(s: HotpepperShop, area: AreaKey): Shop {
-  const max = BUDGET_CODES.find(([code]) => code === s.budget?.code)?.[1] ?? 0;
+  const max = BUDGET_CODES.find(([code]) => code === s.budget?.code)?.[1] ?? budgetFromText(s.budget?.average);
   const features = [
     s.free_drink?.startsWith("あり") ? "飲み放題" : null,
     s.private_room?.startsWith("あり") ? "個室" : null,
@@ -146,11 +157,12 @@ function fromHotpepper(s: HotpepperShop, area: AreaKey): Shop {
   const capacity = Number(s.capacity);
   return {
     id: s.id,
-    name: s.name,
+    name: s.name.normalize("NFKC"),
     genre: s.genre?.name ?? "",
     genreKey: GENRES.find((g) => (g.hotpepper as readonly string[]).includes(s.genre?.code ?? ""))?.key ?? null,
     area,
-    access: s.mobile_access || s.access || "",
+    // お店の説明には半角カナ(ﾋﾞﾙ など)が混ざるので、全角にそろえる
+    access: (s.mobile_access || s.access || "").normalize("NFKC").trim(),
     budget: max,
     budgetLabel: s.budget?.average || s.budget?.name || "",
     capacity: Number.isFinite(capacity) && capacity > 0 ? capacity : null,
@@ -175,20 +187,30 @@ export async function searchShops(q: ShopQuery, limit = 3): Promise<{ shops: Sho
   const key = cleanEnv(process.env.HOTPEPPER_API_KEY);
   if (!key) return pickSamples(q, limit);
   const area = AREAS.find((a) => a.key === q.area)!;
-  const codes = budgetCodes(q.budget);
   try {
-    const shops = await callHotpepper(key, {
+    // 予算は API に渡すと2つの価格帯しか選べず、安いお店が抜けるので、多めに取ってからこちらで上限を切る
+    const params = {
       lat: String(area.lat),
       lng: String(area.lng),
-      range: "3", // 1km
       party_capacity: String(q.size),
-      ...(codes.length > 0 ? { budget: codes.join(",") } : {}),
       ...(q.genre ? { genre: GENRES.find((g) => g.key === q.genre)!.hotpepper.join(",") } : {}),
       ...(q.privateRoom ? { private_room: "1" } : {}),
-      count: String(limit),
+      count: "50",
       order: "4", // おすすめ順
-    });
-    return { shops: shops.map((s) => fromHotpepper(s, q.area)), otherArea: false };
+    };
+    const fits = (list: HotpepperShop[]) =>
+      list.map((s) => fromHotpepper(s, q.area)).filter((s) => q.budget === null || s.budget <= q.budget);
+    // まずはそのエリアの中(500m)だけで探し、足りなければ1kmまで広げる。
+    // 国分町と仙台駅前は1kmほどしか離れていないので、最初から広く探すと隣のエリアのお店が混ざる
+    let shops = fits(await callHotpepper(key, { ...params, range: "2" }));
+    let otherArea = false;
+    if (shops.length < limit) {
+      const seen = new Set(shops.map((s) => s.id));
+      const extra = fits(await callHotpepper(key, { ...params, range: "3" })).filter((s) => !seen.has(s.id));
+      otherArea = shops.length === 0 && extra.length > 0;
+      shops = [...shops, ...extra];
+    }
+    return { shops: shops.slice(0, limit), otherArea };
   } catch (e) {
     console.error("[shops] ホットペッパーから読めなかったため、見本を出します", e);
     return pickSamples(q, limit);
