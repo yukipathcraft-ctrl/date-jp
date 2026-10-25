@@ -26,15 +26,15 @@ type Props = {
   attendees: string[];
 };
 
-/** LINE の下に半分の幅で2つ並べる、控えめなボタン */
+/** 大きなボタンの下に半分の幅で並べる、控えめなボタン */
 const BUTTON_HALF = `${BUTTON_SUB} min-w-0 gap-1.5 whitespace-nowrap px-2 text-sm`;
 
-function CopyButton({ text, label }: { text: string; label: string }) {
+function CopyButton({ text, label, className }: { text: string; label: string; className: string }) {
   const [done, setDone] = useState(false);
   return (
     <button
       type="button"
-      className={BUTTON_HALF}
+      className={className}
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(text);
@@ -49,37 +49,43 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   );
 }
 
-/** スマホやパソコンの共有の画面を開く。Slack・メール・メモなど、入っているアプリから送り先を選べる */
-function ShareButton({ data }: { data: ShareData }) {
-  return (
-    <button type="button" className={BUTTON_HALF} onClick={() => navigator.share(data).catch(() => {})}>
-      <Share className="size-4 shrink-0" aria-hidden />
-      ほかのアプリ
-    </button>
-  );
-}
-
 /**
- * 送り方の3つのボタン。いちばん使う LINE を大きく置き、その下に「ほかのアプリ」と「コピー」を半分の幅で並べる。
- * 共有の画面がない環境では、コピーを横いっぱいにする
+ * 送り方のボタン。共有の画面(LINE・Slack・メール・メモなどから選べる)を大きく置き、
+ * その下に、1回で送り先を選べる LINE と、コピーを半分の幅で並べる。
+ * 共有の画面がないパソコンでは、コピーを大きくし、下は LINE だけにする
  */
-function SendButtons({ line, lineLabel, share, copy, canShare }: {
+function SendButtons({ mainLabel, line, share, copy, canShare }: {
+  mainLabel: string;
   line: string;
-  lineLabel: string;
   share: ShareData;
   copy: string;
   canShare: boolean;
 }) {
+  const lineButton = (
+    <a href={lineShareUrl(line)} className={canShare ? `${BUTTON_LINE} min-w-0 gap-1.5 whitespace-nowrap px-2 text-sm` : `${BUTTON_LINE} w-full gap-2 text-sm`}>
+      <Send className="size-4 shrink-0" aria-hidden />
+      {canShare ? "LINE" : "LINEで送る"}
+    </a>
+  );
   return (
     <div className="mt-4 space-y-2">
-      <a href={lineShareUrl(line)} className={`${BUTTON_LINE} w-full gap-2`}>
-        <Send className="size-4" aria-hidden />
-        {lineLabel}
-      </a>
-      <div className={`grid gap-2 ${canShare ? "grid-cols-2" : "grid-cols-1"}`}>
-        {canShare && <ShareButton data={share} />}
-        <CopyButton text={copy} label="コピー" />
-      </div>
+      {canShare ? (
+        <>
+          <button type="button" className={`${BUTTON_PRIMARY} w-full gap-2`} onClick={() => navigator.share(share).catch(() => {})}>
+            <Share className="size-5" aria-hidden />
+            {mainLabel}
+          </button>
+          <div className="grid grid-cols-2 gap-2">
+            {lineButton}
+            <CopyButton text={copy} label="コピー" className={BUTTON_HALF} />
+          </div>
+        </>
+      ) : (
+        <>
+          <CopyButton text={copy} label="URLをコピー" className={`${BUTTON_PRIMARY} w-full gap-2`} />
+          {lineButton}
+        </>
+      )}
     </div>
   );
 }
@@ -145,7 +151,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
         />
         <SendButtons
           line={inviteText(title, guestUrl)}
-          lineLabel="LINEでみんなに送る"
+          mainLabel="共有してみんなに送る"
           share={{ text: inviteText(title, guestUrl) }}
           copy={guestUrl}
           canShare={canShare}
@@ -160,7 +166,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           />
           <SendButtons
             line={`${adminNote}\n${adminUrl}`}
-            lineLabel="自分のLINEに送って保存"
+            mainLabel="共有して自分に残す"
             share={{ title: adminNote, text: adminNote, url: adminUrl }}
             copy={adminUrl}
             canShare={canShare}
