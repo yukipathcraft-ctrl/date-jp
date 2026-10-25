@@ -1,6 +1,6 @@
 "use client";
 
-import { Calculator, Check, Copy, PartyPopper, Send } from "lucide-react";
+import { Calculator, Check, Copy, PartyPopper, Send, Share } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { decide } from "@/app/actions";
@@ -49,6 +49,8 @@ function CopyButton({ text, label }: { text: string; label: string }) {
 export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees }: Props) {
   const router = useRouter();
   const [origin, setOrigin] = useState("");
+  // スマホの共有の画面(Slack・メモ・メールなど)を開けるか。開けないパソコンではコピーだけにする
+  const [canShare, setCanShare] = useState(false);
   const [date, setDate] = useState<string | null>(decision?.date ?? bestDate);
   const [shopId, setShopId] = useState<string | null>(decision?.shopId ?? shops[0]?.id ?? null);
   const [error, setError] = useState<string | null>(null);
@@ -57,11 +59,13 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setOrigin(location.origin);
+    setCanShare(typeof navigator.share === "function");
     saveAdminToken(partyId, token);
   }, [partyId, token]);
 
   const guestUrl = `${origin}/p/${partyId}`;
   const adminUrl = `${origin}/p/${partyId}/admin?token=${token}`;
+  const adminNote = `「${title}」の幹事用URL(人に送らない)`;
 
   function submit(choice: { date: string; shopId: string | null } | null) {
     setError(null);
@@ -86,10 +90,25 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
         </div>
         <div className="mt-5 rounded-2xl bg-match-soft p-4">
           <p className="text-sm font-bold text-match-text">このページのURLはなくすと戻せません</p>
-          <p className="mt-1 text-xs text-match-text">日にちとお店はこのページから決めるので、自分のLINEに送って残しておいてください</p>
-          <a href={lineShareUrl(`「${title}」の幹事用URL(人に送らない)\n${adminUrl}`)} className={`${BUTTON_SUB} mt-3 w-full`}>
+          <p className="mt-1 text-xs text-match-text">
+            日にちとお店はこのページから決めるので、自分のLINEやSlack、メモに送って残しておいてください
+          </p>
+          <a href={lineShareUrl(`${adminNote}\n${adminUrl}`)} className={`${BUTTON_SUB} mt-3 w-full`}>
             自分のLINEに送って保存
           </a>
+          <div className="mt-2 space-y-2">
+            {canShare && (
+              <button
+                type="button"
+                className={`${BUTTON_SUB} w-full gap-2`}
+                onClick={() => navigator.share({ title: adminNote, text: adminNote, url: adminUrl }).catch(() => {})}
+              >
+                <Share className="size-4" aria-hidden />
+                Slackやメモに送って保存
+              </button>
+            )}
+            <CopyButton text={adminUrl} label="幹事用のURLをコピー" />
+          </div>
         </div>
       </section>
   );
