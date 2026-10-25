@@ -5,7 +5,7 @@ import type { Answer, DateAnswer } from "./summary";
 type Result<T> = { ok: true; value: T } | { ok: false; error: string };
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
-export const MAX_DATES = 7;
+export const MAX_DATES = 10;
 
 function text(v: unknown, label: string, max: number): Result<string> {
   const s = typeof v === "string" ? v.trim() : "";
