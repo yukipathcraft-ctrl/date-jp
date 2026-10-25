@@ -56,14 +56,7 @@ export function SplashIntro({ onSkip }: { onSkip: () => void }) {
             <Glass side="right" />
           </span>
           <svg viewBox="0 0 240 120" className="intro-moon absolute w-72" aria-hidden>
-            <defs>
-              <linearGradient id="intro-gold" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#f6e3a1" />
-                <stop offset="0.45" stopColor="#dcb862" />
-                <stop offset="1" stopColor="#b98a33" />
-              </linearGradient>
-            </defs>
-            <path className="intro-moon-path" pathLength="1" d={CRESCENT_PATH} fill="url(#intro-gold)" stroke="#dcb862" strokeWidth="2" strokeLinejoin="round" />
+            <path className="intro-moon-path" pathLength="1" d={CRESCENT_PATH} fill="var(--accent)" stroke="var(--accent)" strokeWidth="2" strokeLinejoin="round" />
           </svg>
         </span>
 

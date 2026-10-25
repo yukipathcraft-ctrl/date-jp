@@ -6,14 +6,7 @@ export function LogoMark({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden className="shrink-0">
       <rect x="1" y="1" width="62" height="62" rx="16" fill="#171513" stroke="color-mix(in srgb, var(--accent) 40%, transparent)" strokeWidth="2" />
-      <defs>
-        <linearGradient id="logo-gold" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#f6e3a1" />
-          <stop offset="0.45" stopColor="#dcb862" />
-          <stop offset="1" stopColor="#b98a33" />
-        </linearGradient>
-      </defs>
-      <path d="M9 27C20 52 45 52 56 14C45 44 22 46 9 27Z" fill="url(#logo-gold)" />
+      <path d="M9 27C20 52 45 52 56 14C45 44 22 46 9 27Z" fill="var(--accent)" />
     </svg>
   );
 }

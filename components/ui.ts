@@ -2,7 +2,7 @@
 export const CARD = "mx-4 rounded-3xl border border-border bg-surface";
 export const BUTTON =
   "inline-flex min-h-12 items-center justify-center rounded-2xl px-5 text-base font-bold transition-colors disabled:opacity-50";
-export const BUTTON_PRIMARY = `${BUTTON} bg-gold min-h-14 text-accent-text shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]`;
+export const BUTTON_PRIMARY = `${BUTTON} min-h-14 bg-accent text-accent-text hover:bg-accent-strong`;
 export const BUTTON_SUB = `${BUTTON} border border-border bg-surface-2 text-text hover:border-muted`;
 export const BUTTON_LINE = `${BUTTON} border-2 border-line bg-surface-2 text-line-strong hover:border-line-strong`;
 export const INPUT =
