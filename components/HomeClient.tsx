@@ -195,12 +195,12 @@ export function HomeClient() {
           />
         </section>
 
-        <SectionTitle>お店だけ探したいとき</SectionTitle>
+        <SectionTitle>お店を探したいとき</SectionTitle>
         <section className="overflow-hidden rounded-3xl border border-border bg-surface">
           <HomeRow
             href="/shops"
             icon={<Store className="size-6" aria-hidden />}
-            title="お店だけ探す"
+            title="お店を探す"
             sub="場所と予算を選ぶと、合うお店がすぐに出てきます"
           />
         </section>

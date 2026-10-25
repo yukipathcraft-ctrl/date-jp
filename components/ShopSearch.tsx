@@ -9,8 +9,9 @@ import type { Shop } from "@/lib/shops";
 import { ShopList } from "./ShopList";
 import { LABEL } from "./ui";
 
-// お店だけ探す。条件を押すたびに、その場で絞りこむ(探すボタンは置かない)。
-// 選択肢は横にすべらせず、折り返して全部見えるように並べる。場所には「どんな所か」も添える
+// お店を探す。条件を押すたびに、その場で絞りこむ(探すボタンは置かない)。
+// 選択肢は横にすべらせず、折り返して全部見えるように並べる。場所には「どんな所か」も添える。
+// 場所と料理はいくつでも選べる(印を四角にして、1つだけ選ぶ予算と見分ける)
 
 function Option({
   on,
@@ -18,6 +19,7 @@ function Option({
   title,
   note,
   compact,
+  multi,
 }: {
   on: boolean;
   onClick: () => void;
@@ -25,6 +27,8 @@ function Option({
   note?: string;
   /** 3つ並べるときは丸の印を省き、文字を真ん中に寄せる */
   compact?: boolean;
+  /** いくつでも選べる選択肢。印を四角にする */
+  multi?: boolean;
 }) {
   return (
     <button
@@ -40,7 +44,7 @@ function Option({
       ) : (
         <span
           aria-hidden
-          className={`grid size-5 shrink-0 place-items-center rounded-full border ${on ? "border-accent-text" : "border-border"}`}
+          className={`grid size-5 shrink-0 place-items-center border ${multi ? "rounded-md" : "rounded-full"} ${on ? "border-accent-text" : "border-border"}`}
         >
           {on && <Check className="size-3.5" />}
         </span>
@@ -55,18 +59,18 @@ function Option({
 
 export function ShopSearch() {
   const [audience, setAudience] = useState<Audience | null>(null);
-  const [area, setArea] = useState<AreaKey>("station");
-  const [genre, setGenre] = useState<GenreKey | null>(null);
+  const [areas, setAreas] = useState<AreaKey[]>(["station"]);
+  const [genres, setGenres] = useState<GenreKey[]>([]);
   const [budget, setBudget] = useState<number | null>(null);
   const [privateRoom, setPrivateRoom] = useState(false);
-  const [result, setResult] = useState<{ shops: Shop[]; otherArea: boolean } | null>(null);
+  const [result, setResult] = useState<{ shops: Shop[]; otherArea: boolean; raisedTo: number | null } | null>(null);
   const [pending, start] = useTransition();
 
   useEffect(() => {
     const a = loadAudience() ?? "student";
     /* eslint-disable react-hooks/set-state-in-effect */
     setAudience(a);
-    setArea(AUDIENCES[a].areas[0]);
+    setAreas([AUDIENCES[a].areas[0]]);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
@@ -74,16 +78,22 @@ export function ShopSearch() {
   useEffect(() => {
     if (!audience) return;
     start(async () => {
-      setResult(await findShops({ area, genre, budget, privateRoom, audience }));
+      setResult(await findShops({ areas, genres, budget, privateRoom, audience }));
     });
-  }, [area, genre, budget, privateRoom, audience]);
+  }, [areas, genres, budget, privateRoom, audience]);
+
+  // 場所は最後の1つを外せない(どこかでは探す)
+  const toggleArea = (k: AreaKey) =>
+    setAreas((cur) => (cur.includes(k) ? (cur.length > 1 ? cur.filter((a) => a !== k) : cur) : [...cur, k]));
+  const toggleGenre = (k: GenreKey) =>
+    setGenres((cur) => (cur.includes(k) ? cur.filter((g) => g !== k) : [...cur, k]));
 
   const opts = AUDIENCES[audience ?? "student"];
-  const areas = opts.areas.map((k) => AREAS.find((a) => a.key === k)!);
+  const areaOptions = opts.areas.map((k) => AREAS.find((a) => a.key === k)!);
   const summary = [
-    areaLabel(area),
+    areas.map(areaLabel).join("・"),
     budget === null ? "予算は決めない" : `${yen(budget)}まで`,
-    genre ? GENRES.find((g) => g.key === genre)!.label : null,
+    genres.length > 0 ? genres.map((k) => GENRES.find((g) => g.key === k)!.label).join("・") : null,
     privateRoom ? "個室あり" : null,
   ]
     .filter(Boolean)
@@ -97,10 +107,11 @@ export function ShopSearch() {
           <p className={LABEL} aria-hidden>
             <MapPin className="size-4" />
             どこで飲む?
+            <span className="ml-auto text-xs font-normal">いくつでも選べます</span>
           </p>
           <div className="grid grid-cols-2 gap-2">
-            {areas.map((a) => (
-              <Option key={a.key} on={area === a.key} onClick={() => setArea(a.key)} title={a.label} note={a.note} />
+            {areaOptions.map((a) => (
+              <Option multi key={a.key} on={areas.includes(a.key)} onClick={() => toggleArea(a.key)} title={a.label} note={a.note} />
             ))}
           </div>
         </fieldset>
@@ -124,11 +135,12 @@ export function ShopSearch() {
           <p className={LABEL} aria-hidden>
             <UtensilsCrossed className="size-4" />
             何を食べる?
+            <span className="ml-auto text-xs font-normal">いくつでも選べます</span>
           </p>
           <div className="grid grid-cols-3 gap-2">
-            <Option compact on={genre === null} onClick={() => setGenre(null)} title="なんでも" />
+            <Option compact on={genres.length === 0} onClick={() => setGenres([])} title="なんでも" />
             {GENRES.map((g) => (
-              <Option compact key={g.key} on={genre === g.key} onClick={() => setGenre(g.key)} title={g.label} />
+              <Option compact multi key={g.key} on={genres.includes(g.key)} onClick={() => toggleGenre(g.key)} title={g.label} />
             ))}
           </div>
         </fieldset>
@@ -166,7 +178,15 @@ export function ShopSearch() {
       <div className={`mt-4 transition-opacity ${pending ? "opacity-50" : ""}`} aria-busy={pending}>
         {result &&
           (result.shops.length > 0 ? (
-            <ShopList partyId="search" shops={result.shops} otherArea={result.otherArea} />
+            <>
+              {result.raisedTo !== null && budget !== null && (
+                <p className="mx-4 mb-3 rounded-2xl border border-accent/50 bg-surface px-4 py-3 text-sm">
+                  {yen(budget)}までのお店はなかったので、
+                  {yen(result.raisedTo)}までのお店を出しています
+                </p>
+              )}
+              <ShopList partyId="search" shops={result.shops} otherArea={result.otherArea} />
+            </>
           ) : (
             <p id="shops" className="mx-4 rounded-3xl border border-border bg-surface px-5 py-6 text-sm text-muted">
               合うお店が見つからなかったので、予算や料理の条件をゆるめてみてください

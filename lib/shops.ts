@@ -30,6 +30,8 @@ export type ShopQuery = {
   budget: number | null;
   size: number;
   genre?: GenreKey | null;
+  /** 料理をいくつか選んだとき。genre より優先する */
+  genres?: GenreKey[];
   privateRoom?: boolean;
   audience?: Audience;
 };
@@ -80,6 +82,10 @@ function sample(
   };
 }
 
+function genresOf(q: ShopQuery): GenreKey[] {
+  return q.genres ?? (q.genre ? [q.genre] : []);
+}
+
 /** 学生なら学割・飲み放題、社会人なら個室のお店を先に出す。同じなら予算いっぱいに近い順 */
 function preferScore(s: Shop, audience: Audience | undefined): number {
   if (!audience) return 0;
@@ -92,7 +98,7 @@ export function pickSamples(q: ShopQuery, limit = 3): { shops: Shop[]; otherArea
     (s) =>
       (q.budget === null || s.budget <= q.budget) &&
       (s.capacity ?? 0) >= q.size &&
-      (!q.genre || s.genreKey === q.genre) &&
+      (genresOf(q).length === 0 || (s.genreKey !== null && genresOf(q).includes(s.genreKey))) &&
       (!q.privateRoom || s.features.includes("個室")),
   ).sort((a, b) => preferScore(b, q.audience) - preferScore(a, q.audience) || b.budget - a.budget);
   const inArea = fits.filter((s) => s.area === q.area);
@@ -191,7 +197,9 @@ export async function searchShops(q: ShopQuery, limit = 3): Promise<{ shops: Sho
       lat: String(area.lat),
       lng: String(area.lng),
       party_capacity: String(q.size),
-      ...(q.genre ? { genre: GENRES.find((g) => g.key === q.genre)!.hotpepper.join(",") } : {}),
+      ...(genresOf(q).length > 0
+        ? { genre: genresOf(q).flatMap((k) => GENRES.find((g) => g.key === k)!.hotpepper).join(",") }
+        : {}),
       ...(q.privateRoom ? { private_room: "1" } : {}),
       count: "50",
       order: "4", // おすすめ順
@@ -213,6 +221,21 @@ export async function searchShops(q: ShopQuery, limit = 3): Promise<{ shops: Sho
     console.error("[shops] ホットペッパーから読めなかったため、見本を出します", e);
     return pickSamples(q, limit);
   }
+}
+
+/** 場所ごとのお店を1軒ずつ交互に並べる。近い場所で同じお店が出たら1回だけにする */
+export function mergeShops(lists: Shop[][], limit: number): Shop[] {
+  const out: Shop[] = [];
+  const seen = new Set<string>();
+  for (let i = 0; out.length < limit && lists.some((l) => i < l.length); i++) {
+    for (const list of lists) {
+      const s = list[i];
+      if (!s || seen.has(s.id) || out.length >= limit) continue;
+      seen.add(s.id);
+      out.push(s);
+    }
+  }
+  return out;
 }
 
 /** /go で使う。id から、飛ばしてよいお店のページを引く(外から来た URL には飛ばさない) */

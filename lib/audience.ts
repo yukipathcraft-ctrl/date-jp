@@ -24,7 +24,7 @@ export const AUDIENCES: Record<
   student: {
     label: "学生",
     note: "サークル・ゼミ・バイト先",
-    budgets: [2000, 3000, 4000, 5000],
+    budgets: [2000, 3000, 4000, 5000, 6000],
     arrivals: [1080, 1110, 1140, 1170, 1200, 1260],
     areas: ["katahira", "station", "kokubuncho", "ichibancho", "nagamachi", "izumi"],
     prefer: ["学割", "飲み放題"],

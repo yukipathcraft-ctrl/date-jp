@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { budgetFromRange, budgetFromText } from "./shops";
+import { budgetFromRange, budgetFromText, mergeShops, type Shop } from "./shops";
 
 describe("budgetFromRange", () => {
   it("予算の区分名から上限を読む", () => {
@@ -29,5 +29,16 @@ describe("budgetFromText", () => {
   it("読めなければ0", () => {
     expect(budgetFromText(undefined)).toBe(0);
     expect(budgetFromText("お問い合わせください")).toBe(0);
+  });
+});
+
+describe("mergeShops", () => {
+  const shop = (id: string) => ({ id }) as Shop;
+  it("場所ごとのお店を交互に並べ、同じお店は1回だけにする", () => {
+    const merged = mergeShops([[shop("a1"), shop("x"), shop("a3")], [shop("b1"), shop("x")]], 10);
+    expect(merged.map((s) => s.id)).toEqual(["a1", "b1", "x", "a3"]);
+  });
+  it("上限で切る", () => {
+    expect(mergeShops([[shop("a1"), shop("a2")], [shop("b1")]], 2).map((s) => s.id)).toEqual(["a1", "b1"]);
   });
 });
