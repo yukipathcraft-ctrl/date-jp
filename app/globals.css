@@ -87,87 +87,28 @@ body {
   box-shadow: 0 30px 90px -30px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
-/* 起動の演出(components/SplashIntro.tsx)。乾杯して、名前が落ちてきて、約3.4秒で消える */
-.intro-root { animation: intro-out 0.5s ease-in 2.9s forwards; }
-.intro-flash {
-  background: radial-gradient(circle at 50% 42%, #fff7dc 0%, color-mix(in srgb, var(--accent) 70%, transparent) 25%, transparent 65%);
-  opacity: 0;
-  animation: intro-flash 0.6s ease-out 0.95s forwards;
+/* 起動の演出(components/SplashIntro.tsx)。三日月が描かれ、一閃の線の下から名前がせり上がる。約3秒で消える */
+.intro-root { animation: intro-out 0.45s ease-in 2.55s forwards; }
+.intro-moon { transform: rotate(-8deg); animation: intro-moon-turn 2.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.intro-moon-path {
+  fill-opacity: 0;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: intro-moon-draw 0.75s cubic-bezier(0.65, 0, 0.35, 1) 0.1s forwards, intro-moon-fill 0.4s ease-out 0.8s forwards;
 }
-.intro-halo {
-  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 30%, transparent) 0%, transparent 62%);
-  opacity: 0;
-  animation: intro-halo 1.4s ease-out 0.95s forwards;
-}
-.intro-stage { animation: intro-shake 0.35s ease-out 0.95s; }
-.intro-mug-left { right: 50%; opacity: 0; animation: intro-mug-left 1s cubic-bezier(0.5, 0, 0.3, 1) 0.1s forwards; }
-.intro-mug-right { left: 50%; opacity: 0; animation: intro-mug-right 1s cubic-bezier(0.5, 0, 0.3, 1) 0.1s forwards; }
-.intro-fill { transform: translateY(70px); animation: intro-fill 0.7s cubic-bezier(0.5, 0, 0.2, 1) 0.15s forwards; }
-.intro-bubble { opacity: 0; animation: intro-bubble 0.8s ease-in forwards; }
-.intro-foam { transform-box: fill-box; transform-origin: 50% 100%; transform: scale(0); animation: intro-foam 1.2s cubic-bezier(0.3, 1.6, 0.5, 1) 0.6s forwards; }
-.intro-drip { transform-box: fill-box; transform-origin: top; transform: scaleY(0); animation: intro-drip 0.7s ease-in 1s forwards; }
-.intro-ray {
-  background: linear-gradient(90deg, #fff3c4, color-mix(in srgb, var(--accent) 0%, transparent));
-  transform: scaleX(0);
-  opacity: 0;
-  animation: intro-ray 0.65s ease-out 0.95s forwards;
-}
-.intro-particle {
-  left: 0; top: 0;
-  background: radial-gradient(circle, #fff3c4, var(--accent));
-  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 80%, transparent);
-  opacity: 0;
-  animation: intro-particle 0.9s cubic-bezier(0.1, 0.7, 0.3, 1) forwards;
-}
-.intro-letter {
-  opacity: 0;
-  transform: translateY(-70px) scale(1.8);
-  filter: blur(10px);
-  background: linear-gradient(110deg, var(--text) 42%, #ffe39a 50%, var(--text) 58%);
-  background-size: 300% 100%;
-  background-position: 100% 0;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: intro-letter 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) forwards, intro-shimmer 0.9s ease-in-out 2.05s forwards;
-}
-.intro-name { filter: drop-shadow(0 0 0 transparent); animation: intro-glow 1.2s ease-out 1.6s forwards; }
-.intro-tagline { opacity: 0; letter-spacing: 0.7em; animation: intro-tagline 0.7s ease-out 1.8s forwards; }
+.intro-slash { transform: scaleX(0); transform-origin: left; animation: intro-slash 0.5s cubic-bezier(0.7, 0, 0.2, 1) 0.85s forwards; }
+.intro-letter { transform: translateY(110%); animation: intro-rise 0.6s cubic-bezier(0.2, 0.9, 0.2, 1) forwards; }
+.intro-sub { opacity: 0; transform: translateY(6px); animation: intro-sub 0.5s ease-out 1.55s forwards; }
 
-@keyframes intro-mug-left {
-  0% { opacity: 0; transform: translate(-220px, 30px) rotate(-30deg); }
-  20% { opacity: 1; }
-  82% { transform: translate(14px, 0) rotate(20deg); }
-  92% { transform: translate(2px, 4px) rotate(10deg); }
-  100% { opacity: 1; transform: translate(6px, 0) rotate(14deg); }
+@keyframes intro-moon-draw { to { stroke-dashoffset: 0; } }
+@keyframes intro-moon-fill { to { fill-opacity: 1; } }
+@keyframes intro-moon-turn { to { transform: rotate(0); } }
+@keyframes intro-slash {
+  0% { transform: scaleX(0); transform-origin: left; opacity: 1; }
+  55% { transform: scaleX(1); transform-origin: left; opacity: 1; }
+  56% { transform-origin: right; }
+  100% { transform: scaleX(0); transform-origin: right; opacity: 1; }
 }
-@keyframes intro-mug-right {
-  0% { opacity: 0; transform: translate(220px, 30px) rotate(30deg); }
-  20% { opacity: 1; }
-  82% { transform: translate(-14px, 0) rotate(-20deg); }
-  92% { transform: translate(-2px, 4px) rotate(-10deg); }
-  100% { opacity: 1; transform: translate(-6px, 0) rotate(-14deg); }
-}
-@keyframes intro-shake {
-  0%, 100% { transform: none; }
-  25% { transform: translate(-4px, 2px); }
-  50% { transform: translate(4px, -2px); }
-  75% { transform: translate(-2px, 1px); }
-}
-@keyframes intro-fill { to { transform: translateY(0); } }
-@keyframes intro-bubble { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 0.9; } 100% { opacity: 0; transform: translateY(-44px); } }
-@keyframes intro-foam { 0% { transform: scale(0); } 30% { transform: scale(1); } 40% { transform: scale(1); } 55% { transform: scale(1.18, 1.25); } 100% { transform: scale(1.06); } }
-@keyframes intro-drip { to { transform: scaleY(1.6); } }
-@keyframes intro-flash { 0% { opacity: 0; } 18% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes intro-halo { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-@keyframes intro-ray { 0% { transform: scaleX(0); opacity: 1; } 60% { opacity: 1; } 100% { transform: scaleX(1) translateX(40px); opacity: 0; } }
-@keyframes intro-particle {
-  0% { opacity: 1; transform: translate(0, 0) scale(1.4); }
-  70% { opacity: 1; }
-  100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) + 30px)) scale(0.3); }
-}
-@keyframes intro-letter { to { opacity: 1; transform: none; filter: none; } }
-@keyframes intro-shimmer { to { background-position: 0 0; } }
-@keyframes intro-glow { to { filter: drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 55%, transparent)); } }
-@keyframes intro-tagline { to { opacity: 1; letter-spacing: 0.3em; } }
-@keyframes intro-out { to { opacity: 0; transform: scale(1.1); visibility: hidden; } }
+@keyframes intro-rise { to { transform: none; } }
+@keyframes intro-sub { to { opacity: 1; transform: none; } }
+@keyframes intro-out { to { opacity: 0; visibility: hidden; } }

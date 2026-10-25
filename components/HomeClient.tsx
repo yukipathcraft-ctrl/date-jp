@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, CalendarDays, ChevronRight, GraduationCap, Briefcase, Moon, Repeat, Store, Users } from "lucide-react";
+import { ArrowRight, Calculator, CalendarDays, ChevronRight, GraduationCap, Briefcase, Moon, Repeat, Store } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AUDIENCES, loadAudience, saveAudience, type Audience } from "@/lib/audience";
@@ -58,7 +58,7 @@ export function HomeClient() {
     }
     setPhase("splash");
     /* eslint-enable react-hooks/set-state-in-effect */
-    const t = setTimeout(() => setPhase(next), 3400);
+    const t = setTimeout(() => setPhase(next), 3000);
     return () => clearTimeout(t);
   }, []);
 
@@ -167,14 +167,14 @@ export function HomeClient() {
             <span className="mt-1 text-xs text-muted">エリア・予算・個室で</span>
           </Link>
           <Link
-            href="#mine"
+            href="/split"
             className="flex flex-col items-center rounded-3xl border border-border bg-surface px-3 py-6 text-center transition-colors hover:border-accent/60"
           >
             <span className="grid size-14 place-items-center rounded-2xl border border-accent/60 text-accent">
-              <Users className="size-7" aria-hidden />
+              <Calculator className="size-7" aria-hidden />
             </span>
-            <span className="mt-3 font-extrabold">作った会</span>
-            <span className="mt-1 text-xs text-muted">{parties.length > 0 ? `${parties.length}件` : "まだありません"}</span>
+            <span className="mt-3 font-extrabold">傾斜会計</span>
+            <span className="mt-1 text-xs text-muted">先輩多め・飲まない人少なめ</span>
           </Link>
         </div>
 
