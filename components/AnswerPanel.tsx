@@ -23,10 +23,11 @@ function loadMine(partyId: string): Mine | null {
   }
 }
 
-const DATE_CHOICES: { value: DateAnswer; mark: string; label: string }[] = [
-  { value: "ok", mark: "○", label: "行ける" },
-  { value: "maybe", mark: "△", label: "たぶん" },
-  { value: "no", mark: "×", label: "無理" },
+// 色は globals.css の .tier-*。○ は緑、△ は黄、× は赤。色だけでなく記号と文字も添える
+const DATE_CHOICES: { value: DateAnswer; mark: string; label: string; tone: "green" | "yellow" | "red" }[] = [
+  { value: "ok", mark: "○", label: "行ける", tone: "green" },
+  { value: "maybe", mark: "△", label: "たぶん", tone: "yellow" },
+  { value: "no", mark: "×", label: "無理", tone: "red" },
 ];
 
 function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
@@ -147,16 +148,33 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
             <CalendarDays className="size-4" />
             行ける日
           </p>
-          <ul className="space-y-2">
+          {/* 日付を上に置き、その下に ○ △ × を横いっぱいに並べる。選んだものは記号ごとの色で塗る */}
+          <ul className="space-y-4">
             {dates.map((d) => (
-              <li key={d} className="flex items-center gap-2">
-                <span className="w-[4.5rem] shrink-0 text-sm font-bold">{dateLabel(d)}</span>
-                <div className="grid flex-1 grid-cols-3 gap-1.5">
-                  {DATE_CHOICES.map((c) => (
-                    <Choice key={c.value} on={form.dates[d] === c.value} onClick={() => setDate(d, c.value)}>
-                      {c.mark} {c.label}
-                    </Choice>
-                  ))}
+              <li key={d}>
+                <p className="mb-1.5 text-sm font-bold">{dateLabel(d)}</p>
+                <div className="grid grid-cols-3 gap-1.5" role="group" aria-label={`${dateLabel(d)}に行けるか`}>
+                  {DATE_CHOICES.map((c) => {
+                    const on = form.dates[d] === c.value;
+                    return (
+                      <button
+                        key={c.value}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() => setDate(d, c.value)}
+                        className={`tier-${c.tone} flex min-h-12 items-center justify-center gap-1.5 rounded-2xl border text-sm font-bold whitespace-nowrap transition-colors ${
+                          on
+                            ? "border-[var(--tb)] bg-[var(--ts)] text-[var(--tc)]"
+                            : "border-border bg-surface-2 text-muted hover:text-text"
+                        }`}
+                      >
+                        <span aria-hidden className={`text-xl leading-none font-extrabold ${on ? "" : "text-[var(--tc)] opacity-70"}`}>
+                          {c.mark}
+                        </span>
+                        {c.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </li>
             ))}
