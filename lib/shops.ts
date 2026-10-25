@@ -100,22 +100,18 @@ export function pickSamples(q: ShopQuery, limit = 3): { shops: Shop[]; otherArea
   return { shops: fits.slice(0, limit), otherArea: fits.length > 0 };
 }
 
-// ホットペッパーのディナー予算コードと、その上限(円)
-const BUDGET_CODES: [string, number][] = [
-  ["B009", 500],
-  ["B010", 1000],
-  ["B011", 1500],
-  ["B001", 2000],
-  ["B002", 3000],
-  ["B003", 4000],
-  ["B008", 5000],
-  ["B004", 7000],
-  ["B005", 10000],
-  ["B006", 15000],
-  ["B012", 20000],
-  ["B013", 30000],
-  ["B014", Number.POSITIVE_INFINITY],
-];
+/**
+ * ディナー予算の区分名(「5001～6000円」「～500円」「30001円～」)から上限を読む。
+ * 区分のコードは B015(5001～6000円)のように後から増えるので、コードの表は持たずに名前から読む
+ */
+export function budgetFromRange(name: string | undefined): number {
+  if (!name) return 0;
+  const t = name.normalize("NFKC").trim();
+  const nums = t.match(/[0-9][0-9,]*/g);
+  if (!nums) return 0;
+  if (/[～~〜]$/.test(t)) return Number.POSITIVE_INFINITY;
+  return Number(nums[nums.length - 1].replace(/,/g, ""));
+}
 
 type HotpepperShop = {
   id: string;
@@ -144,12 +140,14 @@ export function budgetFromText(text: string | undefined): number {
   const t = text.normalize("NFKC");
   const night = t.match(/夜[^0-9]*([0-9][0-9,]*)/);
   const first = t.match(/([0-9][0-9,]*)\s*円/);
-  const n = Number((night?.[1] ?? first?.[1] ?? "").replace(/,/g, ""));
+  // 「5500」のように数字だけのこともある
+  const bare = t.match(/^\s*([0-9][0-9,]*)\s*$/);
+  const n = Number((night?.[1] ?? first?.[1] ?? bare?.[1] ?? "").replace(/,/g, ""));
   return Number.isFinite(n) ? n : 0;
 }
 
 function fromHotpepper(s: HotpepperShop, area: AreaKey): Shop {
-  const max = BUDGET_CODES.find(([code]) => code === s.budget?.code)?.[1] ?? budgetFromText(s.budget?.average);
+  const max = budgetFromRange(s.budget?.name) || budgetFromText(s.budget?.average);
   const features = [
     s.free_drink?.startsWith("あり") ? "飲み放題" : null,
     s.private_room?.startsWith("あり") ? "個室" : null,
