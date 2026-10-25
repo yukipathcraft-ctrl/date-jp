@@ -10,17 +10,10 @@ import { SiteHeader } from "./SiteHeader";
 import { SplashIntro } from "./SplashIntro";
 import { BUTTON_PRIMARY } from "./ui";
 
-const SPLASH_KEY = "nomi:splash";
 
 type Phase = "loading" | "splash" | "choose" | "home";
 
-function markSplashSeen() {
-  try {
-    sessionStorage.setItem(SPLASH_KEY, "1");
-  } catch {}
-}
-
-/** 起動画面 → 学生か社会人か → ホーム。起動画面は、ブラウザを開いてから最初の1回だけ出す */
+/** 起動画面 → 学生か社会人か → ホーム。起動画面は毎回出す(タップで飛ばせる) */
 export function HomeClient() {
   const [phase, setPhase] = useState<Phase>("loading");
   const [audience, setAudience] = useState<Audience | null>(null);
@@ -32,23 +25,16 @@ export function HomeClient() {
     /* eslint-disable react-hooks/set-state-in-effect */
     setAudience(saved);
     setParties(loadMyParties());
-    let seen = false;
-    try {
-      seen = sessionStorage.getItem(SPLASH_KEY) === "1";
-    } catch {}
+    // 起動の演出は、トップを開くたびに毎回出す
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const next: Phase = saved ? "home" : "choose";
-    if (seen || reduce) {
+    if (reduce) {
       setPhase(next);
       return;
     }
     setPhase("splash");
     /* eslint-enable react-hooks/set-state-in-effect */
-    // 「見た」は見終わったときに残す(開発中は初回の処理が2回走るので、先に残すと演出が飛ぶ)
-    const t = setTimeout(() => {
-      markSplashSeen();
-      setPhase(next);
-    }, 2850);
+    const t = setTimeout(() => setPhase(next), 3400);
     return () => clearTimeout(t);
   }, []);
 
@@ -64,7 +50,6 @@ export function HomeClient() {
     return (
       <SplashIntro
         onSkip={() => {
-          markSplashSeen();
           setPhase(audience ? "home" : "choose");
         }}
       />
