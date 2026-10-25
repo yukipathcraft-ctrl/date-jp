@@ -93,7 +93,8 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           <p className="mt-1 text-xs text-match-text">
             日にちとお店はこのページから決めるので、自分のLINEやSlack、メモに送って残しておいてください
           </p>
-          <a href={lineShareUrl(`${adminNote}\n${adminUrl}`)} className={`${BUTTON_SUB} mt-3 w-full`}>
+          <a href={lineShareUrl(`${adminNote}\n${adminUrl}`)} className={`${BUTTON_LINE} mt-3 w-full gap-2`}>
+            <Send className="size-4" aria-hidden />
             自分のLINEに送って保存
           </a>
           <div className="mt-2 space-y-2">

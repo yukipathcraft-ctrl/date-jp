@@ -152,7 +152,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
           <ul className="space-y-4">
             {dates.map((d) => (
               <li key={d}>
-                <p className="mb-1.5 text-sm font-bold">{dateLabel(d)}</p>
+                <p className="mb-2 text-base font-extrabold">{dateLabel(d)}</p>
                 <div className="grid grid-cols-3 gap-1.5" role="group" aria-label={`${dateLabel(d)}に行けるか`}>
                   {DATE_CHOICES.map((c) => {
                     const on = form.dates[d] === c.value;
@@ -164,11 +164,11 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
                         onClick={() => setDate(d, c.value)}
                         className={`tier-${c.tone} flex min-h-12 items-center justify-center gap-1.5 rounded-2xl border text-sm font-bold whitespace-nowrap transition-colors ${
                           on
-                            ? "border-[var(--tb)] bg-[var(--ts)] text-[var(--tc)]"
-                            : "border-border bg-surface-2 text-muted hover:text-text"
+                            ? "border-[var(--tb)] bg-[var(--tb)] text-black"
+                            : "border-white/15 bg-surface-2 text-text hover:border-white/30"
                         }`}
                       >
-                        <span aria-hidden className={`text-xl leading-none font-extrabold ${on ? "" : "text-[var(--tc)] opacity-70"}`}>
+                        <span aria-hidden className={`text-xl leading-none font-extrabold ${on ? "" : "text-[var(--tc)]"}`}>
                           {c.mark}
                         </span>
                         {c.label}

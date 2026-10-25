@@ -11,6 +11,7 @@ export const INPUT =
 export const PILL =
   "inline-flex min-h-11 items-center justify-center gap-1 rounded-full border px-4 text-sm font-bold transition-colors";
 export const PILL_ON = "border-accent bg-accent text-accent-text";
-export const PILL_OFF = "border-border bg-surface-2 text-muted hover:text-text";
+/** 選んでいないもの。暗い地でも読めるよう、文字は白に近くし、枠も見える明るさにする */
+export const PILL_OFF = "border-white/15 bg-surface-2 text-text hover:border-white/30";
 /** カードの中の項目名。小さな線画のアイコンを添える */
-export const LABEL = "mb-3 flex items-center gap-2 text-sm font-bold text-muted";
+export const LABEL = "mb-3 flex items-center gap-2 text-sm font-bold text-text";
