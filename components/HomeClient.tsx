@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase, ChevronRight, GraduationCap, Repeat, Store } from "lucide-react";
+import { Briefcase, CalendarDays, ChevronRight, GraduationCap, Repeat, Store } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AUDIENCES, loadAudience, saveAudience, type Audience } from "@/lib/audience";
@@ -14,18 +14,42 @@ import { SplashIntro } from "./SplashIntro";
 
 type Phase = "loading" | "splash" | "choose" | "home";
 
+/** ホームの行。どの枠も「アイコンの四角 → 見出しと説明 → 矢印」の同じ形にそろえる */
+function HomeRow({ href, icon, title, sub }: { href: string; icon: React.ReactNode; title: string; sub: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex min-h-20 items-center gap-4 border-t border-border px-5 py-3 transition-colors first:border-t-0 hover:bg-surface-2/60"
+    >
+      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-accent">{icon}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-extrabold">{title}</span>
+        <span className="mt-0.5 block text-xs text-muted">{sub}</span>
+      </span>
+      <ChevronRight className="size-5 shrink-0 text-muted" aria-hidden />
+    </Link>
+  );
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <h2 className="mt-9 mb-3 px-1 text-sm font-bold text-muted">{children}</h2>;
+}
+
 /** 名前の由来。Date は、仙台の「伊達」と、英語の date(日にち)をかけている */
 function NameStory() {
   return (
     <details className="group border-t border-border px-5 first:border-t-0">
-      <summary className="flex min-h-16 cursor-pointer list-none items-center gap-3">
-        <span aria-hidden className="grid size-5 shrink-0 place-items-center text-sm font-extrabold text-accent">
+      <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 py-3">
+        <span aria-hidden className="grid size-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-lg font-extrabold text-accent">
           伊
         </span>
-        <span className="flex-1 font-bold text-muted">「Date」という名前について</span>
-        <ChevronRight className="size-5 text-muted transition-transform group-open:rotate-90" aria-hidden />
+        <span className="min-w-0 flex-1">
+          <span className="block font-extrabold">「Date」という名前について</span>
+          <span className="mt-0.5 block text-xs text-muted">伊達と date をかけています</span>
+        </span>
+        <ChevronRight className="size-5 shrink-0 text-muted transition-transform group-open:rotate-90" aria-hidden />
       </summary>
-      <div className="pb-5 text-sm leading-relaxed text-muted">
+      <div className="pb-5 pl-16 text-sm leading-relaxed text-muted">
         <p>
           仙台の街をつくった<span className="font-bold text-text">伊達</span>政宗の「伊達」と、英語で日にちを表す
           <span className="font-bold text-text">date</span>をかけた名前です
@@ -135,81 +159,68 @@ export function HomeClient() {
 
         {parties.length > 0 && (
           <>
-            <h2 className="mt-9 mb-3 text-sm font-bold text-muted">あなたの会</h2>
+            <SectionTitle>あなたの会</SectionTitle>
             <section className="overflow-hidden rounded-3xl border border-border bg-surface">
               {parties.map((p) => (
-                <Link
+                <HomeRow
                   key={p.id}
                   href={`/p/${p.id}/admin?token=${p.token}`}
-                  className="flex min-h-16 items-center gap-3 border-t border-border px-5 first:border-t-0"
-                >
-                  <span aria-hidden className="h-8 w-1 shrink-0 rounded-full bg-accent" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-bold">{p.title}</span>
-                    <span className="block text-xs text-muted">
-                      {new Date(p.createdAt).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}につくった会を開く
-                    </span>
-                  </span>
-                  <ChevronRight className="size-5 text-muted" aria-hidden />
-                </Link>
+                  icon={<CalendarDays className="size-6" aria-hidden />}
+                  title={p.title}
+                  sub={`${new Date(p.createdAt).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}につくった会`}
+                />
               ))}
             </section>
           </>
         )}
 
-        {/* 傾斜会計は、お店とは別の枠にする。区分そのもの(色と記号)を見せて、何ができるかを伝える */}
-        <h2 className="mt-9 mb-3 text-sm font-bold text-muted">飲んだあと</h2>
-        <Link href="/split" className="block overflow-hidden rounded-3xl border border-border bg-surface transition-colors hover:border-muted">
-          <span className="flex items-center gap-3 px-5 pt-5">
-            <span className="min-w-0 flex-1">
-              <span className="block text-xl font-extrabold">傾斜会計</span>
-              <span className="mt-0.5 block text-sm text-muted">
-                {audience === "student" ? "先輩には多めに、飲まない人には少なめに割れます" : "上司には多めに、新人には少なめに割れます"}
+        <SectionTitle>飲んだあと</SectionTitle>
+        <section className="overflow-hidden rounded-3xl border border-border bg-surface">
+          <HomeRow
+            href="/split"
+            icon={
+              // 傾斜の区分の色を、高さの違う棒で並べる(多めの人ほど高い)
+              <span aria-hidden className="flex h-6 items-end gap-[3px]">
+                {tiers.map((w) => (
+                  <span
+                    key={w.key}
+                    className={`tier-${w.tone} w-[5px] rounded-full bg-[var(--tb)]`}
+                    style={{ height: `${Math.round((w.tenths / 15) * 100)}%` }}
+                  />
+                ))}
               </span>
-            </span>
-            <ChevronRight className="size-5 shrink-0 text-muted" aria-hidden />
-          </span>
-          <span className="flex flex-wrap gap-1.5 px-5 pt-4 pb-5">
-            {tiers.map((w) => (
-              <span
-                key={w.key}
-                className={`tier-${w.tone} inline-flex items-center gap-1 rounded-full bg-[var(--ts)] px-2.5 py-1 text-xs font-bold text-[var(--tc)]`}
-              >
-                <span aria-hidden>{w.mark}</span>
-                {w.label} ×{(w.tenths / 10).toFixed(1)}
-              </span>
-            ))}
-          </span>
-          <span aria-hidden className="flex h-1">
-            {tiers.map((w) => (
-              <span key={w.key} className={`tier-${w.tone} flex-1 bg-[var(--tb)]`} />
-            ))}
-          </span>
-        </Link>
+            }
+            title="傾斜会計"
+            sub={audience === "student" ? "先輩には多めに、飲まない人には少なめに割れます" : "上司には多めに、新人には少なめに割れます"}
+          />
+        </section>
 
-        <h2 className="mt-9 mb-3 text-sm font-bold text-muted">お店だけ探したいとき</h2>
-        <Link
-          href="/shops"
-          className="flex min-h-20 items-center gap-4 rounded-3xl border border-border bg-surface px-5 transition-colors hover:border-muted"
-        >
-          <Store className="size-6 shrink-0 text-accent" aria-hidden />
-          <span className="min-w-0 flex-1">
-            <span className="block font-extrabold">お店だけ探す</span>
-            <span className="block text-xs text-muted">場所と予算を選ぶと、合うお店がすぐに出てきます</span>
-          </span>
-          <ChevronRight className="size-5 text-muted" aria-hidden />
-        </Link>
+        <SectionTitle>お店だけ探したいとき</SectionTitle>
+        <section className="overflow-hidden rounded-3xl border border-border bg-surface">
+          <HomeRow
+            href="/shops"
+            icon={<Store className="size-6" aria-hidden />}
+            title="お店だけ探す"
+            sub="場所と予算を選ぶと、合うお店がすぐに出てきます"
+          />
+        </section>
 
-        <section className="mt-3 overflow-hidden rounded-3xl border border-border bg-surface">
+        <SectionTitle>このアプリについて</SectionTitle>
+        <section className="overflow-hidden rounded-3xl border border-border bg-surface">
           <NameStory />
           <button
             type="button"
             onClick={() => setPhase("choose")}
-            className="flex min-h-16 w-full items-center gap-3 border-t border-border px-5 text-left"
+            className="flex min-h-20 w-full items-center gap-4 border-t border-border px-5 py-3 text-left transition-colors hover:bg-surface-2/60"
           >
-            <Repeat className="size-5 shrink-0 text-muted" aria-hidden />
-            <span className="flex-1 font-bold text-muted">{AUDIENCES[audience].label}向けから切り替える</span>
-            <ChevronRight className="size-5 text-muted" aria-hidden />
+            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-accent">
+              <Repeat className="size-6" aria-hidden />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-extrabold">学生と社会人を切り替える</span>
+              <span className="mt-0.5 block text-xs text-muted">いまは{AUDIENCES[audience].label}向けの予算と時間で聞いています</span>
+            </span>
+            <ChevronRight className="size-5 shrink-0 text-muted" aria-hidden />
           </button>
         </section>
       </div>
