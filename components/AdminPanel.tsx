@@ -1,17 +1,18 @@
 "use client";
 
-import { Calculator, Check, Copy, KeyRound, PartyPopper, Send, Share, Users } from "lucide-react";
+import { Calculator, KeyRound, PartyPopper, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { decide } from "@/app/actions";
 import { dateLabel } from "@/lib/sendai";
-import { decidedText, inviteText, lineShareUrl } from "@/lib/share";
+import { decidedText, inviteText } from "@/lib/share";
 import type { Shop } from "@/lib/shops";
 import type { Decision } from "@/lib/store/types";
 import type { DateRank } from "@/lib/summary";
 import { saveAdminToken } from "./CreateForm";
+import { SendButtons, useCanShare } from "./SendButtons";
 import { SPLIT_NAMES_KEY } from "./SplitClient";
-import { BUTTON_LINE, BUTTON_PRIMARY, BUTTON_SUB } from "./ui";
+import { BUTTON_PRIMARY, BUTTON_SUB } from "./ui";
 
 type Props = {
   partyId: string;
@@ -25,72 +26,6 @@ type Props = {
   /** その日に行く人の名前。傾斜会計に持っていく */
   attendees: string[];
 };
-
-/** 大きなボタンの下に半分の幅で並べる、控えめなボタン */
-const BUTTON_HALF = `${BUTTON_SUB} min-w-0 gap-1.5 whitespace-nowrap px-2 text-sm`;
-
-function CopyButton({ text, label, className }: { text: string; label: string; className: string }) {
-  const [done, setDone] = useState(false);
-  return (
-    <button
-      type="button"
-      className={className}
-      onClick={async () => {
-        try {
-          await navigator.clipboard.writeText(text);
-          setDone(true);
-          setTimeout(() => setDone(false), 2000);
-        } catch {}
-      }}
-    >
-      {done ? <Check className="size-4" aria-hidden /> : <Copy className="size-4" aria-hidden />}
-      {done ? "コピーしました" : label}
-    </button>
-  );
-}
-
-/**
- * 送り方のボタン。共有の画面(LINE・Slack・メール・メモなどから選べる)を大きく置き、
- * その下に、1回で送り先を選べる LINE と、コピーを半分の幅で並べる。
- * 共有の画面がないパソコンでは、コピーを大きくし、下は LINE だけにする
- */
-function SendButtons({ mainLabel, line, share, copy, copyLabel = "URLをコピー", canShare }: {
-  mainLabel: string;
-  line: string;
-  share: ShareData;
-  copy: string;
-  /** 共有の画面がないときの、大きなコピーのボタンの文字 */
-  copyLabel?: string;
-  canShare: boolean;
-}) {
-  const lineButton = (
-    <a href={lineShareUrl(line)} className={canShare ? `${BUTTON_LINE} min-w-0 gap-1.5 whitespace-nowrap px-2 text-sm` : `${BUTTON_LINE} w-full gap-2 text-sm`}>
-      <Send className="size-4 shrink-0" aria-hidden />
-      {canShare ? "LINE" : "LINEで送る"}
-    </a>
-  );
-  return (
-    <div className="mt-4 space-y-2">
-      {canShare ? (
-        <>
-          <button type="button" className={`${BUTTON_PRIMARY} w-full gap-2`} onClick={() => navigator.share(share).catch(() => {})}>
-            <Share className="size-5" aria-hidden />
-            {mainLabel}
-          </button>
-          <div className="grid grid-cols-2 gap-2">
-            {lineButton}
-            <CopyButton text={copy} label="コピー" className={BUTTON_HALF} />
-          </div>
-        </>
-      ) : (
-        <>
-          <CopyButton text={copy} label={copyLabel} className={`${BUTTON_PRIMARY} w-full gap-2`} />
-          {lineButton}
-        </>
-      )}
-    </div>
-  );
-}
 
 /** 枠の見出し。アイコンの丸と、何をする枠かの一言 */
 function BoxHead({ icon, title, note, tone }: { icon: React.ReactNode; title: string; note: string; tone: "plain" | "key" }) {
@@ -115,8 +50,7 @@ function BoxHead({ icon, title, note, tone }: { icon: React.ReactNode; title: st
 export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees }: Props) {
   const router = useRouter();
   const [origin, setOrigin] = useState("");
-  // スマホの共有の画面(Slack・メモ・メールなど)を開けるか。開けないパソコンではコピーだけにする
-  const [canShare, setCanShare] = useState(false);
+  const canShare = useCanShare();
   const [date, setDate] = useState<string | null>(decision?.date ?? bestDate);
   const [shopId, setShopId] = useState<string | null>(decision?.shopId ?? shops[0]?.id ?? null);
   const [error, setError] = useState<string | null>(null);
@@ -125,7 +59,6 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setOrigin(location.origin);
-    setCanShare(typeof navigator.share === "function");
     saveAdminToken(partyId, token);
   }, [partyId, token]);
 

@@ -1,24 +1,42 @@
 "use client";
 
-import { Check, Copy, Crown, PencilLine, Plus, Send, X } from "lucide-react";
+import { Check, Crown, NotebookPen, PencilLine, Plus, RotateCcw, Wallet, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { loadAudience, type Audience } from "@/lib/audience";
 import { yen } from "@/lib/sendai";
-import { MADE_WITH, lineShareUrl } from "@/lib/share";
+import { MADE_WITH, reminderText } from "@/lib/share";
 import { NextHost } from "./NextHost";
+import { SendButtons, useCanShare } from "./SendButtons";
 import { ROUND_UNITS, WEIGHTS, splitBill, tenthsFromInput, type Weight } from "@/lib/split";
-import { BUTTON_LINE, BUTTON_SUB, PILL, PILL_OFF, PILL_ON } from "./ui";
+import { BUTTON_SUB, PILL, PILL_OFF, PILL_ON } from "./ui";
 
 // 傾斜会計。hasuru と同じく、区分ごとに色・記号・頭文字の丸で人を見分ける(色だけに頼らない)
 
-/** weight は区分の key。自分で倍率を書いたときは "custom" にして、書いた文字を custom に持つ */
-type Person = { id: number; name: string; weight: string; custom: string };
+/**
+ * weight は区分の key。自分で倍率を書いたときは "custom" にして、書いた文字を custom に持つ。
+ * paid は幹事に払い終えたか(幹事本人は数えない)
+ */
+type Person = { id: number; name: string; weight: string; custom: string; paid: boolean };
 
 /** 幹事の画面から「この会の傾斜会計」で来たとき、行く人の名前を受け取る(URL には載せない) */
 export const SPLIT_NAMES_KEY = "nomi:split-names";
 
+/** 集金が終わるまで続きから使えるよう、最後の会計をこの端末に残す(サーバーには送らない) */
+const SAVE_KEY = "nomi:split";
+type Saved = { title: string; total: string; people: Person[]; unit: number; organizer: number };
+
+function loadSaved(): Saved | null {
+  try {
+    const v = JSON.parse(localStorage.getItem(SAVE_KEY) ?? "null") as Saved | null;
+    return v && Array.isArray(v.people) && v.people.length > 0 ? v : null;
+  } catch {
+    return null;
+  }
+}
+
 let nextId = 1;
-const person = (weight: string, name = ""): Person => ({ id: nextId++, name, weight, custom: "" });
+const person = (weight: string, name = ""): Person => ({ id: nextId++, name, weight, custom: "", paid: false });
+const startPeople = () => [person("normal", "幹事"), person("normal"), person("normal"), person("normal")];
 
 function Avatar({ name, tone, size = "md" }: { name: string; tone: Weight["tone"]; size?: "sm" | "md" }) {
   const initial = [...name.trim()][0] ?? "?";
@@ -47,12 +65,14 @@ function TierTag({ w }: { w: Weight }) {
 
 export function SplitClient() {
   const [audience, setAudience] = useState<Audience>("student");
+  const [title, setTitle] = useState("");
   const [total, setTotal] = useState("");
   const [people, setPeople] = useState<Person[]>([]);
   const [unit, setUnit] = useState<number>(100);
   const [organizer, setOrganizer] = useState(0);
-  const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  const canShare = useCanShare();
 
   useEffect(() => {
     const a = loadAudience() ?? "student";
@@ -61,16 +81,41 @@ export function SplitClient() {
       names = JSON.parse(sessionStorage.getItem(SPLIT_NAMES_KEY) ?? "[]");
       sessionStorage.removeItem(SPLIT_NAMES_KEY);
     } catch {}
+    const saved = names.length > 0 ? null : loadSaved();
     /* eslint-disable react-hooks/set-state-in-effect */
     setAudience(a);
     setOrigin(location.origin);
-    setPeople(
-      names.length > 0
-        ? names.slice(0, 30).map((n) => person("normal", String(n).slice(0, 20)))
-        : [person("normal", "幹事"), person("normal"), person("normal"), person("normal")],
-    );
+    if (saved) {
+      // 前の会計の続き。足す人の番号が重ならないようにする
+      nextId = Math.max(...saved.people.map((p) => p.id)) + 1;
+      setTitle(saved.title ?? "");
+      setTotal(saved.total ?? "");
+      setPeople(saved.people.map((p) => ({ ...p, custom: p.custom ?? "", paid: p.paid === true })));
+      setUnit(saved.unit ?? 100);
+      setOrganizer(saved.organizer ?? 0);
+    } else {
+      setPeople(names.length > 0 ? names.slice(0, 30).map((n) => person("normal", String(n).slice(0, 20))) : startPeople());
+    }
+    setLoaded(true);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
+
+  // 変えるたびにこの端末に残す(読み込みが済むまでは上書きしない)
+  useEffect(() => {
+    if (!loaded) return;
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ title, total, people, unit, organizer } satisfies Saved));
+    } catch {}
+  }, [loaded, title, total, people, unit, organizer]);
+
+  function startOver() {
+    if (!window.confirm("いまの会計を消して、新しい会計を始めますか?")) return;
+    setTitle("");
+    setTotal("");
+    setPeople(startPeople());
+    setUnit(100);
+    setOrganizer(0);
+  }
 
   const weights = WEIGHTS[audience];
   const normal = weights.find((w) => w.key === "normal")!;
@@ -97,7 +142,7 @@ export function SplitClient() {
 
   const shareText = result
     ? [
-        `お会計 ${yen(totalYen)}(${people.length}人)`,
+        `${title.trim() ? `「${title.trim()}」の` : ""}お会計 ${yen(totalYen)}(${people.length}人)`,
         ...people.map((p, i) => `${weightOf(p).mark} ${nameOf(p, i)} ${yen(result.amounts[i])}`),
         "",
         `${MADE_WITH}(傾斜会計)`,
@@ -105,16 +150,30 @@ export function SplitClient() {
       ].join("\n")
     : "";
 
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(shareText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {}
-  }
+  // 集金の進み具合。幹事は店に払っている本人なので数えない
+  const payers = result ? people.map((p, i) => ({ p, i, amount: result.amounts[i] })).filter(({ i }) => i !== organizer) : [];
+  const unpaid = payers.filter(({ p }) => !p.paid);
+  const unpaidYen = unpaid.reduce((sum, u) => sum + u.amount, 0);
+  const remind = reminderText(
+    audience,
+    title,
+    unpaid.map(({ p, i, amount }) => ({ name: nameOf(p, i), amount })),
+  );
 
   return (
     <>
+      {/* 何の会計かのメモ。催促の文にも入る */}
+      <label className="mx-4 mb-3 flex items-center gap-3 rounded-3xl border border-border bg-surface px-5 py-3">
+        <NotebookPen className="size-5 shrink-0 text-accent" aria-hidden />
+        <input
+          className="min-h-11 w-full min-w-0 bg-transparent font-bold outline-none placeholder:font-normal placeholder:text-muted"
+          value={title}
+          onChange={(e) => setTitle(e.target.value.slice(0, 30))}
+          placeholder="何の会計?(例: ゼミの打ち上げ 10/30)"
+          aria-label="何の会計かのメモ"
+        />
+      </label>
+
       {/* 合計 */}
       <label className="mx-4 block rounded-3xl border border-border bg-surface px-5 py-5">
         <span className="text-sm font-bold text-muted">お会計の合計</span>
@@ -240,7 +299,7 @@ export function SplitClient() {
           type="button"
           onClick={() => setPeople((ps) => [...ps, person("normal")])}
           disabled={people.length >= 30}
-          className={`${BUTTON_SUB} gap-2`}
+          className={`${BUTTON_SUB} gap-2 whitespace-nowrap px-3`}
         >
           <Plus className="size-4" aria-hidden />
           人を足す
@@ -282,19 +341,41 @@ export function SplitClient() {
               {people.map((p, i) => {
                 const w = weightOf(p);
                 return (
-                  <li key={p.id} className="flex min-h-14 items-center gap-3 px-5">
+                  <li key={p.id} className="flex min-h-14 items-center gap-2.5 px-4">
                     <Avatar name={nameOf(p, i)} tone={w.tone} size="sm" />
-                    <span className="flex min-w-0 flex-1 items-center gap-1.5">
-                      <span className="truncate font-bold">{nameOf(p, i)}</span>
-                      <TierTag w={w} />
-                      {organizer === i && (
-                        <span className="inline-flex shrink-0 items-center gap-0.5 rounded-md bg-accent px-1.5 py-0.5 text-[11px] font-bold leading-none text-accent-text">
-                          <Crown className="size-3" aria-hidden />
-                          幹事
-                        </span>
-                      )}
+                    {/* 名前を1行目、区分と幹事の印を2行目に置き、スマホの幅でも名前が切れにくいようにする */}
+                    <span className="min-w-0 flex-1 py-2">
+                      <span className="block truncate font-bold">{nameOf(p, i)}</span>
+                      <span className="mt-1 flex items-center gap-1">
+                        <TierTag w={w} />
+                        {organizer === i && (
+                          <span className="inline-flex shrink-0 items-center gap-0.5 rounded-md bg-accent px-1.5 py-0.5 text-[11px] font-bold leading-none text-accent-text">
+                            <Crown className="size-3" aria-hidden />
+                            幹事
+                          </span>
+                        )}
+                      </span>
                     </span>
-                    <span className="text-xl font-extrabold tabular-nums">{yen(result.amounts[i])}</span>
+                    <span className={`shrink-0 text-lg font-extrabold tabular-nums ${organizer !== i && p.paid ? "text-muted line-through decoration-2" : ""}`}>
+                      {yen(result.amounts[i])}
+                    </span>
+                    {/* 払ったかの印。色だけでなく ✓ と文字でも分かるようにする */}
+                    {organizer === i ? (
+                      <span className="w-[4.5rem] shrink-0 text-center text-[11px] font-bold text-muted">立て替え</span>
+                    ) : (
+                      <button
+                        type="button"
+                        aria-pressed={p.paid}
+                        aria-label={`${nameOf(p, i)}は${p.paid ? "払い済み(押すと未払いに戻す)" : "まだ(押すと払い済みにする)"}`}
+                        onClick={() => update(p.id, { paid: !p.paid })}
+                        className={`tier-green inline-flex min-h-10 w-[4.5rem] shrink-0 items-center justify-center gap-1 rounded-full border text-xs font-bold transition-colors ${
+                          p.paid ? "border-[var(--tb)] bg-[var(--tb)] text-black" : "border-white/15 bg-surface-2 text-text hover:border-white/30"
+                        }`}
+                      >
+                        {p.paid ? <Check className="size-3.5" aria-hidden /> : null}
+                        {p.paid ? "済み" : "まだ"}
+                      </button>
+                    )}
                   </li>
                 );
               })}
@@ -311,21 +392,72 @@ export function SplitClient() {
                 ? "端数は出ませんでした"
                 : `端数の${yen(Math.abs(result.organizerDiff))}ぶん、幹事が${result.organizerDiff > 0 ? "多め" : "少なめ"}に払います`}
             </p>
-            <div className="grid gap-2 p-5">
-              <a href={lineShareUrl(shareText)} className={`${BUTTON_LINE} w-full gap-2`}>
-                <Send className="size-4" aria-hidden />
-                LINEで金額を送る
-              </a>
-              <button type="button" onClick={copy} className={`${BUTTON_SUB} w-full gap-2`}>
-                {copied ? <Check className="size-4" aria-hidden /> : <Copy className="size-4" aria-hidden />}
-                <span aria-live="polite">{copied ? "コピーしました" : "金額をコピー"}</span>
-              </button>
+            <div className="px-5 pb-5">
+              <SendButtons
+                mainLabel="共有して金額を送る"
+                line={shareText}
+                share={{ text: shareText }}
+                copy={shareText}
+                copyLabel="金額をコピー"
+                canShare={canShare}
+              />
             </div>
           </>
         ) : (
           <p className="px-5 pt-2 pb-5 text-sm text-muted">合計を入れると、一人ずつの金額が出ます</p>
         )}
       </section>
+
+      {/* 集金。誰が払ったかを幹事がメモし、まだの人にだけ催促を送る */}
+      {result && payers.length > 0 && (
+        <section className="mx-4 mt-4 rounded-3xl border border-border bg-surface px-5 py-5">
+          <h2 className="flex items-center gap-2 text-lg font-extrabold">
+            <Wallet className="size-5" aria-hidden />
+            集金
+          </h2>
+          <p className="mt-1 text-sm">
+            <span className="font-bold">
+              {payers.length}人中{payers.length - unpaid.length}人が払いました
+            </span>
+            {unpaid.length > 0 && <span className="text-muted">(あと{yen(unpaidYen)})</span>}
+          </p>
+          <div className="tier-green mt-3 h-2.5 overflow-hidden rounded-full bg-surface-2" aria-hidden>
+            <div
+              className="h-full rounded-full bg-[var(--tb)] transition-[width]"
+              style={{ width: `${((payers.length - unpaid.length) / payers.length) * 100}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs text-muted">上の金額の横の「まだ」を押すと「済み」になります。この端末に残るので、閉じても続きから使えます</p>
+
+          {unpaid.length === 0 ? (
+            <p className="tier-green mt-4 flex items-center gap-2 rounded-2xl bg-[var(--ts)] px-4 py-3 text-sm font-bold text-[var(--tc)]">
+              <Check className="size-4" aria-hidden />
+              全員の支払いがそろいました
+            </p>
+          ) : (
+            <div className="mt-5 border-t border-border pt-4">
+              <h3 className="font-extrabold">まだの人に催促する</h3>
+              <p className="mt-1 text-xs text-muted">まだの{unpaid.length}人の名前と金額だけが入ります。払った人の名前は出ません</p>
+              <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap">{remind}</p>
+              <SendButtons
+                mainLabel="共有して催促を送る"
+                line={remind}
+                share={{ text: remind }}
+                copy={remind}
+                copyLabel="催促の文をコピー"
+                canShare={canShare}
+              />
+            </div>
+          )}
+        </section>
+      )}
+
+      <div className="mx-4 mt-4">
+        <button type="button" onClick={startOver} className={`${BUTTON_SUB} w-full gap-2 text-sm`}>
+          <RotateCcw className="size-4" aria-hidden />
+          新しい会計を始める
+        </button>
+      </div>
       {result && (
         <div className="mx-4 mt-4">
           <NextHost />
