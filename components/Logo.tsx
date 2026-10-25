@@ -17,12 +17,3 @@ export function LogoMark({ size = 28 }: { size?: number }) {
     </svg>
   );
 }
-
-/** 区切りに使う、細い三日月の弧 */
-export function CrescentRule({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 240 24" className={`h-3 w-24 ${className}`} aria-hidden>
-      <path d="M4 4C40 26 200 26 236 4C190 18 50 18 4 4Z" fill="var(--accent)" />
-    </svg>
-  );
-}

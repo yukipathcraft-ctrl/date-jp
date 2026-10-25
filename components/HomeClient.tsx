@@ -7,7 +7,7 @@ import { AUDIENCES, loadAudience, saveAudience, type Audience } from "@/lib/audi
 import { loadMyParties, type MyParty } from "@/lib/myParties";
 import { WEIGHTS } from "@/lib/split";
 import { CreateForm } from "./CreateForm";
-import { CrescentRule, LogoMark } from "./Logo";
+import { LogoMark } from "./Logo";
 import { SiteHeader } from "./SiteHeader";
 import { SplashIntro } from "./SplashIntro";
 
@@ -31,8 +31,8 @@ function HomeRow({ href, icon, title, sub }: { href: string; icon: React.ReactNo
   );
 }
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="mt-9 mb-3 px-1 text-sm font-bold text-muted">{children}</h2>;
+function SectionTitle({ children, first }: { children: React.ReactNode; first?: boolean }) {
+  return <h2 className={`${first ? "mt-6" : "mt-9"} mb-3 px-1 text-sm font-bold text-muted`}>{children}</h2>;
 }
 
 /** 名前の由来。Date は、仙台の「伊達」と、英語の date(日にち)をかけている */
@@ -144,16 +144,15 @@ export function HomeClient() {
   return (
     <>
       <SiteHeader />
-      <div className="anim-rise mx-auto max-w-xl px-4 pt-7 pb-16">
-        <CrescentRule />
-        <p className="mt-3 text-sm font-bold text-muted">仙台で{AUDIENCES[audience].label}の飲み会をするなら</p>
+      <div className="anim-rise mx-auto max-w-xl px-4 pt-5 pb-16">
+        <p className="text-sm font-bold text-muted">仙台で{AUDIENCES[audience].label}の飲み会をするなら</p>
         <h1 className="mt-1 text-[1.75rem] leading-tight font-extrabold tracking-tight">
           <span className="inline-block">URLを貼るだけで</span>
           <span className="inline-block">飲み会が決まります</span>
         </h1>
 
         {/* 見本は置かず、ここでそのまま会を作れるようにする */}
-        <SectionTitle>会をつくる</SectionTitle>
+        <SectionTitle first>会をつくる</SectionTitle>
         <div className="glow rounded-3xl">
           <CreateForm />
         </div>

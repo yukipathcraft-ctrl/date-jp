@@ -106,7 +106,7 @@ export function CreateForm() {
                   </span>
                   <span
                     className={`text-[11px] font-bold ${
-                      on ? "opacity-75" : w === 0 ? "text-danger" : w === 6 ? "text-[#7fb2ff]" : "text-muted"
+                      on ? "opacity-75" : w === 0 ? "text-danger" : w === 6 ? "text-[#7fb2ff]" : w === 5 ? "text-[#ffd47e]" : "text-muted"
                     }`}
                   >
                     {wd.replace(")", "")}
