@@ -8,6 +8,7 @@ import { AUDIENCES, loadAudience, type Audience } from "@/lib/audience";
 import { rememberParty } from "@/lib/myParties";
 import { dateLabel, upcomingDates, weekdayOf } from "@/lib/sendai";
 import { MAX_DATES } from "@/lib/validation";
+import { DateCalendar } from "./DateCalendar";
 import { BUTTON_PRIMARY, INPUT } from "./ui";
 
 export function saveAdminToken(partyId: string, token: string) {
@@ -38,6 +39,7 @@ export function CreateForm() {
   const [pending, start] = useTransition();
   // 今日から3週間ぶん。日付はブラウザで開いたときに作る
   const [options, setOptions] = useState<string[]>([]);
+  const [view, setView] = useState<"tiles" | "calendar">("tiles");
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect */
     setOptions(upcomingDates(new Date(), 21));
@@ -84,7 +86,33 @@ export function CreateForm() {
             title="候補の日"
             sub={dates.length > 0 ? `${dates.length}日選んでいます(${MAX_DATES}日まで)` : `行けそうな日を${MAX_DATES}日まで選べます`}
           />
-          <div className="mt-4 grid min-h-48 grid-cols-4 gap-2">
+          {/* 近い3週間はタイルで、それより先はカレンダーで選ぶ。選んだ日はどちらにも出る */}
+          <div className="mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-surface-2 p-1" role="group" aria-label="選び方">
+            {(["tiles", "calendar"] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={view === v}
+                onClick={() => setView(v)}
+                className={`min-h-10 rounded-xl text-sm font-bold transition-colors ${
+                  view === v ? "bg-surface text-text shadow" : "text-muted hover:text-text"
+                }`}
+              >
+                {v === "tiles" ? "近い日から選ぶ" : "カレンダーで選ぶ"}
+              </button>
+            ))}
+          </div>
+          {view === "calendar" && options[0] && (
+            <div className="mt-4">
+              <DateCalendar today={options[0]} selected={dates} onToggle={toggle} />
+            </div>
+          )}
+          {dates.length > 0 && (
+            <p className="mt-3 text-xs text-muted">
+              選んだ日: {[...dates].sort().map(dateLabel).join("・")}
+            </p>
+          )}
+          <div className={`mt-4 grid min-h-48 grid-cols-4 gap-2 ${view === "tiles" ? "" : "hidden"}`}>
             {options.map((d) => {
               const on = dates.includes(d);
               const w = weekdayOf(d);

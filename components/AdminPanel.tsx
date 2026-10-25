@@ -54,11 +54,13 @@ function CopyButton({ text, label, className }: { text: string; label: string; c
  * その下に、1回で送り先を選べる LINE と、コピーを半分の幅で並べる。
  * 共有の画面がないパソコンでは、コピーを大きくし、下は LINE だけにする
  */
-function SendButtons({ mainLabel, line, share, copy, canShare }: {
+function SendButtons({ mainLabel, line, share, copy, copyLabel = "URLをコピー", canShare }: {
   mainLabel: string;
   line: string;
   share: ShareData;
   copy: string;
+  /** 共有の画面がないときの、大きなコピーのボタンの文字 */
+  copyLabel?: string;
   canShare: boolean;
 }) {
   const lineButton = (
@@ -82,7 +84,7 @@ function SendButtons({ mainLabel, line, share, copy, canShare }: {
         </>
       ) : (
         <>
-          <CopyButton text={copy} label="URLをコピー" className={`${BUTTON_PRIMARY} w-full gap-2`} />
+          <CopyButton text={copy} label={copyLabel} className={`${BUTTON_PRIMARY} w-full gap-2`} />
           {lineButton}
         </>
       )}
@@ -130,6 +132,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
   const guestUrl = `${origin}/p/${partyId}`;
   const adminUrl = `${origin}/p/${partyId}/admin?token=${token}`;
   const adminNote = `「${title}」の幹事用URL(人に送らない)`;
+  const decidedMessage = decision ? decidedText(title, decision.date, decision.start, decision.shopName, guestUrl) : "";
 
   function submit(choice: { date: string; shopId: string | null } | null) {
     setError(null);
@@ -186,13 +189,16 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             <PartyPopper className="size-5" aria-hidden />
             決まったことを知らせる
           </p>
-          <a
-            href={lineShareUrl(decidedText(title, decision.date, decision.start, decision.shopName, guestUrl))}
-            className={`${BUTTON_LINE} mt-4 w-full gap-2`}
-          >
-            <Send className="size-4" aria-hidden />
-            LINEで「決まったよ」を送る
-          </a>
+          <p className="mt-1 text-sm text-muted">日にちと時間、お店を入れた文をみんなに送れます</p>
+          <SendButtons
+            mainLabel="共有して「決まったよ」を送る"
+            line={decidedMessage}
+            share={{ text: decidedMessage }}
+            copy={decidedMessage}
+            copyLabel="送る文をコピー"
+            canShare={canShare}
+          />
+          <div className="mt-5 border-t border-border pt-4" />
           <button
             type="button"
             onClick={() => {
@@ -202,7 +208,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
               } catch {}
               router.push("/split");
             }}
-            className={`${BUTTON_SUB} mt-2 w-full gap-2`}
+            className={`${BUTTON_SUB} w-full gap-2`}
           >
             <Calculator className="size-4" aria-hidden />
             この会の傾斜会計({attendees.length}人)
