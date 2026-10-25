@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { isAudience } from "../audience";
 import type { Answer } from "../summary";
 import { countShops } from "./stats";
-import type { Decision, Store, StoredAnswer } from "./types";
+import type { Collection, CollectionPerson, Decision, Payment, Store, StoredAnswer } from "./types";
 
 // スキーマから型を生成していないので、行の型は呼び出し側で指定する
 function check<T = unknown>(result: { data: unknown; error: { message: string; code?: string } | null }): T {
@@ -82,6 +82,34 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
       ]);
       const ids = check<{ shop_id: string }[]>(clickRows).map((r) => r.shop_id);
       return { parties, decided, answers, clicks: ids.length, topShops: countShops(ids), totalParties, totalClicks };
+    },
+    async createCollection(collection) {
+      const { id, adminHash, ...data } = collection;
+      check(await db.from("nomi_collections").insert({ id, admin_hash: adminHash, data }));
+    },
+    async getCollection(id) {
+      const [row, pays] = await Promise.all([
+        db.from("nomi_collections").select("id, admin_hash, data").eq("id", id).maybeSingle(),
+        db.from("nomi_collection_payments").select("person_id, paid_by").eq("collection_id", id),
+      ]);
+      const r = check<{ id: string; admin_hash: string; data: Omit<Collection, "id" | "adminHash" | "payments"> & { people: CollectionPerson[] } } | null>(row);
+      if (!r) return null;
+      const payments: Record<number, Payment> = {};
+      for (const p of check<{ person_id: number; paid_by: string }[]>(pays)) {
+        payments[p.person_id] = { by: p.paid_by === "host" ? "host" : "self" };
+      }
+      return { ...r.data, audience: isAudience(r.data.audience) ? r.data.audience : "student", id: r.id, adminHash: r.admin_hash, payments };
+    },
+    async setPayment(collectionId, personId, payment) {
+      if (payment) {
+        check(
+          await db
+            .from("nomi_collection_payments")
+            .upsert({ collection_id: collectionId, person_id: personId, paid_by: payment.by, paid_at: new Date().toISOString() }),
+        );
+      } else {
+        check(await db.from("nomi_collection_payments").delete().eq("collection_id", collectionId).eq("person_id", personId));
+      }
     },
   };
 }

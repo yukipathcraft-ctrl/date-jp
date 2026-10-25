@@ -1,29 +1,37 @@
 "use client";
 
-import { Check, Crown, NotebookPen, PencilLine, Plus, RotateCcw, Wallet, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Check, Crown, ExternalLink, NotebookPen, PencilLine, Plus, RotateCcw, Wallet, X } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { startCollection } from "@/app/actions";
 import { loadAudience, type Audience } from "@/lib/audience";
 import { yen } from "@/lib/sendai";
-import { MADE_WITH, reminderText } from "@/lib/share";
+import { MADE_WITH } from "@/lib/share";
 import { NextHost } from "./NextHost";
 import { SendButtons, useCanShare } from "./SendButtons";
 import { ROUND_UNITS, WEIGHTS, splitBill, tenthsFromInput, type Weight } from "@/lib/split";
-import { BUTTON_SUB, PILL, PILL_OFF, PILL_ON } from "./ui";
+import { BUTTON_PRIMARY, BUTTON_SUB, PILL, PILL_OFF, PILL_ON } from "./ui";
 
 // 傾斜会計。hasuru と同じく、区分ごとに色・記号・頭文字の丸で人を見分ける(色だけに頼らない)
 
-/**
- * weight は区分の key。自分で倍率を書いたときは "custom" にして、書いた文字を custom に持つ。
- * paid は幹事に払い終えたか(幹事本人は数えない)
- */
-type Person = { id: number; name: string; weight: string; custom: string; paid: boolean };
+/** weight は区分の key。自分で倍率を書いたときは "custom" にして、書いた文字を custom に持つ */
+type Person = { id: number; name: string; weight: string; custom: string };
 
 /** 幹事の画面から「この会の傾斜会計」で来たとき、行く人の名前を受け取る(URL には載せない) */
 export const SPLIT_NAMES_KEY = "nomi:split-names";
 
 /** 集金が終わるまで続きから使えるよう、最後の会計をこの端末に残す(サーバーには送らない) */
 const SAVE_KEY = "nomi:split";
-type Saved = { title: string; total: string; people: Person[]; unit: number; organizer: number };
+/** collection は作った集金のページ(幹事の鍵つき)。作ったあとに金額を変えたら作り直す */
+type Saved = {
+  title: string;
+  total: string;
+  people: Person[];
+  unit: number;
+  organizer: number;
+  collection?: { id: string; token: string } | null;
+};
 
 function loadSaved(): Saved | null {
   try {
@@ -35,7 +43,7 @@ function loadSaved(): Saved | null {
 }
 
 let nextId = 1;
-const person = (weight: string, name = ""): Person => ({ id: nextId++, name, weight, custom: "", paid: false });
+const person = (weight: string, name = ""): Person => ({ id: nextId++, name, weight, custom: "" });
 const startPeople = () => [person("normal", "幹事"), person("normal"), person("normal"), person("normal")];
 
 function Avatar({ name, tone, size = "md" }: { name: string; tone: Weight["tone"]; size?: "sm" | "md" }) {
@@ -72,6 +80,10 @@ export function SplitClient() {
   const [organizer, setOrganizer] = useState(0);
   const [origin, setOrigin] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [collection, setCollection] = useState<Saved["collection"]>(null);
+  const [collectError, setCollectError] = useState<string | null>(null);
+  const [collecting, startCollecting] = useTransition();
+  const router = useRouter();
   const canShare = useCanShare();
 
   useEffect(() => {
@@ -90,7 +102,8 @@ export function SplitClient() {
       nextId = Math.max(...saved.people.map((p) => p.id)) + 1;
       setTitle(saved.title ?? "");
       setTotal(saved.total ?? "");
-      setPeople(saved.people.map((p) => ({ ...p, custom: p.custom ?? "", paid: p.paid === true })));
+      setPeople(saved.people.map((p) => ({ id: p.id, name: p.name, weight: p.weight, custom: p.custom ?? "" })));
+      setCollection(saved.collection ?? null);
       setUnit(saved.unit ?? 100);
       setOrganizer(saved.organizer ?? 0);
     } else {
@@ -104,9 +117,9 @@ export function SplitClient() {
   useEffect(() => {
     if (!loaded) return;
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify({ title, total, people, unit, organizer } satisfies Saved));
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ title, total, people, unit, organizer, collection } satisfies Saved));
     } catch {}
-  }, [loaded, title, total, people, unit, organizer]);
+  }, [loaded, title, total, people, unit, organizer, collection]);
 
   function startOver() {
     if (!window.confirm("いまの会計を消して、新しい会計を始めますか?")) return;
@@ -115,6 +128,7 @@ export function SplitClient() {
     setPeople(startPeople());
     setUnit(100);
     setOrganizer(0);
+    setCollection(null);
   }
 
   const weights = WEIGHTS[audience];
@@ -150,15 +164,29 @@ export function SplitClient() {
       ].join("\n")
     : "";
 
-  // 集金の進み具合。幹事は店に払っている本人なので数えない
-  const payers = result ? people.map((p, i) => ({ p, i, amount: result.amounts[i] })).filter(({ i }) => i !== organizer) : [];
-  const unpaid = payers.filter(({ p }) => !p.paid);
-  const unpaidYen = unpaid.reduce((sum, u) => sum + u.amount, 0);
-  const remind = reminderText(
-    audience,
-    title,
-    unpaid.map(({ p, i, amount }) => ({ name: nameOf(p, i), amount })),
-  );
+  /** 集金のページを作る。金額はサーバーで計算し直し、幹事の画面へ移る */
+  function makeCollection() {
+    setCollectError(null);
+    startCollecting(async () => {
+      const r = await startCollection({
+        title,
+        audience,
+        total: totalYen,
+        unit,
+        organizer,
+        people: people.map((p, i) => {
+          const w = weightOf(p);
+          return { name: nameOf(p, i), tenths: w.tenths, label: w.label, mark: w.mark, tone: w.tone };
+        }),
+      });
+      if (!r.ok) {
+        setCollectError(r.error);
+        return;
+      }
+      setCollection({ id: r.id, token: r.adminToken });
+      router.push(`/c/${r.id}?token=${r.adminToken}`);
+    });
+  }
 
   return (
     <>
@@ -356,26 +384,7 @@ export function SplitClient() {
                         )}
                       </span>
                     </span>
-                    <span className={`shrink-0 text-lg font-extrabold tabular-nums ${organizer !== i && p.paid ? "text-muted line-through decoration-2" : ""}`}>
-                      {yen(result.amounts[i])}
-                    </span>
-                    {/* 払ったかの印。色だけでなく ✓ と文字でも分かるようにする */}
-                    {organizer === i ? (
-                      <span className="w-[4.5rem] shrink-0 text-center text-[11px] font-bold text-muted">立て替え</span>
-                    ) : (
-                      <button
-                        type="button"
-                        aria-pressed={p.paid}
-                        aria-label={`${nameOf(p, i)}は${p.paid ? "払い済み(押すと未払いに戻す)" : "まだ(押すと払い済みにする)"}`}
-                        onClick={() => update(p.id, { paid: !p.paid })}
-                        className={`tier-green inline-flex min-h-10 w-[4.5rem] shrink-0 items-center justify-center gap-1 rounded-full border text-xs font-bold transition-colors ${
-                          p.paid ? "border-[var(--tb)] bg-[var(--tb)] text-black" : "border-white/15 bg-surface-2 text-text hover:border-white/30"
-                        }`}
-                      >
-                        {p.paid ? <Check className="size-3.5" aria-hidden /> : null}
-                        {p.paid ? "済み" : "まだ"}
-                      </button>
-                    )}
+                    <span className="shrink-0 text-lg font-extrabold tabular-nums">{yen(result.amounts[i])}</span>
                   </li>
                 );
               })}
@@ -408,46 +417,36 @@ export function SplitClient() {
         )}
       </section>
 
-      {/* 集金。誰が払ったかを幹事がメモし、まだの人にだけ催促を送る */}
-      {result && payers.length > 0 && (
+      {/* 集金。払った人が自分で「払った」を押せるページを作り、幹事はそこで受け取りの記録と催促をする */}
+      {result && (
         <section className="mx-4 mt-4 rounded-3xl border border-border bg-surface px-5 py-5">
           <h2 className="flex items-center gap-2 text-lg font-extrabold">
             <Wallet className="size-5" aria-hidden />
             集金
           </h2>
-          <p className="mt-1 text-sm">
-            <span className="font-bold">
-              {payers.length}人中{payers.length - unpaid.length}人が払いました
-            </span>
-            {unpaid.length > 0 && <span className="text-muted">(あと{yen(unpaidYen)})</span>}
+          <p className="mt-1 text-sm text-muted">
+            集金のページを作ってみんなに送ると、払った人が自分で「払った」を押せます。誰が払ったかは幹事の画面でまとめて見られ、まだの人にだけ催促を送れます
           </p>
-          <div className="tier-green mt-3 h-2.5 overflow-hidden rounded-full bg-surface-2" aria-hidden>
-            <div
-              className="h-full rounded-full bg-[var(--tb)] transition-[width]"
-              style={{ width: `${((payers.length - unpaid.length) / payers.length) * 100}%` }}
-            />
-          </div>
-          <p className="mt-2 text-xs text-muted">上の金額の横の「まだ」を押すと「済み」になります。この端末に残るので、閉じても続きから使えます</p>
-
-          {unpaid.length === 0 ? (
-            <p className="tier-green mt-4 flex items-center gap-2 rounded-2xl bg-[var(--ts)] px-4 py-3 text-sm font-bold text-[var(--tc)]">
-              <Check className="size-4" aria-hidden />
-              全員の支払いがそろいました
+          {collectError && (
+            <p role="alert" className="mt-3 text-sm font-bold text-danger">
+              {collectError}
             </p>
-          ) : (
-            <div className="mt-5 border-t border-border pt-4">
-              <h3 className="font-extrabold">まだの人に催促する</h3>
-              <p className="mt-1 text-xs text-muted">まだの{unpaid.length}人の名前と金額だけが入ります。払った人の名前は出ません</p>
-              <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap">{remind}</p>
-              <SendButtons
-                mainLabel="共有して催促を送る"
-                line={remind}
-                share={{ text: remind }}
-                copy={remind}
-                copyLabel="催促の文をコピー"
-                canShare={canShare}
-              />
+          )}
+          {collection ? (
+            <div className="mt-4 grid gap-2">
+              <Link href={`/c/${collection.id}?token=${collection.token}`} className={`${BUTTON_PRIMARY} w-full gap-2`}>
+                <ExternalLink className="size-5" aria-hidden />
+                集金のページを開く
+              </Link>
+              <button type="button" onClick={makeCollection} disabled={collecting} className={`${BUTTON_SUB} w-full text-sm`}>
+                {collecting ? "作っています…" : "金額を変えたので作り直す"}
+              </button>
             </div>
+          ) : (
+            <button type="button" onClick={makeCollection} disabled={collecting} className={`${BUTTON_PRIMARY} mt-4 w-full gap-2`}>
+              <Wallet className="size-5" aria-hidden />
+              {collecting ? "作っています…" : "集金のページを作る"}
+            </button>
           )}
         </section>
       )}

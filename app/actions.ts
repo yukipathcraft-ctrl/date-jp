@@ -1,6 +1,7 @@
 "use server";
 
 import { AUDIENCES, isAudience } from "@/lib/audience";
+import { canSetPayment, parseCollection, type CollectionInput } from "@/lib/collection";
 import { isAreaKey, isBudget, isGenreKey } from "@/lib/sendai";
 import { findShop, mergeShops, searchShops, type Shop } from "@/lib/shops";
 import { getStore } from "@/lib/store";
@@ -119,4 +120,42 @@ export async function findShops(input: {
     if (next.shops.length > 0) return { ...next, raisedTo: higher };
   }
   return { ...first, raisedTo: null };
+}
+
+/** 傾斜会計から集金のページを作る。金額はサーバーで計算し直す */
+export async function startCollection(input: CollectionInput): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
+  const parsed = parseCollection(input);
+  if (!parsed.ok) return parsed;
+  const id = generateGroupId();
+  const adminToken = generateToken();
+  try {
+    await getStore().createCollection({ id, ...parsed.value, adminHash: hashToken(adminToken) });
+  } catch (e) {
+    console.error("[collection] 作れませんでした", e);
+    return { ok: false, error: "集金のページを作れませんでした。少し待ってからもう一度お試しください" };
+  }
+  return { ok: true, id, adminToken };
+}
+
+/**
+ * 払ったかどうかを切り替える。幹事(鍵が合う)は誰でも切り替えられ、受け取りとして記録する。
+ * 参加した人は「払った」にでき、自分で押したものだけ取り消せる
+ */
+export async function setCollectionPayment(
+  collectionId: string,
+  personId: number,
+  paid: boolean,
+  adminToken: string | null,
+): Promise<{ ok: true } | Fail> {
+  const store = getStore();
+  const c = await store.getCollection(collectionId);
+  if (!c) return { ok: false, error: "集金のページが見つかりません" };
+  const person = c.people.find((p) => p.id === personId);
+  if (!person || person.organizer) return { ok: false, error: "この人の支払いは変えられません" };
+  const isHost = verifyToken(adminToken, c.adminHash);
+  if (!canSetPayment(c.payments[personId], paid === true, isHost)) {
+    return { ok: false, error: "幹事が受け取りを記録したものは、幹事しか戻せません" };
+  }
+  await store.setPayment(collectionId, personId, paid === true ? { by: isHost ? "host" : "self" } : null);
+  return { ok: true };
 }

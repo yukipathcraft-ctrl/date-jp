@@ -31,6 +31,33 @@ export type Stats = {
   totalClicks: number;
 };
 
+/** 集金のページに出す1人ぶん。金額はサーバーで計算し直したもの */
+export type CollectionPerson = {
+  id: number;
+  name: string;
+  /** 区分の名前(「多め」「×1.2」など)と記号、色 */
+  label: string;
+  mark: string;
+  tone: "red" | "blue" | "yellow" | "green" | "purple" | "gray";
+  amount: number;
+  /** 店に立て替えた幹事。払う人に数えない */
+  organizer: boolean;
+};
+
+/** 払ったかどうか。self = 本人が押した、host = 幹事が受け取りを記録した */
+export type Payment = { by: "self" | "host" };
+
+/** 傾斜会計の集金。参加した人は URL から自分の「払った」を押し、幹事は鍵の入った URL で受け取りを記録する */
+export type Collection = {
+  id: string;
+  title: string;
+  audience: Audience;
+  total: number;
+  people: CollectionPerson[];
+  adminHash: string;
+  payments: Record<number, Payment>;
+};
+
 export interface Store {
   createParty(party: Omit<Party, "decision">): Promise<void>;
   getParty(id: string): Promise<Party | null>;
@@ -41,4 +68,8 @@ export interface Store {
   /** お店のページへ飛んだ数(誰が押したかは残さない)。「お店を探す」から来たときは partyId が null */
   logShopClick(partyId: string | null, shopId: string): Promise<void>;
   getStats(since: Date): Promise<Stats>;
+  createCollection(collection: Omit<Collection, "payments">): Promise<void>;
+  getCollection(id: string): Promise<Collection | null>;
+  /** null なら「まだ」に戻す */
+  setPayment(collectionId: string, personId: number, payment: Payment | null): Promise<void>;
 }
