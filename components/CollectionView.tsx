@@ -148,7 +148,7 @@ export function CollectionView({
                   <>
                     <span className="tier-green inline-flex min-h-9 w-full items-center justify-center gap-1 rounded-full bg-[var(--tb)] text-xs font-bold text-black">
                       <Check className="size-3.5" aria-hidden />
-                      {pay.by === "host" ? "受け取り済み" : "払った"}
+                      {pay.by === "host" ? "受取済み" : "払った"}
                     </span>
                     {(isHost || pay.by === "self") && (
                       <button
