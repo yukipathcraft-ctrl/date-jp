@@ -71,7 +71,17 @@ export function ShopList({
           </li>
         ))}
       </ul>
-      {!isSample && <p className="mt-3 text-xs text-muted">Powered by <a href="http://webservice.recruit.co.jp/" className="underline">ホットペッパーグルメ Webサービス</a></p>}
+      {/* ホットペッパーの規約で、クレジットと、写真を使うときの「画像提供」の表示が必要 */}
+      {!isSample && (
+        <p className="mt-3 text-xs text-muted">
+          Powered by{" "}
+          <a href="http://webservice.recruit.co.jp/" className="underline">
+            ホットペッパーグルメ Webサービス
+          </a>
+          <br />
+          画像提供:ホットペッパー グルメ
+        </p>
+      )}
     </section>
   );
 }
