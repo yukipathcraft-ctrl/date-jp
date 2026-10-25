@@ -5,7 +5,7 @@ import type { CSSProperties } from "react";
 // そのあと名前が大きく落ちてきて、光が文字の上を走り、全体がふわっと消える。
 // 動きは globals.css の .intro-* に置く。動きを減らす設定の人には出さない(HomeClient で判定)
 
-const NAME = "nomi";
+const NAME = "Date";
 
 // 飛び散る粒。角度と距離を決めておく(毎回同じ形にする)
 const PARTICLES = Array.from({ length: 22 }, (_, i) => {
