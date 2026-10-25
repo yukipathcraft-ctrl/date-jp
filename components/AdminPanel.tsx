@@ -2,7 +2,7 @@
 
 import { Calculator, KeyRound, PartyPopper, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { addTransitionType, startTransition, useEffect, useState, useTransition } from "react";
 import { decide } from "@/app/actions";
 import { dateLabel } from "@/lib/sendai";
 import { decidedText, inviteText } from "@/lib/share";
@@ -23,7 +23,7 @@ type Props = {
   bestDate: string | null;
   shops: Shop[];
   decision: Decision | null;
-  /** その日に行く人の名前。傾斜会計に持っていく */
+  /** その日に行く人の名前。会計に持っていく */
   attendees: string[];
 };
 
@@ -139,12 +139,15 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
               try {
                 sessionStorage.setItem(SPLIT_NAMES_KEY, JSON.stringify(attendees));
               } catch {}
-              router.push("/split");
+              startTransition(() => {
+                addTransitionType("nav-forward");
+                router.push("/split");
+              });
             }}
             className={`${BUTTON_SUB} w-full gap-2`}
           >
             <Calculator className="size-4" aria-hidden />
-            この会の傾斜会計({attendees.length}人)
+            この会の会計({attendees.length}人)
           </button>
           <button type="button" onClick={() => submit(null)} disabled={pending} className={`${BUTTON_SUB} mt-2 w-full`}>
             決定を取り消す

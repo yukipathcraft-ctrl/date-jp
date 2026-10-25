@@ -1,5 +1,10 @@
 import { HomeClient } from "@/components/HomeClient";
+import { PageMotion } from "@/components/PageMotion";
 
 export default function Home() {
-  return <HomeClient />;
+  return (
+    <PageMotion>
+      <HomeClient />
+    </PageMotion>
+  );
 }

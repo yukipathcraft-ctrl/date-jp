@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SummaryView } from "@/components/SummaryView";
 import { verifyToken } from "@/lib/tokens";
 import { loadParty } from "@/lib/view";
+import { PageMotion } from "@/components/PageMotion";
 
 export const metadata: Metadata = { title: "幹事の画面", robots: { index: false } };
 
@@ -21,18 +22,18 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
 
   if (typeof token !== "string" || !verifyToken(token, adminHash)) {
     return (
-      <>
+      <PageMotion>
         <SiteHeader />
         <div className="mx-auto max-w-xl px-4 py-10">
           <h1 className="text-xl font-extrabold">幹事のURLが正しくありません</h1>
           <p className="mt-2 text-sm text-muted">会を作ったときに保存した幹事用のURLから開いてください</p>
         </div>
-      </>
+      </PageMotion>
     );
   }
 
   return (
-    <>
+    <PageMotion>
       <SiteHeader />
       <div className="mx-auto max-w-xl pb-16">
         <div className="px-4 pt-6 pb-4">
@@ -65,6 +66,6 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
           </a>
         </p>
       </div>
-    </>
+    </PageMotion>
   );
 }

@@ -2,9 +2,10 @@ import Link from "next/link";
 import { BackButton } from "./BackButton";
 import { LogoMark } from "./Logo";
 
+// 画面が切り替わっても上のバーは動かさない(globals.css の site-header)
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-10 border-b border-border bg-bg/85 backdrop-blur">
+    <header className="sticky top-0 z-10 border-b border-border bg-bg/85 backdrop-blur" style={{ viewTransitionName: "site-header" }}>
       <div className="mx-auto flex h-14 max-w-xl items-center justify-between px-4">
         <div className="flex items-center">
           <BackButton />

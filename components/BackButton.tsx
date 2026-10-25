@@ -2,7 +2,7 @@
 
 import { ChevronLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { addTransitionType, startTransition, useEffect } from "react";
 
 // 上のバーの戻るボタン。アプリの中で移ってきたなら前の画面へ、
 // LINE のリンクなどから直接開いたなら戻る先がないので、トップへ行く
@@ -37,7 +37,14 @@ export function BackButton() {
     <button
       type="button"
       aria-label="戻る"
-      onClick={() => (pagesSeen() > 1 ? router.back() : router.push("/"))}
+      onClick={() =>
+        // 戻る向き(右へ流れる)の切り替わりにする
+        startTransition(() => {
+          addTransitionType("nav-back");
+          if (pagesSeen() > 1) router.back();
+          else router.push("/");
+        })
+      }
       className="-ml-2 grid size-11 shrink-0 place-items-center rounded-full text-text hover:bg-surface-2"
     >
       <ChevronLeft className="size-6" aria-hidden />

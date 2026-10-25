@@ -14,6 +14,27 @@ import { SendButtons, useCanShare } from "./SendButtons";
 /** 幹事の鍵。集金のページを作った端末に残し、鍵なしの URL で開いても幹事として使えるようにする */
 const hostKey = (id: string) => `nomi:collect:${id}`;
 
+/** 全員そろったときに、金色の粒を8方向へはじけさせる(飾りなので読み上げない) */
+function Burst() {
+  const dirs = [0, 45, 90, 135, 180, 225, 270, 315];
+  return (
+    <span aria-hidden className="burst pointer-events-none absolute top-1/2 left-2">
+      {dirs.map((deg) => (
+        <span
+          key={deg}
+          className="absolute size-1.5 rounded-full bg-accent"
+          style={
+            {
+              "--dx": `${Math.round(Math.cos((deg * Math.PI) / 180) * 34)}px`,
+              "--dy": `${Math.round(Math.sin((deg * Math.PI) / 180) * 34)}px`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+    </span>
+  );
+}
+
 export function CollectionView({
   collection: c,
   hostToken,
@@ -89,13 +110,14 @@ export function CollectionView({
         </p>
         <div className="tier-green mt-3 h-2.5 overflow-hidden rounded-full bg-surface-2" aria-hidden>
           <div
-            className="h-full rounded-full bg-[var(--tb)] transition-[width]"
+            className="anim-grow h-full rounded-full bg-[var(--tb)]"
             style={{ width: `${payers.length ? ((payers.length - unpaid.length) / payers.length) * 100 : 0}%` }}
           />
         </div>
         <p className="mt-2 text-sm">
           {unpaid.length === 0 ? (
-            <span className="tier-green inline-flex items-center gap-1 font-bold text-[var(--tc)]">
+            <span className="tier-green anim-pop relative inline-flex items-center gap-1 font-bold text-[var(--tc)]">
+              <Burst />
               <Check className="size-4" aria-hidden />
               全員の支払いがそろいました
             </span>
@@ -111,10 +133,10 @@ export function CollectionView({
       </section>
 
       <ul className="mx-4 mt-3 divide-y divide-border overflow-hidden rounded-3xl border border-border bg-surface">
-        {c.people.map((p) => {
+        {c.people.map((p, i) => {
           const pay = c.payments[p.id];
           return (
-            <li key={p.id} className="flex min-h-16 items-center gap-2.5 px-4">
+            <li key={p.id} className="anim-stagger flex min-h-16 items-center gap-2.5 px-4" style={{ "--i": i } as React.CSSProperties}>
               <span
                 aria-hidden
                 className={`tier-${p.tone} grid size-9 shrink-0 place-items-center rounded-full bg-[var(--ts)] text-sm font-extrabold text-[var(--tc)]`}
@@ -146,7 +168,7 @@ export function CollectionView({
                   <span className="text-[11px] font-bold text-muted">立て替え</span>
                 ) : pay ? (
                   <>
-                    <span className="tier-green inline-flex min-h-9 w-full items-center justify-center gap-1 rounded-full bg-[var(--tb)] text-xs font-bold text-black">
+                    <span className="tier-green anim-pop inline-flex min-h-9 w-full items-center justify-center gap-1 rounded-full bg-[var(--tb)] text-xs font-bold text-black">
                       <Check className="size-3.5" aria-hidden />
                       {pay.by === "host" ? "受取済み" : "払った"}
                     </span>

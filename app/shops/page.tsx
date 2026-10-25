@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { ShopSearch } from "@/components/ShopSearch";
 import { SiteHeader } from "@/components/SiteHeader";
+import { PageMotion } from "@/components/PageMotion";
 
 export const metadata: Metadata = { title: "お店を探す" };
 
 export default function ShopsPage() {
   return (
-    <>
+    <PageMotion>
       <SiteHeader />
       <div className="mx-auto max-w-xl pt-6 pb-16">
         <div className="px-4 pb-5">
@@ -15,6 +16,6 @@ export default function ShopsPage() {
         </div>
         <ShopSearch />
       </div>
-    </>
+    </PageMotion>
   );
 }

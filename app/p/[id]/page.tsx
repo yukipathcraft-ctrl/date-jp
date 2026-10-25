@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SummaryView } from "@/components/SummaryView";
 import { getStore } from "@/lib/store";
 import { loadParty } from "@/lib/view";
+import { PageMotion } from "@/components/PageMotion";
 
 export async function generateMetadata(props: PageProps<"/p/[id]">): Promise<Metadata> {
   const { id } = await props.params;
@@ -26,7 +27,7 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
   const { party, summary, shops, otherArea } = view;
 
   return (
-    <>
+    <PageMotion>
       <SiteHeader />
       <div className="mx-auto max-w-xl pb-16">
         <div className="px-4 pt-6 pb-4">
@@ -46,6 +47,6 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
           <NextHost />
         </div>
       </div>
-    </>
+    </PageMotion>
   );
 }

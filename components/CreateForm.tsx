@@ -2,7 +2,7 @@
 
 import { CalendarDays, Check, PenLine } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { addTransitionType, startTransition, useEffect, useState, useTransition } from "react";
 import { createParty } from "@/app/actions";
 import { AUDIENCES, loadAudience, type Audience } from "@/lib/audience";
 import { rememberParty } from "@/lib/myParties";
@@ -61,7 +61,10 @@ export function CreateForm() {
       }
       saveAdminToken(result.id, result.adminToken);
       rememberParty({ id: result.id, title: title.trim(), token: result.adminToken, createdAt: Date.now() });
-      router.push(`/p/${result.id}/admin?token=${result.adminToken}&created=1`);
+      startTransition(() => {
+        addTransitionType("nav-forward");
+        router.push(`/p/${result.id}/admin?token=${result.adminToken}&created=1`);
+      });
     });
   }
 

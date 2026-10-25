@@ -3,7 +3,7 @@
 import { Check, Crown, ExternalLink, NotebookPen, PencilLine, Plus, RotateCcw, Wallet, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { addTransitionType, startTransition, useEffect, useState, useTransition } from "react";
 import { startCollection } from "@/app/actions";
 import { loadAudience, type Audience } from "@/lib/audience";
 import { yen } from "@/lib/sendai";
@@ -13,12 +13,13 @@ import { SendButtons, useCanShare } from "./SendButtons";
 import { ROUND_UNITS, WEIGHTS, splitBill, tenthsFromInput, type Weight } from "@/lib/split";
 import { BUTTON_PRIMARY, BUTTON_SUB, PILL, PILL_OFF, PILL_ON } from "./ui";
 
-// 傾斜会計。hasuru と同じく、区分ごとに色・記号・頭文字の丸で人を見分ける(色だけに頼らない)
+// 会計。いつもはふつうの割り勘で、「傾斜をつける」にしたときだけ区分や倍率を選ぶ。
+// 傾斜では hasuru と同じく、区分ごとに色・記号・頭文字の丸で人を見分ける(色だけに頼らない)
 
 /** weight は区分の key。自分で倍率を書いたときは "custom" にして、書いた文字を custom に持つ */
 type Person = { id: number; name: string; weight: string; custom: string };
 
-/** 幹事の画面から「この会の傾斜会計」で来たとき、行く人の名前を受け取る(URL には載せない) */
+/** 幹事の画面から「この会の会計」で来たとき、行く人の名前を受け取る(URL には載せない) */
 export const SPLIT_NAMES_KEY = "nomi:split-names";
 
 /** 集金が終わるまで続きから使えるよう、最後の会計をこの端末に残す(サーバーには送らない) */
@@ -30,6 +31,8 @@ type Saved = {
   people: Person[];
   unit: number;
   organizer: number;
+  /** 傾斜をつけるか。前の保存にないときは、区分を変えた人がいれば傾斜とみなす */
+  weighted?: boolean;
   collection?: { id: string; token: string } | null;
 };
 
@@ -81,6 +84,7 @@ export function SplitClient() {
   const [origin, setOrigin] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [collection, setCollection] = useState<Saved["collection"]>(null);
+  const [weighted, setWeighted] = useState(false);
   const [collectError, setCollectError] = useState<string | null>(null);
   const [collecting, startCollecting] = useTransition();
   const router = useRouter();
@@ -104,6 +108,7 @@ export function SplitClient() {
       setTotal(saved.total ?? "");
       setPeople(saved.people.map((p) => ({ id: p.id, name: p.name, weight: p.weight, custom: p.custom ?? "" })));
       setCollection(saved.collection ?? null);
+      setWeighted(saved.weighted ?? saved.people.some((p) => p.weight !== "normal"));
       setUnit(saved.unit ?? 100);
       setOrganizer(saved.organizer ?? 0);
     } else {
@@ -117,9 +122,9 @@ export function SplitClient() {
   useEffect(() => {
     if (!loaded) return;
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify({ title, total, people, unit, organizer, collection } satisfies Saved));
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ title, total, people, unit, organizer, weighted, collection } satisfies Saved));
     } catch {}
-  }, [loaded, title, total, people, unit, organizer, collection]);
+  }, [loaded, title, total, people, unit, organizer, weighted, collection]);
 
   function startOver() {
     if (!window.confirm("いまの会計を消して、新しい会計を始めますか?")) return;
@@ -128,12 +133,16 @@ export function SplitClient() {
     setPeople(startPeople());
     setUnit(100);
     setOrganizer(0);
+    setWeighted(false);
     setCollection(null);
   }
 
   const weights = WEIGHTS[audience];
   const normal = weights.find((w) => w.key === "normal")!;
+  /** ふつうの割り勘のとき。全員同じ倍率で、区分の印は出さない */
+  const even: Weight = { key: "even", label: "", note: "", tenths: 10, mark: "", tone: "yellow" };
   const weightOf = (p: Person): Weight => {
+    if (!weighted) return even;
     if (p.weight !== "custom") return weights.find((w) => w.key === p.weight) ?? normal;
     // 書きかけで読めないうちは「ふつう」と同じ倍率で数える
     const tenths = tenthsFromInput(p.custom) ?? normal.tenths;
@@ -157,9 +166,9 @@ export function SplitClient() {
   const shareText = result
     ? [
         `${title.trim() ? `「${title.trim()}」の` : ""}お会計 ${yen(totalYen)}(${people.length}人)`,
-        ...people.map((p, i) => `${weightOf(p).mark} ${nameOf(p, i)} ${yen(result.amounts[i])}`),
+        ...people.map((p, i) => `${weighted ? `${weightOf(p).mark} ` : "・"}${nameOf(p, i)} ${yen(result.amounts[i])}`),
         "",
-        `${MADE_WITH}(傾斜会計)`,
+        `${MADE_WITH}(会計)`,
         origin,
       ].join("\n")
     : "";
@@ -184,7 +193,10 @@ export function SplitClient() {
         return;
       }
       setCollection({ id: r.id, token: r.adminToken });
-      router.push(`/c/${r.id}?token=${r.adminToken}`);
+      startTransition(() => {
+        addTransitionType("nav-forward");
+        router.push(`/c/${r.id}?token=${r.adminToken}`);
+      });
     });
   }
 
@@ -218,8 +230,26 @@ export function SplitClient() {
         </span>
       </label>
 
+      {/* ふつうの割り勘か、傾斜をつけるか */}
+      <div className="mx-4 mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-surface-2 p-1" role="group" aria-label="割り方">
+        {([false, true] as const).map((v) => (
+          <button
+            key={String(v)}
+            type="button"
+            aria-pressed={weighted === v}
+            onClick={() => setWeighted(v)}
+            className={`min-h-11 rounded-xl text-sm font-bold transition-colors ${
+              weighted === v ? "bg-surface text-text shadow" : "text-muted hover:text-text"
+            }`}
+          >
+            {v ? "傾斜をつける" : "ふつうの割り勘"}
+          </button>
+        ))}
+      </div>
+
       {/* 区分の見本 */}
-      <div className="mx-4 mt-4 flex flex-wrap gap-1.5" aria-label="傾斜の区分">
+      {weighted && (
+      <div className="anim-rise mx-4 mt-3 flex flex-wrap gap-1.5" aria-label="傾斜の区分">
         {weights.map((w) => (
           <span key={w.key} className={`tier-${w.tone} inline-flex items-center gap-1 rounded-full bg-[var(--ts)] px-2.5 py-1 text-xs font-bold text-[var(--tc)]`}>
             <span aria-hidden>{w.mark}</span>
@@ -227,6 +257,7 @@ export function SplitClient() {
           </span>
         ))}
       </div>
+      )}
 
       {/* 払う人 */}
       <ul className="mx-4 mt-3 space-y-2">
@@ -267,6 +298,7 @@ export function SplitClient() {
                   </button>
                 )}
               </div>
+              {weighted && (
               <div className="mt-2.5 flex flex-wrap gap-1.5">
                 {weights.map((opt) => {
                   const on = p.weight === opt.key;
@@ -299,7 +331,8 @@ export function SplitClient() {
                   倍率を入れる
                 </button>
               </div>
-              {customOn && (
+              )}
+              {weighted && customOn && (
                 <label className="mt-2.5 flex items-center gap-2">
                   <span className="text-lg font-extrabold text-[var(--tc)]" aria-hidden>
                     ×
@@ -375,7 +408,7 @@ export function SplitClient() {
                     <span className="min-w-0 flex-1 py-2">
                       <span className="block truncate font-bold">{nameOf(p, i)}</span>
                       <span className="mt-1 flex items-center gap-1">
-                        <TierTag w={w} />
+                        {weighted && <TierTag w={w} />}
                         {organizer === i && (
                           <span className="inline-flex shrink-0 items-center gap-0.5 rounded-md bg-accent px-1.5 py-0.5 text-[11px] font-bold leading-none text-accent-text">
                             <Crown className="size-3" aria-hidden />
@@ -418,11 +451,11 @@ export function SplitClient() {
       </section>
 
       {/* 集金。払った人が自分で「払った」を押せるページを作り、幹事はそこで受け取りの記録と催促をする */}
-      {result && (
-        <section className="mx-4 mt-4 rounded-3xl border border-border bg-surface px-5 py-5">
+      {/* トップの「集金のチェック」からはここへ来る(#collect) */}
+      <section id="collect" className="mx-4 mt-4 scroll-mt-20 rounded-3xl border border-border bg-surface px-5 py-5">
           <h2 className="flex items-center gap-2 text-lg font-extrabold">
             <Wallet className="size-5" aria-hidden />
-            集金
+            集金のチェック
           </h2>
           <p className="mt-1 text-sm text-muted">
             集金のページを作ってみんなに送ると、払った人が自分で「払った」を押せます。誰が払ったかは幹事の画面でまとめて見られ、まだの人にだけ催促を送れます
@@ -432,9 +465,11 @@ export function SplitClient() {
               {collectError}
             </p>
           )}
-          {collection ? (
+          {!result ? (
+            <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm text-muted">上でお会計の合計を入れると、集金のページを作れます</p>
+          ) : collection ? (
             <div className="mt-4 grid gap-2">
-              <Link href={`/c/${collection.id}?token=${collection.token}`} className={`${BUTTON_PRIMARY} w-full gap-2`}>
+              <Link href={`/c/${collection.id}?token=${collection.token}`} transitionTypes={["nav-forward"]} className={`${BUTTON_PRIMARY} w-full gap-2`}>
                 <ExternalLink className="size-5" aria-hidden />
                 集金のページを開く
               </Link>
@@ -448,8 +483,7 @@ export function SplitClient() {
               {collecting ? "作っています…" : "集金のページを作る"}
             </button>
           )}
-        </section>
-      )}
+      </section>
 
       <div className="mx-4 mt-4">
         <button type="button" onClick={startOver} className={`${BUTTON_SUB} w-full gap-2 text-sm`}>

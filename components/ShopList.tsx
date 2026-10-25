@@ -29,8 +29,8 @@ export function ShopList({
         </p>
       )}
       <ul className="mt-4 space-y-3">
-        {shops.map((s) => (
-          <li key={s.id} className={`rounded-2xl border p-4 ${chosenId === s.id ? "border-match bg-match-soft" : "border-border"}`}>
+        {shops.map((s, i) => (
+          <li key={s.id} style={{ "--i": i } as React.CSSProperties} className={`anim-stagger rounded-2xl border p-4 ${chosenId === s.id ? "border-match bg-match-soft" : "border-border"}`}>
             <div className="flex items-start gap-3">
               {s.photo ? (
                 // 外のお店の写真。最適化は使わない

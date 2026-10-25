@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase, CalendarDays, ChevronRight, GraduationCap, Repeat, Store } from "lucide-react";
+import { Briefcase, CalendarDays, ChevronRight, GraduationCap, ListChecks, Repeat, Store } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AUDIENCES, loadAudience, saveAudience, type Audience } from "@/lib/audience";
@@ -19,6 +19,7 @@ function HomeRow({ href, icon, title, sub }: { href: string; icon: React.ReactNo
   return (
     <Link
       href={href}
+      transitionTypes={["nav-forward"]}
       className="flex min-h-20 items-center gap-4 border-t border-border px-5 py-3 transition-colors first:border-t-0 hover:bg-surface-2/60"
     >
       <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-accent">{icon}</span>
@@ -204,8 +205,18 @@ export function HomeClient() {
                 ))}
               </span>
             }
-            title="傾斜会計"
-            sub={audience === "student" ? "先輩には多めに、飲まない人には少なめに割れます" : "上司には多めに、新人には少なめに割れます"}
+            title="会計"
+            sub={
+              audience === "student"
+                ? "ふつうの割り勘も、先輩は多め・飲まない人は少なめの傾斜もできます"
+                : "ふつうの割り勘も、上司は多め・新人は少なめの傾斜もできます"
+            }
+          />
+          <HomeRow
+            href="/split#collect"
+            icon={<ListChecks className="size-6" aria-hidden />}
+            title="集金のチェック"
+            sub="払った人が自分で「払った」を押すので、誰が払ったか一目で分かります"
           />
         </section>
 
