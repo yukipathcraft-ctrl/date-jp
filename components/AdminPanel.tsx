@@ -76,7 +76,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
       <section className={`mx-4 rounded-3xl border border-border bg-surface px-4 py-6 ${decision ? "mt-4" : ""}`}>
         {created && <p className="anim-rise mb-2 text-sm font-bold text-ok">✓ できました!</p>}
         <h2 className="text-lg font-extrabold">みんなに送る</h2>
-        <p className="mt-1 text-sm text-muted">LINEのグループに貼ると、みんなが答えられます。</p>
+        <p className="mt-1 text-sm text-muted">LINEのグループに送れば、みんながそこから答えられます</p>
         <div className="mt-4 space-y-2">
           <a href={lineShareUrl(inviteText(title, guestUrl))} className={`${BUTTON_LINE} w-full gap-2`}>
             <Send className="size-4" aria-hidden />
@@ -85,8 +85,8 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           <CopyButton text={guestUrl} label="みんな用のURLをコピー" />
         </div>
         <div className="mt-5 rounded-2xl bg-match-soft p-4">
-          <p className="text-sm font-bold text-match-text">幹事のURLは、なくすと戻せません</p>
-          <p className="mt-1 text-xs text-match-text">このURLから、日にちとお店を決められます。自分のLINEに送って残してください。</p>
+          <p className="text-sm font-bold text-match-text">このページのURLはなくすと戻せません</p>
+          <p className="mt-1 text-xs text-match-text">日にちとお店はこのページから決めるので、自分のLINEに送って残しておいてください</p>
           <a href={lineShareUrl(`「${title}」の幹事用URL(人に送らない)\n${adminUrl}`)} className={`${BUTTON_SUB} mt-3 w-full`}>
             自分のLINEに送って保存
           </a>
@@ -103,7 +103,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
         <section className="anim-rise mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
           <p className="flex items-center gap-2 text-lg font-extrabold">
             <PartyPopper className="size-5" aria-hidden />
-            決定を知らせる
+            決まったことを知らせる
           </p>
           <a
             href={lineShareUrl(decidedText(title, decision.date, decision.start, decision.shopName, guestUrl))}
@@ -134,7 +134,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
         ranking.some((r) => r.ok > 0) && (
           <section className="mt-4 mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
             <h2 className="text-lg font-extrabold">幹事が決める</h2>
-            <p className="mt-1 text-sm text-muted">みんなの答えでいちばん良い日とお店を、先に選んであります。</p>
+            <p className="mt-1 text-sm text-muted">みんなの答えからいちばん良さそうな日とお店を先に選んでおきました</p>
             <p className="mt-4 mb-2 text-sm font-bold">日にち</p>
             <div className="grid grid-cols-2 gap-1.5">
               {ranking

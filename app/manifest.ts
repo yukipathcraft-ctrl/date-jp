@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Date 仙台の飲み会セッティング",
     short_name: "Date",
-    description: "伊達(仙台)と date(日にち)をかけた名前。飲み会の日にち・予算・お店が、URLを貼るだけで決まる",
+    description: "URLを貼るだけで、仙台での飲み会の日にちと予算とお店が決まります",
     lang: "ja",
     start_url: "/",
     scope: "/",

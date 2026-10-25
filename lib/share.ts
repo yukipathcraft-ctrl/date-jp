@@ -6,7 +6,7 @@ export function lineShareUrl(text: string): string {
 }
 
 export function inviteText(title: string, url: string): string {
-  return [`「${title}」の日にちとお店を決めます。`, "行ける日・予算・何時まで残れるかを30秒で入れてください。", url].join("\n");
+  return [`「${title}」の日にちとお店を決めたいので、行ける日と予算と何時まで残れるかを入れてください(30秒で終わります)`, url].join("\n");
 }
 
 export function decidedText(title: string, date: string, start: number, shopName: string | null, url: string): string {

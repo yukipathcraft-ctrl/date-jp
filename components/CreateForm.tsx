@@ -104,7 +104,7 @@ export function CreateForm() {
         {pending ? "作っています…" : "URLを作る"}
       </button>
       <p className="mt-3 text-center text-xs text-muted">
-        登録はいりません。{AUDIENCES[audience].label}向けの予算と時間で聞きます。
+        登録はいらず、{AUDIENCES[audience].label}向けの予算と時間でみんなに聞きます
       </p>
     </>
   );

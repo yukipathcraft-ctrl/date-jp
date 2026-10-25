@@ -9,7 +9,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
     return (
       <section className="mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
         <h2 className="text-lg font-extrabold">みんなの答え</h2>
-        <p className="mt-2 text-sm text-muted">まだ誰も答えていません。</p>
+        <p className="mt-2 text-sm text-muted">まだ誰も答えていません</p>
       </section>
     );
   }
@@ -17,20 +17,20 @@ export function SummaryView({ summary }: { summary: Summary }) {
     return (
       <section className="mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
         <h2 className="text-lg font-extrabold">みんなの答え({summary.answered}人)</h2>
-        <p className="mt-2 text-sm text-muted">全員が「行けない」と答えた日しかありません。候補の日を足して作り直してください。</p>
+        <p className="mt-2 text-sm text-muted">どの日も全員が行けないと答えているので、候補の日を足して作り直してください</p>
       </section>
     );
   }
 
   const rows = [
-    { icon: CalendarDays, label: "日にち", value: dateLabel(summary.date), sub: `${summary.attendees.length}人が行ける` },
+    { icon: CalendarDays, label: "日にち", value: dateLabel(summary.date), sub: `${summary.attendees.length}人が行けます` },
     {
       icon: Clock,
       label: "時間",
       value: `${clock(summary.start!)}〜${clock(summary.firstEnd!)}`,
-      sub: summary.lateJoiners.length > 0 ? `${summary.lateJoiners.join("・")}さんは途中から` : "全員そろって始められる",
+      sub: summary.lateJoiners.length > 0 ? `${summary.lateJoiners.join("と")}さんは途中から来ます` : "全員そろって始められます",
     },
-    { icon: Wallet, label: "予算", value: `${yen(summary.budget!)}まで`, sub: "行く人全員が出せる額" },
+    { icon: Wallet, label: "予算", value: `${yen(summary.budget!)}まで`, sub: "行く人全員が出せる額です" },
     {
       icon: MapPin,
       label: "場所",
@@ -41,7 +41,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
       icon: Moon,
       label: "二次会",
       value: `${summary.secondParty.length}人`,
-      sub: summary.secondParty.length > 0 ? `${summary.secondParty.join("・")}` : "一次会で解散",
+      sub: summary.secondParty.length > 0 ? `${summary.secondParty.join("と")}さんが残れます` : "一次会で解散になりそうです",
     },
   ];
 

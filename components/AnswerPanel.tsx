@@ -104,7 +104,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
           <span className="grid size-6 place-items-center rounded-full bg-accent text-accent-text">
             <Check className="size-4" aria-hidden />
           </span>
-          {mine.name}さんの回答は保存済み{saved && "です。ありがとう!"}
+          {saved ? `${mine.name}さんの答えを受け取りました、ありがとう!` : `${mine.name}さんの答えは保存してあります`}
         </p>
         <button type="button" onClick={edit} disabled={pending} className={`${BUTTON_SUB} mt-3 w-full gap-2`}>
           <Pencil className="size-4" aria-hidden />
@@ -136,7 +136,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
             className={INPUT}
             value={form.name}
             onChange={(e) => set({ name: e.target.value })}
-            placeholder="みんなが分かる名前"
+            placeholder="みんなが分かる名前で"
             maxLength={20}
           />
         </label>
@@ -206,7 +206,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
               </Choice>
             ))}
           </div>
-          <p className="mt-3 text-xs text-muted">誰がいくらと答えたかは、幹事にも出ません。行く人全員が出せる額に合わせます。</p>
+          <p className="mt-3 text-xs text-muted">誰がいくらと答えたかは幹事にも見えず、行く人全員が出せる額に合わせて決まります</p>
         </fieldset>
 
         <fieldset className="px-5 py-5">

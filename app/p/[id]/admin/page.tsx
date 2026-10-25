@@ -25,7 +25,7 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
         <SiteHeader />
         <div className="mx-auto max-w-xl px-4 py-10">
           <h1 className="text-xl font-extrabold">幹事のURLが正しくありません</h1>
-          <p className="mt-2 text-sm text-muted">作ったときに保存した、幹事用のURLから開いてください。</p>
+          <p className="mt-2 text-sm text-muted">会を作ったときに保存した幹事用のURLから開いてください</p>
         </div>
       </>
     );

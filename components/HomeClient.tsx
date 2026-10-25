@@ -26,11 +26,11 @@ function NameStory() {
       </summary>
       <div className="pb-5 text-sm leading-relaxed text-muted">
         <p>
-          <span className="font-bold text-text">伊達(だて)</span>と<span className="font-bold text-text">date(日にち)</span>
-          をかけています。
+          仙台の街をつくった<span className="font-bold text-text">伊達</span>政宗の「伊達」と、英語で日にちを表す
+          <span className="font-bold text-text">date</span>をかけた名前です
         </p>
         <p className="mt-2">
-          伊達政宗がつくった街・仙台で、飲み会の日にちを決めるアプリだから Date。ついでに英語の date には「会う約束」の意味もあります。
+          date には人と会う約束という意味もあるので、仙台で飲み会の日にちを決めるアプリにちょうどいいと思って付けました
         </p>
       </div>
     </details>
@@ -58,7 +58,7 @@ export function HomeClient() {
     }
     setPhase("splash");
     /* eslint-enable react-hooks/set-state-in-effect */
-    const t = setTimeout(() => setPhase(next), 3000);
+    const t = setTimeout(() => setPhase(next), 3200);
     return () => clearTimeout(t);
   }, []);
 
@@ -86,7 +86,7 @@ export function HomeClient() {
         <div className="anim-rise">
           <LogoMark size={56} />
           <h1 className="mt-6 text-3xl font-extrabold tracking-tight">あなたは?</h1>
-          <p className="mt-2 text-muted">予算や時間、出てくるお店が変わります。あとで変えられます。</p>
+          <p className="mt-2 text-muted">選んだほうに合わせて予算や時間やお店が変わり、あとからでも切り替えられます</p>
           <div className="mt-8 grid gap-3">
             {(["student", "worker"] as const).map((a) => {
               const Icon = a === "student" ? GraduationCap : Briefcase;
@@ -121,9 +121,9 @@ export function HomeClient() {
       : { title: "部署の歓迎会", when: "11/6(金) 19:00〜", budget: "5,000円まで", area: "国分町", second: "二次会 3人" };
   const rows = [
     { icon: CalendarDays, label: "日時", value: sample.when },
-    { icon: Wallet, label: "予算", value: sample.budget, note: "誰がいくらと答えたかは出ない" },
+    { icon: Wallet, label: "予算", value: sample.budget, note: "誰がいくらと答えたかは出ません" },
     { icon: MapPin, label: "場所", value: sample.area },
-    { icon: Moon, label: "いつまで", value: sample.second, note: "一次会で帰る人も先に分かる" },
+    { icon: Moon, label: "いつまで", value: sample.second, note: "一次会で帰る人も先に分かります" },
   ];
 
   return (
@@ -131,10 +131,10 @@ export function HomeClient() {
       <SiteHeader />
       <div className="anim-rise mx-auto max-w-xl px-4 pt-7 pb-16">
         <CrescentRule />
-        <p className="mt-3 text-sm font-bold text-muted">{AUDIENCES[audience].label}の飲み会を、仙台で</p>
+        <p className="mt-3 text-sm font-bold text-muted">仙台で{AUDIENCES[audience].label}の飲み会をするなら</p>
         <h1 className="mt-1 text-[1.75rem] leading-tight font-extrabold tracking-tight">
-          <span className="inline-block">URLを貼れば、</span>
-          <span className="inline-block">あとは決まる</span>
+          <span className="inline-block">URLを貼るだけで</span>
+          <span className="inline-block">飲み会が決まります</span>
         </h1>
 
         <section className="glow mt-6 overflow-hidden rounded-3xl border border-accent/30 bg-surface">
@@ -160,14 +160,14 @@ export function HomeClient() {
               会をつくる
               <ArrowRight className="size-5" aria-hidden />
             </Link>
-            <p className="mt-2 text-center text-xs text-muted">登録なし。候補の日を選ぶだけ</p>
+            <p className="mt-2 text-center text-xs text-muted">登録しなくても、候補の日を選ぶだけで作れます</p>
           </div>
         </section>
 
         <h2 className="mt-9 mb-3 text-sm font-bold text-muted">あなたの会</h2>
         <section className="overflow-hidden rounded-3xl border border-border bg-surface">
           {parties.length === 0 ? (
-            <p className="px-5 py-5 text-sm text-muted">まだありません。つくった会は、この端末のここに並びます。</p>
+            <p className="px-5 py-5 text-sm text-muted">つくった会はこの端末に残って、ここに並びます</p>
           ) : (
             parties.map((p) => (
               <Link
@@ -179,7 +179,7 @@ export function HomeClient() {
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-bold">{p.title}</span>
                   <span className="block text-xs text-muted">
-                    {new Date(p.createdAt).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}につくった・幹事の画面へ
+                    {new Date(p.createdAt).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}につくった会を開く
                   </span>
                 </span>
                 <ChevronRight className="size-5 text-muted" aria-hidden />
@@ -188,7 +188,7 @@ export function HomeClient() {
           )}
         </section>
 
-        <h2 className="mt-9 mb-3 text-sm font-bold text-muted">店選びと、飲んだあと</h2>
+        <h2 className="mt-9 mb-3 text-sm font-bold text-muted">お店選びと会計</h2>
         <section className="overflow-hidden rounded-3xl border border-border bg-surface">
           <Link href="/shops" className="flex min-h-20 items-center gap-4 px-5">
             <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-accent">
@@ -196,7 +196,7 @@ export function HomeClient() {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block font-extrabold">お店だけ探す</span>
-              <span className="block text-xs text-muted">押すたびに絞りこまれる。仙台のエリアと予算で</span>
+              <span className="block text-xs text-muted">場所と予算を選ぶと、合うお店がすぐに出てきます</span>
             </span>
             <ChevronRight className="size-5 text-muted" aria-hidden />
           </Link>
@@ -209,7 +209,7 @@ export function HomeClient() {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block font-extrabold">傾斜会計</span>
-              <span className="block text-xs text-muted">{audience === "student" ? "先輩は多め、飲まない人は少なめ" : "上司は多め、新人は少なめ"}</span>
+              <span className="block text-xs text-muted">{audience === "student" ? "先輩には多めに、飲まない人には少なめに割れます" : "上司には多めに、新人には少なめに割れます"}</span>
             </span>
             <ChevronRight className="size-5 text-muted" aria-hidden />
           </Link>
@@ -223,7 +223,7 @@ export function HomeClient() {
             className="flex min-h-16 w-full items-center gap-3 border-t border-border px-5 text-left"
           >
             <Repeat className="size-5 shrink-0 text-muted" aria-hidden />
-            <span className="flex-1 font-bold text-muted">いまは「{AUDIENCES[audience].label}」。切り替える</span>
+            <span className="flex-1 font-bold text-muted">{AUDIENCES[audience].label}向けから切り替える</span>
             <ChevronRight className="size-5 text-muted" aria-hidden />
           </button>
         </section>

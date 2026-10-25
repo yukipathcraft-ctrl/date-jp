@@ -21,11 +21,11 @@ export function ShopList({
     <section id="shops" className="mt-4 mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
       <h2 className="text-lg font-extrabold">合いそうなお店</h2>
       <p className="mt-1 text-sm text-muted">
-        {otherArea ? "その場所で合うお店がなかったので、近くのエリアから出しています。" : "予算・場所・人数で選んでいます。"}
+        {otherArea ? "その場所には合うお店がなかったので、近くのエリアから出しています" : "予算と場所と人数に合うお店を選びました"}
       </p>
       {isSample && (
         <p className="mt-2 rounded-xl bg-match-soft px-3 py-2 text-xs font-bold text-match-text">
-          いまは見本のお店です(実在しません)。お店のデータをつなぐと、仙台の実際のお店が出ます。
+          今出ているのは実在しない見本のお店で、お店のデータをつなぐと仙台の本物のお店に変わります
         </p>
       )}
       <ul className="mt-4 space-y-3">
@@ -64,7 +64,7 @@ export function ShopList({
               className="mt-3 flex min-h-11 items-center justify-center gap-1 rounded-xl border border-border text-sm font-bold"
               rel="nofollow"
             >
-              {s.sample ? "見本のため、お店のページはありません" : "お店のページで予約する"}
+              {s.sample ? "見本なのでお店のページはありません" : "お店のページで予約する"}
               {!s.sample && <ExternalLink className="size-4" aria-hidden />}
             </a>
           </li>

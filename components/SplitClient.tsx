@@ -220,7 +220,7 @@ export function SplitClient() {
       <section className="glow mx-4 mt-5 overflow-hidden rounded-3xl border border-accent/40 bg-surface" aria-live="polite">
         <div className="flex items-baseline justify-between px-5 pt-5">
           <h2 className="text-lg font-extrabold">1人いくら?</h2>
-          {result && <span className="text-xs font-bold text-muted">{unit}円単位・端数は幹事</span>}
+          {result && <span className="text-xs font-bold text-muted">{unit}円単位でそろえています</span>}
         </div>
         {result ? (
           <>
@@ -264,8 +264,8 @@ export function SplitClient() {
             </div>
             <p className="px-5 text-xs text-muted">
               {result.organizerDiff === 0
-                ? "端数はありません。"
-                : `幹事は端数で${yen(Math.abs(result.organizerDiff))}${result.organizerDiff > 0 ? "多く" : "少なく"}払います。`}
+                ? "端数は出ませんでした"
+                : `端数の${yen(Math.abs(result.organizerDiff))}ぶん、幹事が${result.organizerDiff > 0 ? "多め" : "少なめ"}に払います`}
             </p>
             <div className="grid gap-2 p-5">
               <a href={lineShareUrl(shareText)} className={`${BUTTON_LINE} w-full gap-2`}>
@@ -279,7 +279,7 @@ export function SplitClient() {
             </div>
           </>
         ) : (
-          <p className="px-5 pt-2 pb-5 text-sm text-muted">合計を入れると、1人ずつの金額が出ます。</p>
+          <p className="px-5 pt-2 pb-5 text-sm text-muted">合計を入れると、一人ずつの金額が出ます</p>
         )}
       </section>
     </>

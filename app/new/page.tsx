@@ -10,7 +10,7 @@ export default function NewPage() {
       <SiteHeader />
       <div className="mx-auto max-w-xl px-4 pt-6 pb-16">
         <h1 className="text-2xl font-extrabold tracking-tight">会をつくる</h1>
-        <p className="mt-1 mb-5 text-sm text-muted">作ったURLをLINEに貼ると、みんなが答えられます。</p>
+        <p className="mt-1 mb-5 text-sm text-muted">できたURLをLINEのグループに貼れば、みんながそこから答えられます</p>
         <CreateForm />
       </div>
     </>
