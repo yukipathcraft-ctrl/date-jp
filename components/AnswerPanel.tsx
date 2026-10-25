@@ -1,13 +1,14 @@
 "use client";
 
-import { Check, Pencil } from "lucide-react";
+import { CalendarDays, Check, Clock, MapPin, Moon, Pencil, UserRound, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { getMyAnswer, saveAnswer } from "@/app/actions";
-import { ARRIVALS, AREAS, BUDGETS, STAYS, clock, dateLabel, yen, type AreaKey } from "@/lib/sendai";
+import { AUDIENCES, type Audience } from "@/lib/audience";
+import { AREAS, STAYS, clock, dateLabel, yen, type AreaKey } from "@/lib/sendai";
 import type { DateAnswer } from "@/lib/summary";
 import type { AnswerInput } from "@/lib/validation";
-import { BUTTON_PRIMARY, BUTTON_SUB, INPUT } from "./ui";
+import { BUTTON_PRIMARY, BUTTON_SUB, INPUT, LABEL, PILL, PILL_OFF, PILL_ON } from "./ui";
 
 type Mine = { answerId: string; token: string; name: string };
 
@@ -34,9 +35,7 @@ function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; c
       type="button"
       onClick={onClick}
       aria-pressed={on}
-      className={`flex min-h-11 items-center justify-center gap-1 rounded-xl border px-2 text-sm font-bold transition-colors ${
-        on ? "border-accent bg-accent text-accent-text" : "border-border bg-surface"
-      }`}
+      className={`${PILL} px-3 ${on ? PILL_ON : PILL_OFF}`}
     >
       {on && <Check className="size-3.5 shrink-0" aria-hidden />}
       {children}
@@ -44,7 +43,7 @@ function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; c
   );
 }
 
-export function AnswerPanel({ partyId, dates }: { partyId: string; dates: string[] }) {
+export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dates: string[]; audience: Audience }) {
   const router = useRouter();
   const [mine, setMine] = useState<Mine | null>(null);
   const [editing, setEditing] = useState(false);
@@ -96,13 +95,13 @@ export function AnswerPanel({ partyId, dates }: { partyId: string; dates: string
     });
   }
 
-  if (!loaded) return <section className="min-h-40 border-y border-border bg-surface" />;
+  if (!loaded) return <section className="mx-4 min-h-40 rounded-3xl border border-border bg-surface" />;
 
   if (mine && !editing) {
     return (
-      <section className="anim-rise border-y border-border bg-surface px-4 py-5">
+      <section className="anim-rise mx-4 rounded-3xl border border-border bg-surface px-4 py-5">
         <p className="flex items-center gap-2 font-extrabold">
-          <span className="grid size-6 place-items-center rounded-full bg-ok text-white">
+          <span className="grid size-6 place-items-center rounded-full bg-accent text-accent-text">
             <Check className="size-4" aria-hidden />
           </span>
           {mine.name}さんの回答は保存済み{saved && "です。ありがとう!"}
@@ -121,12 +120,18 @@ export function AnswerPanel({ partyId, dates }: { partyId: string; dates: string
   const toggleArea = (k: AreaKey) =>
     setForm((f) => ({ ...f, areas: f.areas.includes(k) ? f.areas.filter((a) => a !== k) : [...f.areas, k] }));
 
+  const opts = AUDIENCES[audience];
+  const areas = opts.areas.map((k) => AREAS.find((a) => a.key === k)!);
+
   return (
-    <section className="border-y border-border bg-surface px-4 py-6">
-      <h2 className="text-lg font-extrabold">{editing ? "回答を直す" : "30秒で答える"}</h2>
-      <div className="mt-5 space-y-6">
-        <label className="block">
-          <span className="mb-2 block text-sm font-bold">名前</span>
+    <section>
+      <h2 className="px-4 pb-3 text-lg font-extrabold">{editing ? "回答を直す" : "30秒で答える"}</h2>
+      <div className="mx-4 overflow-hidden rounded-3xl border border-border bg-surface">
+        <label className="block border-b border-border px-5 py-5">
+          <span className={LABEL}>
+            <UserRound className="size-4" aria-hidden />
+            名前
+          </span>
           <input
             className={INPUT}
             value={form.name}
@@ -136,12 +141,16 @@ export function AnswerPanel({ partyId, dates }: { partyId: string; dates: string
           />
         </label>
 
-        <fieldset>
-          <legend className="mb-2 text-sm font-bold">行ける日</legend>
+        <fieldset className="border-b border-border px-5 py-5">
+          <legend className="sr-only">行ける日</legend>
+          <p className={LABEL} aria-hidden>
+            <CalendarDays className="size-4" />
+            行ける日
+          </p>
           <ul className="space-y-2">
             {dates.map((d) => (
               <li key={d} className="flex items-center gap-2">
-                <span className="w-20 shrink-0 font-bold">{dateLabel(d)}</span>
+                <span className="w-[4.5rem] shrink-0 text-sm font-bold">{dateLabel(d)}</span>
                 <div className="grid flex-1 grid-cols-3 gap-1.5">
                   {DATE_CHOICES.map((c) => (
                     <Choice key={c.value} on={form.dates[d] === c.value} onClick={() => setDate(d, c.value)}>
@@ -154,10 +163,14 @@ export function AnswerPanel({ partyId, dates }: { partyId: string; dates: string
           </ul>
         </fieldset>
 
-        <fieldset>
-          <legend className="mb-2 text-sm font-bold">何時から来られる?</legend>
-          <div className="grid grid-cols-3 gap-1.5">
-            {ARRIVALS.map((m) => (
+        <fieldset className="border-b border-border px-5 py-5">
+          <legend className="sr-only">何時から来られる?</legend>
+          <p className={LABEL} aria-hidden>
+            <Clock className="size-4" />
+            何時から来られる?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {opts.arrivals.map((m) => (
               <Choice key={m} on={form.arrival === m} onClick={() => set({ arrival: m })}>
                 {clock(m)}
               </Choice>
@@ -165,51 +178,60 @@ export function AnswerPanel({ partyId, dates }: { partyId: string; dates: string
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend className="mb-2 text-sm font-bold">いつまで残れる?</legend>
-          <div className="grid grid-cols-3 gap-1.5">
-            {STAYS.map((s) => (
-              <Choice key={s.minutes} on={form.stay === s.minutes} onClick={() => set({ stay: s.minutes })}>
-                {s.label}
+        <fieldset className="border-b border-border px-5 py-5">
+          <legend className="sr-only">いつまで残れる?</legend>
+          <p className={LABEL} aria-hidden>
+            <Moon className="size-4" />
+            いつまで残れる?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {STAYS.map((st) => (
+              <Choice key={st.minutes} on={form.stay === st.minutes} onClick={() => set({ stay: st.minutes })}>
+                {st.label}
               </Choice>
             ))}
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend className="mb-1 text-sm font-bold">1人いくらまで出せる?</legend>
-          <p className="mb-2 text-xs text-muted">誰がいくらと答えたかは、幹事にも出ません。行く人全員が出せる額に合わせます。</p>
-          <div className="grid grid-cols-3 gap-1.5">
-            {BUDGETS.map((b) => (
+        <fieldset className="border-b border-border px-5 py-5">
+          <legend className="sr-only">1人いくらまで出せる?</legend>
+          <p className={LABEL} aria-hidden>
+            <Wallet className="size-4" />
+            1人いくらまで出せる?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {opts.budgets.map((b) => (
               <Choice key={b} on={form.budget === b} onClick={() => set({ budget: b })}>
                 〜{yen(b)}
               </Choice>
             ))}
           </div>
+          <p className="mt-3 text-xs text-muted">誰がいくらと答えたかは、幹事にも出ません。行く人全員が出せる額に合わせます。</p>
         </fieldset>
 
-        <fieldset>
-          <legend className="mb-2 text-sm font-bold">
-            行きやすい場所 <span className="font-normal text-muted">(いくつでも)</span>
-          </legend>
-          <div className="grid grid-cols-2 gap-1.5">
-            {AREAS.map((a) => (
+        <fieldset className="px-5 py-5">
+          <legend className="sr-only">行きやすい場所</legend>
+          <p className={LABEL} aria-hidden>
+            <MapPin className="size-4" />
+            行きやすい場所 <span className="font-normal">(いくつでも)</span>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {areas.map((a) => (
               <Choice key={a.key} on={form.areas.includes(a.key)} onClick={() => toggleArea(a.key)}>
-                <span className="flex flex-col leading-tight">
-                  <span>{a.label}</span>
-                  <span className="text-[11px] font-normal opacity-75">{a.note}</span>
-                </span>
+                {a.label}
               </Choice>
             ))}
           </div>
         </fieldset>
+      </div>
 
+      <div className="px-4">
         {error && (
-          <p role="alert" className="text-sm font-bold text-danger">
+          <p role="alert" className="mt-4 text-sm font-bold text-danger">
             {error}
           </p>
         )}
-        <button type="button" onClick={submit} disabled={pending} className={`${BUTTON_PRIMARY} w-full`}>
+        <button type="button" onClick={submit} disabled={pending} className={`${BUTTON_PRIMARY} mt-5 w-full`}>
           {pending ? "保存しています…" : "この内容で答える"}
         </button>
       </div>

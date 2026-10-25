@@ -19,8 +19,22 @@ export function areaLabel(key: AreaKey): string {
   return AREAS.find((a) => a.key === key)?.label ?? key;
 }
 
-/** 1人あたりの予算の上限(円) */
-export const BUDGETS = [2000, 3000, 4000, 5000, 6000] as const;
+/** お店のジャンル。hotpepper はホットペッパーのジャンルコード */
+export const GENRES = [
+  { key: "izakaya", label: "居酒屋", hotpepper: ["G001"] },
+  { key: "washoku", label: "和食", hotpepper: ["G004"] },
+  { key: "yoshoku", label: "洋食", hotpepper: ["G005", "G006"] },
+  { key: "chuka", label: "中華", hotpepper: ["G007"] },
+  { key: "yakiniku", label: "焼肉・韓国", hotpepper: ["G008", "G017"] },
+] as const;
+export type GenreKey = (typeof GENRES)[number]["key"];
+
+export function isGenreKey(v: unknown): v is GenreKey {
+  return GENRES.some((g) => g.key === v);
+}
+
+/** 1人あたりの予算の上限(円)。学生と社会人で出す範囲を変える(lib/audience.ts) */
+export const BUDGETS = [2000, 3000, 4000, 5000, 6000, 8000] as const;
 export type Budget = (typeof BUDGETS)[number];
 
 export function isBudget(v: unknown): v is Budget {
@@ -32,7 +46,7 @@ export function yen(n: number): string {
 }
 
 /** 何時から来られるか。分で持つ(18:00 = 1080) */
-export const ARRIVALS = [1080, 1110, 1140, 1170, 1200, 1260] as const;
+export const ARRIVALS = [1080, 1110, 1140, 1170, 1200, 1230, 1260] as const;
 
 export function isArrival(v: unknown): v is number {
   return ARRIVALS.includes(v as (typeof ARRIVALS)[number]);

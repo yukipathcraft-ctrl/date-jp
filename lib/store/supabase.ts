@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { isAudience } from "../audience";
 import type { Answer } from "../summary";
 import type { Decision, Store, StoredAnswer } from "./types";
 
@@ -16,14 +17,29 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
   return {
     async createParty(party) {
       check(
-        await db.from("parties").insert({ id: party.id, title: party.title, dates: party.dates, admin_hash: party.adminHash }),
+        await db.from("parties").insert({
+          id: party.id,
+          title: party.title,
+          audience: party.audience,
+          dates: party.dates,
+          admin_hash: party.adminHash,
+        }),
       );
     },
     async getParty(id) {
-      const row = check<{ id: string; title: string; dates: string[]; admin_hash: string; decision: Decision | null } | null>(
-        await db.from("parties").select("id, title, dates, admin_hash, decision").eq("id", id).maybeSingle(),
+      const row = check<
+        { id: string; title: string; audience: string; dates: string[]; admin_hash: string; decision: Decision | null } | null
+      >(
+        await db.from("parties").select("id, title, audience, dates, admin_hash, decision").eq("id", id).maybeSingle(),
       );
-      return row ? { id: row.id, title: row.title, dates: row.dates, adminHash: row.admin_hash, decision: row.decision } : null;
+      return row ? {
+            id: row.id,
+            title: row.title,
+            audience: isAudience(row.audience) ? row.audience : "student",
+            dates: row.dates,
+            adminHash: row.admin_hash,
+            decision: row.decision,
+          } : null;
     },
     async listAnswers(partyId) {
       const rows = check<AnswerRow[]>(

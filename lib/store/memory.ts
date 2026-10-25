@@ -1,7 +1,7 @@
 import type { Party, StoredAnswer, Store } from "./types";
 
 // 開発用の仮DB。再起動で消える。本番では使わない
-type Db = { parties: Map<string, Party>; answers: Map<string, StoredAnswer[]>; clicks: { partyId: string; shopId: string }[] };
+type Db = { parties: Map<string, Party>; answers: Map<string, StoredAnswer[]>; clicks: { partyId: string | null; shopId: string }[] };
 
 // 開発サーバーの再読み込みで消えないよう、globalThis に置く
 const g = globalThis as unknown as { __nomise?: Db };

@@ -11,16 +11,16 @@ const jp = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Nomise | 仙台の飲み会、URLを貼るだけで決まる", template: "%s | Nomise" },
+  title: { default: "Nomise | 仙台の飲み会セッティング", template: "%s | Nomise" },
   description:
-    "日にち・時間・予算・場所・何時まで残れるかを、みんなが30秒で答えるだけ。仙台のお店まで決まる、学生のための飲み会セッティング",
+    "日にち・時間・予算・場所・何時まで残れるかを、みんなが30秒で答えるだけ。仙台のお店まで決まる、学生と社会人のための飲み会セッティング",
   applicationName: "Nomise",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#f5f5f7",
+  themeColor: "#0b0a09",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

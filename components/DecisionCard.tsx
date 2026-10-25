@@ -4,7 +4,7 @@ import type { Decision } from "@/lib/store/types";
 
 export function DecisionCard({ decision }: { decision: Decision }) {
   return (
-    <section className="anim-rise border-y border-match bg-match-soft px-4 py-6 text-center">
+    <section className="anim-rise mx-4 rounded-3xl border border-match bg-match-soft px-4 py-6 text-center">
       <p className="flex items-center justify-center gap-2 text-sm font-bold text-match-text">
         <PartyPopper className="size-4" aria-hidden />
         決まりました!

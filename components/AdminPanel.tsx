@@ -70,7 +70,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
   }
 
   const invite = (
-      <section className={`border-y border-border bg-surface px-4 py-6 ${decision ? "mt-4" : ""}`}>
+      <section className={`mx-4 rounded-3xl border border-border bg-surface px-4 py-6 ${decision ? "mt-4" : ""}`}>
         {created && <p className="anim-rise mb-2 text-sm font-bold text-ok">✓ できました!</p>}
         <h2 className="text-lg font-extrabold">みんなに送る</h2>
         <p className="mt-1 text-sm text-muted">LINEのグループに貼ると、みんなが答えられます。</p>
@@ -97,7 +97,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
       {!decision && invite}
 
       {decision ? (
-        <section className="anim-rise border-y border-border bg-surface px-4 py-6">
+        <section className="anim-rise mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
           <p className="flex items-center gap-2 text-lg font-extrabold">
             <PartyPopper className="size-5" aria-hidden />
             決定を知らせる
@@ -115,7 +115,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
         </section>
       ) : (
         ranking.some((r) => r.ok > 0) && (
-          <section className="mt-4 border-y border-border bg-surface px-4 py-6">
+          <section className="mt-4 mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
             <h2 className="text-lg font-extrabold">幹事が決める</h2>
             <p className="mt-1 text-sm text-muted">みんなの答えでいちばん良い日とお店を、先に選んであります。</p>
             <p className="mt-4 mb-2 text-sm font-bold">日にち</p>

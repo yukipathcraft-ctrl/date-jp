@@ -5,23 +5,25 @@
   色は意味のある所だけに使う(決まった=琥珀、行ける=緑)。色だけに頼らず、必ず記号か文字を添える
 */
 :root {
-  --bg: #f5f5f7;
-  --surface: #ffffff;
-  --surface-2: #f5f5f7;
-  --text: #1d1d1f;
-  --muted: #6e6e73;
-  --border: #d2d2d7;
-  --accent: #1d1d1f;
-  --accent-text: #ffffff;
-  --accent-strong: #000000;
-  --match: #f5a623;
-  --match-soft: #fff4e0;
-  --match-text: #8a5300;
-  --ok: #1f9d55;
-  --ok-soft: #e6f6ec;
+  /* 黒い地に、少し明るい黒のカード。主な色はビールの金色(主ボタン・選んだもの)で、文字は黒 */
+  --bg: #0b0a09;
+  --surface: #171513;
+  --surface-2: #221f1c;
+  --text: #f4f1ec;
+  --muted: #9a948b;
+  --border: #2e2a26;
+  --accent: #f5b83d;
+  --accent-text: #000000;
+  --accent-strong: #ffc85c;
+  --match: #f5b83d;
+  --match-soft: #2a2112;
+  --match-text: #ffd47e;
+  --ok: #f5b83d;
+  --ok-soft: #2a2112;
   --line: #06c755;
-  --line-strong: #00843b;
-  --danger: #d70015;
+  --line-strong: #4fe08a;
+  --danger: #ff7a6b;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -63,9 +65,24 @@ body {
   .anim-rise {
     animation: rise 420ms ease-out;
   }
+  .anim-splash {
+    animation: splash 1500ms ease-out forwards;
+  }
 }
 
 @keyframes rise {
   0% { opacity: 0; transform: translateY(8px) scale(0.98); }
   100% { opacity: 1; transform: none; }
+}
+
+@keyframes splash {
+  0% { opacity: 0; transform: scale(0.94); }
+  25% { opacity: 1; transform: none; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* 主なカードの下に、金色がうっすらにじむ */
+.glow {
+  box-shadow: 0 30px 90px -30px color-mix(in srgb, var(--accent) 40%, transparent);
 }

@@ -1,6 +1,8 @@
 "use server";
 
-import { findShop } from "@/lib/shops";
+import { isAudience } from "@/lib/audience";
+import { isAreaKey, isBudget, isGenreKey } from "@/lib/sendai";
+import { findShop, searchShops, type Shop } from "@/lib/shops";
 import { getStore } from "@/lib/store";
 import { summarize } from "@/lib/summary";
 import { generateGroupId, generateToken, hashToken, verifyToken } from "@/lib/tokens";
@@ -8,7 +10,7 @@ import { parseAnswer, parseParty, type AnswerInput } from "@/lib/validation";
 
 type Fail = { ok: false; error: string };
 
-export async function createParty(input: { title: string; dates: string[] }): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
+export async function createParty(input: { title: string; audience: string; dates: string[] }): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
   const parsed = parseParty(input);
   if (!parsed.ok) return parsed;
   const id = generateGroupId();
@@ -79,4 +81,26 @@ export async function decide(
     shopName: shop?.name ?? null,
   });
   return { ok: true };
+}
+
+/** 「お店を探す」から使う。条件はすべて選択肢の中から受け取る */
+export async function findShops(input: {
+  area: string;
+  genre: string | null;
+  budget: number | null;
+  privateRoom: boolean;
+  audience: string;
+}): Promise<{ shops: Shop[]; otherArea: boolean }> {
+  if (!isAreaKey(input.area)) return { shops: [], otherArea: false };
+  return searchShops(
+    {
+      area: input.area,
+      genre: isGenreKey(input.genre) ? input.genre : null,
+      budget: isBudget(input.budget) ? input.budget : null,
+      privateRoom: input.privateRoom === true,
+      size: 2,
+      audience: isAudience(input.audience) ? input.audience : undefined,
+    },
+    6,
+  );
 }

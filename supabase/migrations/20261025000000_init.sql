@@ -3,6 +3,7 @@
 create table parties (
   id text primary key,
   title text not null check (char_length(title) between 1 and 40),
+  audience text not null default 'student' check (audience in ('student', 'worker')),
   dates text[] not null,
   admin_hash text not null,
   decision jsonb,
@@ -21,9 +22,10 @@ create table answers (
 );
 
 -- お店のページへ飛んだ数。送客の手数料を確かめるために数える(誰が押したかは残さない)
+-- 「お店を探す」から来たときは party_id が null
 create table shop_clicks (
   id bigint generated always as identity primary key,
-  party_id text not null references parties (id) on delete cascade,
+  party_id text references parties (id) on delete cascade,
   shop_id text not null,
   created_at timestamptz not null default now()
 );

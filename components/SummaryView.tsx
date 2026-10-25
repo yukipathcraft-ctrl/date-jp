@@ -7,7 +7,7 @@ import type { Summary } from "@/lib/summary";
 export function SummaryView({ summary }: { summary: Summary }) {
   if (summary.answered === 0) {
     return (
-      <section className="border-y border-border bg-surface px-4 py-6">
+      <section className="mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
         <h2 className="text-lg font-extrabold">みんなの答え</h2>
         <p className="mt-2 text-sm text-muted">まだ誰も答えていません。</p>
       </section>
@@ -15,7 +15,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
   }
   if (summary.date === null) {
     return (
-      <section className="border-y border-border bg-surface px-4 py-6">
+      <section className="mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
         <h2 className="text-lg font-extrabold">みんなの答え({summary.answered}人)</h2>
         <p className="mt-2 text-sm text-muted">全員が「行けない」と答えた日しかありません。候補の日を足して作り直してください。</p>
       </section>
@@ -46,7 +46,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
   ];
 
   return (
-    <section className="border-y border-border bg-surface px-4 py-6">
+    <section className="mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
       <h2 className="text-lg font-extrabold">みんなの答えで決まったこと</h2>
       <p className="mt-1 text-sm text-muted">{summary.answered}人が回答</p>
       <dl className="mt-4 divide-y divide-border rounded-2xl border border-border">

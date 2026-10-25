@@ -1,3 +1,4 @@
+import { isAudience, type Audience } from "./audience";
 import { isArrival, isAreaKey, isBudget, isStay, type AreaKey } from "./sendai";
 import type { Answer, DateAnswer } from "./summary";
 
@@ -13,14 +14,19 @@ function text(v: unknown, label: string, max: number): Result<string> {
   return { ok: true, value: s };
 }
 
-export function parseParty(input: { title: unknown; dates: unknown }): Result<{ title: string; dates: string[] }> {
+export function parseParty(input: {
+  title: unknown;
+  audience: unknown;
+  dates: unknown;
+}): Result<{ title: string; audience: Audience; dates: string[] }> {
   const title = text(input.title, "飲み会の名前", 40);
   if (!title.ok) return title;
   const raw = Array.isArray(input.dates) ? input.dates : [];
   const dates = [...new Set(raw.filter((d): d is string => typeof d === "string" && DATE.test(d)))].sort();
   if (dates.length === 0) return { ok: false, error: "候補の日を1つ以上選んでください" };
   if (dates.length > MAX_DATES) return { ok: false, error: `候補の日は${MAX_DATES}つまでにしてください` };
-  return { ok: true, value: { title: title.value, dates } };
+  const audience = isAudience(input.audience) ? input.audience : "student";
+  return { ok: true, value: { title: title.value, audience, dates } };
 }
 
 export type AnswerInput = Omit<Answer, "id">;

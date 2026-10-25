@@ -1,6 +1,7 @@
 import "server-only";
 import { cleanEnv } from "./env";
-import { AREAS, type AreaKey } from "./sendai";
+import { AUDIENCES, type Audience } from "./audience";
+import { AREAS, GENRES, type AreaKey, type GenreKey } from "./sendai";
 
 // お店の候補。ホットペッパーの API キーがあれば実際のお店を出し、なければ見本のお店を出す。
 // お店のページへは必ず /go を通し、押された数を数える(送客の手数料の根拠にする)
@@ -9,6 +10,7 @@ export type Shop = {
   id: string;
   name: string;
   genre: string;
+  genreKey: GenreKey | null;
   area: AreaKey;
   access: string;
   /** 1人あたりの目安(円) */
@@ -22,26 +24,39 @@ export type Shop = {
   sample: boolean;
 };
 
-export type ShopQuery = { area: AreaKey; budget: number; size: number };
+export type ShopQuery = {
+  area: AreaKey;
+  /** 予算の上限。null なら指定なし */
+  budget: number | null;
+  size: number;
+  genre?: GenreKey | null;
+  privateRoom?: boolean;
+  audience?: Audience;
+};
 
 // 見本のお店。実在しない
 const SAMPLES: Shop[] = [
-  sample("s1", "見本 炉端 あおば", "居酒屋", "station", "仙台駅 西口 徒歩3分", 3000, 40, ["飲み放題", "個室"]),
-  sample("s2", "見本 牛たん酒場 ひろせ", "居酒屋", "station", "仙台駅 徒歩5分", 3800, 30, ["飲み放題"]),
-  sample("s3", "見本 大衆酒場 こくぶん", "居酒屋", "kokubuncho", "勾当台公園駅 徒歩4分", 2500, 60, ["飲み放題", "学割"]),
-  sample("s4", "見本 ダイニング 定禅寺", "ダイニングバー", "kokubuncho", "勾当台公園駅 徒歩6分", 4500, 25, ["個室"]),
-  sample("s5", "見本 串焼き いちばん", "焼き鳥", "ichibancho", "青葉通一番町駅 徒歩2分", 2800, 35, ["飲み放題"]),
-  sample("s6", "見本 チーズとワイン ひろせ通", "イタリアン", "ichibancho", "広瀬通駅 徒歩3分", 3500, 20, ["飲み放題", "女子会"]),
-  sample("s7", "見本 学生酒場 かたひら", "居酒屋", "katahira", "五橋駅 徒歩3分", 2000, 50, ["飲み放題", "学割", "個室"]),
-  sample("s8", "見本 韓国料理 いつつばし", "韓国料理", "katahira", "五橋駅 徒歩5分", 2800, 30, ["飲み放題"]),
-  sample("s9", "見本 海鮮居酒屋 ながまち", "居酒屋", "nagamachi", "長町駅 徒歩2分", 3200, 45, ["飲み放題", "個室"]),
-  sample("s10", "見本 鉄板酒場 いずみ", "鉄板焼き", "izumi", "泉中央駅 徒歩3分", 3000, 40, ["飲み放題"]),
+  sample("s1", "見本 炉端 あおば", "izakaya", "station", "仙台駅 西口 徒歩3分", 3000, 40, ["飲み放題", "個室"]),
+  sample("s2", "見本 牛たん酒場 ひろせ", "washoku", "station", "仙台駅 徒歩5分", 3800, 30, ["飲み放題"]),
+  sample("s3", "見本 大衆酒場 こくぶん", "izakaya", "kokubuncho", "勾当台公園駅 徒歩4分", 2500, 60, ["飲み放題", "学割"]),
+  sample("s4", "見本 ダイニング 定禅寺", "yoshoku", "kokubuncho", "勾当台公園駅 徒歩6分", 4500, 25, ["個室"]),
+  sample("s5", "見本 串焼き いちばん", "izakaya", "ichibancho", "青葉通一番町駅 徒歩2分", 2800, 35, ["飲み放題"]),
+  sample("s6", "見本 チーズとワイン ひろせ通", "yoshoku", "ichibancho", "広瀬通駅 徒歩3分", 3500, 20, ["飲み放題"]),
+  sample("s7", "見本 学生酒場 かたひら", "izakaya", "katahira", "五橋駅 徒歩3分", 2000, 50, ["飲み放題", "学割", "個室"]),
+  sample("s8", "見本 韓国料理 いつつばし", "yakiniku", "katahira", "五橋駅 徒歩5分", 2800, 30, ["飲み放題", "学割"]),
+  sample("s9", "見本 海鮮居酒屋 ながまち", "izakaya", "nagamachi", "長町駅 徒歩2分", 3200, 45, ["飲み放題", "個室"]),
+  sample("s10", "見本 鉄板酒場 いずみ", "izakaya", "izumi", "泉中央駅 徒歩3分", 3000, 40, ["飲み放題"]),
+  sample("s11", "見本 割烹 一番町", "washoku", "ichibancho", "青葉通一番町駅 徒歩4分", 6500, 24, ["個室"]),
+  sample("s12", "見本 中華酒家 えきまえ", "chuka", "station", "仙台駅 徒歩4分", 4000, 40, ["飲み放題", "個室"]),
+  sample("s13", "見本 焼肉 こくぶん", "yakiniku", "kokubuncho", "勾当台公園駅 徒歩5分", 5500, 30, ["飲み放題", "個室"]),
+  sample("s14", "見本 和食ダイニング 定禅寺", "washoku", "kokubuncho", "勾当台公園駅 徒歩3分", 7500, 20, ["個室"]),
+  sample("s15", "見本 餃子酒場 かたひら", "chuka", "katahira", "五橋駅 徒歩4分", 2200, 30, ["飲み放題", "学割"]),
 ];
 
 function sample(
   id: string,
   name: string,
-  genre: string,
+  genreKey: GenreKey,
   area: AreaKey,
   access: string,
   budget: number,
@@ -51,7 +66,8 @@ function sample(
   return {
     id,
     name,
-    genre,
+    genre: GENRES.find((g) => g.key === genreKey)!.label,
+    genreKey,
     area,
     access,
     budget,
@@ -64,11 +80,21 @@ function sample(
   };
 }
 
-/** 予算と人数に合うお店。エリアに合うものがなければ、ほかのエリアから出す */
+/** 学生なら学割・飲み放題、社会人なら個室のお店を先に出す。同じなら予算いっぱいに近い順 */
+function preferScore(s: Shop, audience: Audience | undefined): number {
+  if (!audience) return 0;
+  return AUDIENCES[audience].prefer.filter((f) => s.features.includes(f)).length;
+}
+
+/** 条件に合うお店。エリアに合うものがなければ、ほかのエリアから出す */
 export function pickSamples(q: ShopQuery, limit = 3): { shops: Shop[]; otherArea: boolean } {
-  const fits = SAMPLES.filter((s) => s.budget <= q.budget && (s.capacity ?? 0) >= q.size).sort(
-    (a, b) => b.budget - a.budget,
-  );
+  const fits = SAMPLES.filter(
+    (s) =>
+      (q.budget === null || s.budget <= q.budget) &&
+      (s.capacity ?? 0) >= q.size &&
+      (!q.genre || s.genreKey === q.genre) &&
+      (!q.privateRoom || s.features.includes("個室")),
+  ).sort((a, b) => preferScore(b, q.audience) - preferScore(a, q.audience) || b.budget - a.budget);
   const inArea = fits.filter((s) => s.area === q.area);
   if (inArea.length > 0) return { shops: inArea.slice(0, limit), otherArea: false };
   return { shops: fits.slice(0, limit), otherArea: fits.length > 0 };
@@ -86,7 +112,8 @@ const BUDGET_CODES: [string, number][] = [
 ];
 
 /** 予算以内のコードのうち、高いほうから2つ(API は2つまで指定できる) */
-export function budgetCodes(budget: number): string[] {
+export function budgetCodes(budget: number | null): string[] {
+  if (budget === null) return [];
   return BUDGET_CODES.filter(([, max]) => max <= budget)
     .slice(-2)
     .map(([code]) => code);
@@ -97,7 +124,7 @@ type HotpepperShop = {
   name: string;
   access?: string;
   mobile_access?: string;
-  genre?: { name?: string };
+  genre?: { code?: string; name?: string };
   budget?: { code?: string; name?: string; average?: string };
   capacity?: number | string;
   private_room?: string;
@@ -121,6 +148,7 @@ function fromHotpepper(s: HotpepperShop, area: AreaKey): Shop {
     id: s.id,
     name: s.name,
     genre: s.genre?.name ?? "",
+    genreKey: GENRES.find((g) => (g.hotpepper as readonly string[]).includes(s.genre?.code ?? ""))?.key ?? null,
     area,
     access: s.mobile_access || s.access || "",
     budget: max,
@@ -155,6 +183,8 @@ export async function searchShops(q: ShopQuery, limit = 3): Promise<{ shops: Sho
       range: "3", // 1km
       party_capacity: String(q.size),
       ...(codes.length > 0 ? { budget: codes.join(",") } : {}),
+      ...(q.genre ? { genre: GENRES.find((g) => g.key === q.genre)!.hotpepper.join(",") } : {}),
+      ...(q.privateRoom ? { private_room: "1" } : {}),
       count: String(limit),
       order: "4", // おすすめ順
     });

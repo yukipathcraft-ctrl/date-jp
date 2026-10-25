@@ -34,7 +34,7 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
         </div>
         {party.decision && <DecisionCard decision={party.decision} />}
         <div className={party.decision ? "mt-4" : ""}>
-          <AnswerPanel partyId={party.id} dates={party.dates} />
+          <AnswerPanel partyId={party.id} dates={party.dates} audience={party.audience} />
         </div>
         <div className="mt-4">
           <SummaryView summary={summary} />

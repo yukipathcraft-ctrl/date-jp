@@ -20,7 +20,12 @@ export async function loadParty(id: string): Promise<(PartyView & { adminHash: s
   const summary = summarize(party.dates, answers, party.decision?.date);
   const ready = summary.budget !== null && summary.area !== null;
   const { shops, otherArea } = ready
-    ? await searchShops({ area: summary.area!, budget: summary.budget!, size: summary.attendees.length })
+    ? await searchShops({
+        area: summary.area!,
+        budget: summary.budget!,
+        size: summary.attendees.length,
+        audience: party.audience,
+      })
     : { shops: [], otherArea: false };
   const { adminHash, ...rest } = party;
   return { party: rest, adminHash, summary, shops, otherArea };
