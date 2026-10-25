@@ -1,6 +1,6 @@
 "use client";
 
-import { Calculator, Check, Copy, PartyPopper, Send, Share } from "lucide-react";
+import { Calculator, Check, Copy, KeyRound, PartyPopper, Send, Share, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { decide } from "@/app/actions";
@@ -26,12 +26,15 @@ type Props = {
   attendees: string[];
 };
 
+/** LINE の下に半分の幅で2つ並べる、控えめなボタン */
+const BUTTON_HALF = `${BUTTON_SUB} min-w-0 gap-1.5 whitespace-nowrap px-2 text-sm`;
+
 function CopyButton({ text, label }: { text: string; label: string }) {
   const [done, setDone] = useState(false);
   return (
     <button
       type="button"
-      className={`${BUTTON_SUB} w-full gap-2`}
+      className={BUTTON_HALF}
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(text);
@@ -43,6 +46,61 @@ function CopyButton({ text, label }: { text: string; label: string }) {
       {done ? <Check className="size-4" aria-hidden /> : <Copy className="size-4" aria-hidden />}
       {done ? "コピーしました" : label}
     </button>
+  );
+}
+
+/** スマホやパソコンの共有の画面を開く。Slack・メール・メモなど、入っているアプリから送り先を選べる */
+function ShareButton({ data }: { data: ShareData }) {
+  return (
+    <button type="button" className={BUTTON_HALF} onClick={() => navigator.share(data).catch(() => {})}>
+      <Share className="size-4 shrink-0" aria-hidden />
+      ほかのアプリ
+    </button>
+  );
+}
+
+/**
+ * 送り方の3つのボタン。いちばん使う LINE を大きく置き、その下に「ほかのアプリ」と「コピー」を半分の幅で並べる。
+ * 共有の画面がない環境では、コピーを横いっぱいにする
+ */
+function SendButtons({ line, lineLabel, share, copy, canShare }: {
+  line: string;
+  lineLabel: string;
+  share: ShareData;
+  copy: string;
+  canShare: boolean;
+}) {
+  return (
+    <div className="mt-4 space-y-2">
+      <a href={lineShareUrl(line)} className={`${BUTTON_LINE} w-full gap-2`}>
+        <Send className="size-4" aria-hidden />
+        {lineLabel}
+      </a>
+      <div className={`grid gap-2 ${canShare ? "grid-cols-2" : "grid-cols-1"}`}>
+        {canShare && <ShareButton data={share} />}
+        <CopyButton text={copy} label="コピー" />
+      </div>
+    </div>
+  );
+}
+
+/** 枠の見出し。アイコンの丸と、何をする枠かの一言 */
+function BoxHead({ icon, title, note, tone }: { icon: React.ReactNode; title: string; note: string; tone: "plain" | "key" }) {
+  return (
+    <div className="flex items-start gap-3">
+      <span
+        aria-hidden
+        className={`grid size-10 shrink-0 place-items-center rounded-full ${
+          tone === "key" ? "bg-accent text-accent-text" : "bg-line/15 text-line-strong"
+        }`}
+      >
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <h2 className={`font-extrabold ${tone === "key" ? "text-match-text" : "text-lg"}`}>{title}</h2>
+        <p className={`mt-0.5 text-xs ${tone === "key" ? "text-match-text/85" : "text-muted"}`}>{note}</p>
+      </div>
+    </div>
   );
 }
 
@@ -78,38 +136,35 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
 
   const invite = (
       <section className={`mx-4 rounded-3xl border border-border bg-surface px-4 py-6 ${decision ? "mt-4" : ""}`}>
-        {created && <p className="anim-rise mb-2 text-sm font-bold text-ok">✓ できました!</p>}
-        <h2 className="text-lg font-extrabold">みんなに送る</h2>
-        <p className="mt-1 text-sm text-muted">LINEのグループに送れば、みんながそこから答えられます</p>
-        <div className="mt-4 space-y-2">
-          <a href={lineShareUrl(inviteText(title, guestUrl))} className={`${BUTTON_LINE} w-full gap-2`}>
-            <Send className="size-4" aria-hidden />
-            LINEでみんなに送る
-          </a>
-          <CopyButton text={guestUrl} label="みんな用のURLをコピー" />
-        </div>
-        <div className="mt-5 rounded-2xl bg-match-soft p-4">
-          <p className="text-sm font-bold text-match-text">このページのURLはなくすと戻せません</p>
-          <p className="mt-1 text-xs text-match-text">
-            日にちとお店はこのページから決めるので、自分のLINEやSlack、メモに送って残しておいてください
-          </p>
-          <a href={lineShareUrl(`${adminNote}\n${adminUrl}`)} className={`${BUTTON_LINE} mt-3 w-full gap-2`}>
-            <Send className="size-4" aria-hidden />
-            自分のLINEに送って保存
-          </a>
-          <div className="mt-2 space-y-2">
-            {canShare && (
-              <button
-                type="button"
-                className={`${BUTTON_SUB} w-full gap-2`}
-                onClick={() => navigator.share({ title: adminNote, text: adminNote, url: adminUrl }).catch(() => {})}
-              >
-                <Share className="size-4" aria-hidden />
-                Slackやメモに送って保存
-              </button>
-            )}
-            <CopyButton text={adminUrl} label="幹事用のURLをコピー" />
-          </div>
+        {created && <p className="anim-rise mb-3 text-sm font-bold text-ok">✓ できました!</p>}
+        <BoxHead
+          tone="plain"
+          icon={<Users className="size-5" />}
+          title="みんなに送る"
+          note="グループに送れば、みんながそこから答えられます"
+        />
+        <SendButtons
+          line={inviteText(title, guestUrl)}
+          lineLabel="LINEでみんなに送る"
+          share={{ text: inviteText(title, guestUrl) }}
+          copy={guestUrl}
+          canShare={canShare}
+        />
+
+        <div className="mt-5 rounded-2xl border border-accent/40 bg-match-soft p-4">
+          <BoxHead
+            tone="key"
+            icon={<KeyRound className="size-5" />}
+            title="幹事用のURLを自分に残す"
+            note="日にちとお店はこのページで決めます。なくすと戻せないので、人には送らず自分だけに残してください"
+          />
+          <SendButtons
+            line={`${adminNote}\n${adminUrl}`}
+            lineLabel="自分のLINEに送って保存"
+            share={{ title: adminNote, text: adminNote, url: adminUrl }}
+            copy={adminUrl}
+            canShare={canShare}
+          />
         </div>
       </section>
   );
