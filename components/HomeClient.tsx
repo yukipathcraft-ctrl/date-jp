@@ -111,7 +111,11 @@ export function HomeClient() {
         <div className="anim-rise">
           <LogoMark size={56} />
           <h1 className="mt-6 text-3xl font-extrabold tracking-tight">あなたは?</h1>
-          <p className="mt-2 text-muted">選んだほうに合わせて予算や時間やお店が変わり、あとからでも切り替えられます</p>
+          {/* 375px 幅でもきれいに2行で収まるよう、行の切れ目を決めておく */}
+          <p className="mt-2 text-muted">
+            <span className="block">選んだほうに合う予算・時間・お店を出します</span>
+            <span className="block">あとからでも切り替えられます</span>
+          </p>
           <div className="mt-8 grid gap-3">
             {(["student", "worker"] as const).map((a) => {
               const Icon = a === "student" ? GraduationCap : Briefcase;
