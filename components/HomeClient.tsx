@@ -46,18 +46,17 @@ function NameStory() {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block font-extrabold">「Date」という名前について</span>
-          <span className="mt-0.5 block text-xs text-muted">伊達と date をかけています</span>
+          <span className="mt-0.5 block text-xs text-muted">伊達(だて)と英語の date をかけています</span>
         </span>
         <ChevronRight className="size-5 shrink-0 text-muted transition-transform group-open:rotate-90" aria-hidden />
       </summary>
       <div className="pb-5 pl-16 text-sm leading-relaxed text-muted">
         <p>
-          仙台の街をつくった<span className="font-bold text-text">伊達</span>政宗の「伊達」と、英語で日にちを表す
+          「Date(デート)」は、仙台の街を築いた<span className="font-bold text-text">伊達</span>政宗の「伊達(だて)」と、英語の
           <span className="font-bold text-text">date</span>をかけた名前です
         </p>
-        <p className="mt-2">
-          date には人と会う約束という意味もあるので、仙台で飲み会の日にちを決めるアプリにちょうどいいと思って付けました
-        </p>
+        <p className="mt-2">英語の date には、「日にち」と「人と会う約束」の2つの意味があります</p>
+        <p className="mt-2">仙台でみんなが会う日にちを決めるアプリに、ぴったりの名前だと思って付けました</p>
       </div>
     </details>
   );

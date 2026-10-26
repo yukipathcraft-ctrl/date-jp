@@ -1,5 +1,5 @@
 import { CalendarDays, Clock, MapPin, MessageSquareText, Moon, UtensilsCrossed, Users, Wallet, Wine } from "lucide-react";
-import { areaLabel, clock, dateLabel, stayLabel, yen } from "@/lib/sendai";
+import { areaLabel, budgetLabel, clock, dateLabel, stayLabel } from "@/lib/sendai";
 import type { Summary } from "@/lib/summary";
 
 // みんなの回答から決まったこと。予算は「全員が出せる額」だけを出し、誰がいくらと答えたかは出さない
@@ -27,7 +27,7 @@ function Notes({ notes }: { notes: Summary["notes"] }) {
 
 /** 行く人の苦手なものと、お酒を飲まない人の数。誰が選んだかは出さない */
 function Diet({ diet }: { diet: Summary["diet"] }) {
-  if (diet.avoids.length === 0 && diet.nonDrinkers === 0) return null;
+  if (diet.avoids.length === 0 && diet.nonDrinkers === 0 && diet.others.length === 0) return null;
   return (
     <div className="mt-4 rounded-2xl border border-border px-4 py-3">
       <p className="flex items-center gap-2 text-sm font-bold">
@@ -46,8 +46,13 @@ function Diet({ diet }: { diet: Summary["diet"] }) {
             {a.label}が苦手 {a.count}人
           </li>
         ))}
+        {diet.others.map((t) => (
+          <li key={t} className="tier-red inline-flex items-center rounded-full bg-[var(--ts)] px-2.5 py-1 text-xs font-bold text-[var(--tc)]">
+            {t}が苦手
+          </li>
+        ))}
       </ul>
-      <p className="mt-2 text-xs text-muted">誰が選んだかは出していません。予約のときにお店に伝えましょう</p>
+      <p className="mt-2 text-xs text-muted">誰が選んだか・書いたかは出していません。予約のときにお店に伝えましょう</p>
     </div>
   );
 }
@@ -79,7 +84,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
       value: `${clock(summary.start!)}〜${clock(summary.firstEnd!)}`,
       sub: summary.lateJoiners.length > 0 ? `${summary.lateJoiners.join("と")}さんは途中から来ます` : "全員そろって始められます",
     },
-    { icon: Wallet, label: "予算", value: `${yen(summary.budget!)}まで`, sub: "行く人全員が出せる額です" },
+    { icon: Wallet, label: "予算", value: budgetLabel(summary.budget!), sub: "行く人全員が出せる額です" },
     {
       icon: MapPin,
       label: "場所",

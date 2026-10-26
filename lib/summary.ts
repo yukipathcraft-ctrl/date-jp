@@ -22,6 +22,8 @@ export type Answer = {
   avoids?: string[];
   /** お酒を飲むか。前の答えにはないので、ないときは飲むとみなす */
   drinks?: boolean;
+  /** 選択肢にない苦手なもの(自由に書く)。名前は付けずに出す */
+  avoidNote?: string;
 };
 
 export type DateRank = { date: string; ok: number; maybe: number };

@@ -1,6 +1,6 @@
 import { isAudience, type Audience } from "./audience";
 import { isAvoidKey } from "./diet";
-import { isArrival, isAreaKey, isBudget, isStay, type AreaKey } from "./sendai";
+import { isAnswerBudget, isArrival, isAreaKey, isStay, type AreaKey } from "./sendai";
 import type { Answer, DateAnswer } from "./summary";
 
 type Result<T> = { ok: true; value: T } | { ok: false; error: string };
@@ -9,6 +9,7 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** 候補の日はいくつでも選べる。大きすぎる会を防ぐためだけの上限(カレンダーで選べる90日の3分の2) */
 export const MAX_DATES = 60;
 export const MAX_MEMO = 100;
+export const MAX_AVOID_NOTE = 30;
 
 function text(v: unknown, label: string, max: number): Result<string> {
   const s = typeof v === "string" ? v.trim() : "";
@@ -46,10 +47,11 @@ export function parseAnswer(input: Record<string, unknown>, partyDates: string[]
   }
   if (!isArrival(input.arrival)) return { ok: false, error: "何時から来られるかを選んでください" };
   if (!isStay(input.stay)) return { ok: false, error: "いつまで残れるかを選んでください" };
-  if (!isBudget(input.budget)) return { ok: false, error: "予算を選んでください" };
+  if (!isAnswerBudget(input.budget)) return { ok: false, error: "予算を選んでください" };
   const areas = Array.isArray(input.areas) ? [...new Set(input.areas.filter(isAreaKey))] : [];
   if (areas.length === 0) return { ok: false, error: "行きやすい場所を1つ以上選んでください" };
   const memo = typeof input.memo === "string" ? input.memo.trim() : "";
+  const avoidNote = typeof input.avoidNote === "string" ? input.avoidNote.trim().slice(0, MAX_AVOID_NOTE) : "";
   if (memo.length > MAX_MEMO) return { ok: false, error: `ひとことは${MAX_MEMO}文字までにしてください` };
 
   return {
@@ -64,6 +66,7 @@ export function parseAnswer(input: Record<string, unknown>, partyDates: string[]
       ...(memo ? { memo } : {}),
       avoids: Array.isArray(input.avoids) ? [...new Set(input.avoids.filter(isAvoidKey))] : [],
       drinks: input.drinks !== false,
+      ...(avoidNote ? { avoidNote } : {}),
     },
   };
 }

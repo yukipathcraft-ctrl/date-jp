@@ -6,9 +6,9 @@ import { useEffect, useState, useTransition } from "react";
 import { getMyAnswer, saveAnswer } from "@/app/actions";
 import { AUDIENCES, type Audience } from "@/lib/audience";
 import { AVOIDS } from "@/lib/diet";
-import { AREAS, STAYS, clock, dateLabel, inputFromMinutes, minutesFromInput, yen, type AreaKey } from "@/lib/sendai";
+import { AREAS, STAYS, UNLIMITED_BUDGET, clock, dateLabel, inputFromMinutes, minutesFromInput, yen, type AreaKey } from "@/lib/sendai";
 import type { DateAnswer } from "@/lib/summary";
-import { MAX_MEMO, type AnswerInput } from "@/lib/validation";
+import { MAX_AVOID_NOTE, MAX_MEMO, type AnswerInput } from "@/lib/validation";
 import { BUTTON_PRIMARY, BUTTON_SUB, INPUT, LABEL, PILL, PILL_OFF, PILL_ON } from "./ui";
 
 type Mine = { answerId: string; token: string; name: string };
@@ -297,6 +297,9 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
                 〜{yen(b)}
               </Choice>
             ))}
+            <Choice on={form.budget === UNLIMITED_BUDGET} onClick={() => set({ budget: UNLIMITED_BUDGET })}>
+              上限なし
+            </Choice>
           </div>
           <p className="mt-3 text-xs text-muted">誰がいくらと答えたかは幹事にも見えず、行く人全員が出せる額に合わせて決まります</p>
         </fieldset>
@@ -344,7 +347,15 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
               </Choice>
             ))}
           </div>
-          <p className="mt-2 text-xs text-muted">誰が選んだかは幹事にも見えず、「えび・かにが苦手な人が1人」のように人数だけがお店選びに使われます</p>
+          <input
+            className={`${INPUT} mt-3 min-h-12 text-sm`}
+            value={form.avoidNote ?? ""}
+            onChange={(e) => set({ avoidNote: e.target.value.slice(0, MAX_AVOID_NOTE) })}
+            placeholder="そのほか(例: パクチー、甲殻類すべて)"
+            maxLength={MAX_AVOID_NOTE}
+            aria-label="そのほかの苦手なもの"
+          />
+          <p className="mt-2 text-xs text-muted">誰が選んだか・書いたかは幹事にも見えず、「えび・かにが苦手な人が1人」のように人数と中身だけがお店選びに使われます</p>
         </fieldset>
 
         <label className="block border-t border-border px-5 py-5">

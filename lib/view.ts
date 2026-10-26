@@ -1,4 +1,5 @@
 import "server-only";
+import { UNLIMITED_BUDGET } from "./sendai";
 import { searchShops, type Shop } from "./shops";
 import { getStore } from "./store";
 import type { Party } from "./store/types";
@@ -22,7 +23,8 @@ export async function loadParty(id: string): Promise<(PartyView & { adminHash: s
   const { shops, otherArea } = ready
     ? await searchShops({
         area: summary.area!,
-        budget: summary.budget!,
+        // 全員が「上限なし」なら、予算で絞らない
+        budget: summary.budget! >= UNLIMITED_BUDGET ? null : summary.budget!,
         size: summary.attendees.length,
         audience: party.audience,
       }, 10)

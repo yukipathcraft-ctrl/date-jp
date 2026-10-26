@@ -21,9 +21,9 @@ describe("summarizeDiet", () => {
 
 describe("dietNotice", () => {
   it("お店に伝える一言にする", () => {
-    expect(dietNotice({ avoids: [{ key: "soba", label: "そば", count: 1 }], nonDrinkers: 2 })).toBe(
-      "そばが苦手な人が1人・お酒を飲まない人が2人",
+    expect(dietNotice({ avoids: [{ key: "soba", label: "そば", count: 1 }], nonDrinkers: 2, others: ["パクチー"] })).toBe(
+      "そばが苦手な人が1人・そのほか苦手なもの(パクチー)・お酒を飲まない人が2人",
     );
-    expect(dietNotice({ avoids: [], nonDrinkers: 0 })).toBeNull();
+    expect(dietNotice({ avoids: [], nonDrinkers: 0, others: [] })).toBeNull();
   });
 });

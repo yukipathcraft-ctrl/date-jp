@@ -41,6 +41,22 @@ export function isBudget(v: unknown): v is Budget {
   return BUDGETS.includes(v as Budget);
 }
 
+/**
+ * 答えの「上限なし」。いちばん安い額を選ぶ計算(Math.min)でそのまま扱えるよう、大きな数で持つ。
+ * 全員が上限なしなら、予算でお店を絞らない
+ */
+export const UNLIMITED_BUDGET = 1_000_000;
+
+/** 答えで選べる予算か(選択肢の額か、上限なし) */
+export function isAnswerBudget(v: unknown): v is number {
+  return isBudget(v) || v === UNLIMITED_BUDGET;
+}
+
+/** 予算の見せ方。上限なしは「上限なし」 */
+export function budgetLabel(n: number): string {
+  return n >= UNLIMITED_BUDGET ? "上限なし" : `${yen(n)}まで`;
+}
+
 export function yen(n: number): string {
   return `${n.toLocaleString("ja-JP")}円`;
 }
