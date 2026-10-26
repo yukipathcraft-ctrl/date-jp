@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase, CalendarDays, ChevronRight, GraduationCap, ListChecks, Repeat, Store } from "lucide-react";
+import { Briefcase, CalendarDays, ChevronRight, Clock, GraduationCap, ListChecks, MapPin, Repeat, Store, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AUDIENCES, loadAudience, saveAudience, type Audience } from "@/lib/audience";
@@ -62,6 +62,14 @@ function NameStory() {
     </details>
   );
 }
+
+/** トップの見出しの下に並べる、みんなの答えから決まるもの */
+const HERO_ITEMS = [
+  { Icon: CalendarDays, label: "日にち" },
+  { Icon: Clock, label: "時間" },
+  { Icon: Wallet, label: "予算" },
+  { Icon: MapPin, label: "お店" },
+] as const;
 
 /**
  * 乾杯の演出を、アプリを開いたこの回にもう出したか。ページを読み込み直すと false に戻るので、
@@ -162,10 +170,25 @@ export function HomeClient() {
       <SiteHeader />
       <div className="anim-rise mx-auto max-w-xl px-4 pt-5 pb-16">
         <p className="text-sm font-bold text-muted">仙台で{AUDIENCES[audience].label}の飲み会をするなら</p>
-        <h1 className="mt-1 text-[1.75rem] leading-tight font-extrabold tracking-tight">
-          <span className="inline-block">URLを貼るだけで</span>
-          <span className="inline-block">飲み会が決まります</span>
+        {/* 2行目を金色のグラデーションで光らせる。行の切れ目は決めておき、どの幅でも2行で収める */}
+        <h1 className="mt-2 text-[2.1rem] leading-[1.15] font-black tracking-tight">
+          <span className="block">URLを送るだけで</span>
+          <span className="hero-shine block">飲み会が決まる</span>
         </h1>
+        {/* 何が決まるか。4つを順に浮かせて並べる */}
+        <ul className="mt-4 grid grid-cols-4 gap-2" aria-label="みんなの答えから決まること">
+          {HERO_ITEMS.map(({ Icon, label }, i) => (
+            <li
+              key={label}
+              className="anim-stagger flex flex-col items-center gap-1 rounded-2xl border border-border bg-surface py-2.5"
+              style={{ "--i": i + 2 } as React.CSSProperties}
+            >
+              <Icon className="size-5 text-accent" aria-hidden />
+              <span className="text-xs font-bold">{label}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-xs text-muted">みんなが30秒で答えると、この4つが自動で決まります</p>
 
         {/* 見本は置かず、ここでそのまま会を作れるようにする */}
         <SectionTitle first>会をつくる</SectionTitle>
