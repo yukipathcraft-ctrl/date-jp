@@ -7,7 +7,6 @@ import { addTransitionType, startTransition, useEffect, useState, useTransition 
 import { startCollection } from "@/app/actions";
 import { loadAudience, type Audience } from "@/lib/audience";
 import { yen } from "@/lib/sendai";
-import { MADE_WITH } from "@/lib/share";
 import { NextHost } from "./NextHost";
 import { SendButtons, useCanShare } from "./SendButtons";
 import { ROUND_UNITS, WEIGHTS, splitBill, tenthsFromInput, type Weight } from "@/lib/split";
@@ -81,7 +80,6 @@ export function SplitClient() {
   const [people, setPeople] = useState<Person[]>([]);
   const [unit, setUnit] = useState<number>(100);
   const [organizer, setOrganizer] = useState(0);
-  const [origin, setOrigin] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [collection, setCollection] = useState<Saved["collection"]>(null);
   const [weighted, setWeighted] = useState(true);
@@ -106,7 +104,6 @@ export function SplitClient() {
     const saved = names.length > 0 ? null : loadSaved();
     /* eslint-disable react-hooks/set-state-in-effect */
     setAudience(a);
-    setOrigin(location.origin);
     if (saved) {
       // 前の会計の続き。足す人の番号が重ならないようにする
       nextId = Math.max(...saved.people.map((p) => p.id)) + 1;
@@ -177,9 +174,6 @@ export function SplitClient() {
     ? [
         `${title.trim() ? `「${title.trim()}」の` : ""}お会計 ${yen(totalYen)}(${people.length}人)`,
         ...people.map((p, i) => `${weighted ? `${weightOf(p).mark} ` : "・"}${nameOf(p, i)} ${yen(result.amounts[i])}`),
-        "",
-        `${MADE_WITH}(会計)`,
-        origin,
       ].join("\n")
     : "";
 

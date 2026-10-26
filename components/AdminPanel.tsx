@@ -64,7 +64,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
 
   const guestUrl = `${origin}/p/${partyId}`;
   const adminUrl = `${origin}/p/${partyId}/admin?token=${token}`;
-  const adminNote = `「${title}」の幹事用URL(人に送らない)`;
+  const adminNote = `「${title}」の幹事用URL(自分用)`;
   const decidedMessage = decision ? decidedText(title, decision.date, decision.start, decision.shopName, guestUrl) : "";
 
   function submit(choice: { date: string; shopId: string | null } | null) {

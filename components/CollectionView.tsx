@@ -6,7 +6,7 @@ import { useEffect, useState, useTransition } from "react";
 import { setCollectionPayment } from "@/app/actions";
 import { yen } from "@/lib/sendai";
 import { loadMyCollections, rememberCollection } from "@/lib/myCollections";
-import { MADE_WITH, reminderText } from "@/lib/share";
+import { collectText, reminderText } from "@/lib/share";
 import type { Collection } from "@/lib/store/types";
 import { SendButtons, useCanShare } from "./SendButtons";
 
@@ -89,13 +89,7 @@ export function CollectionView({
     });
   }
 
-  const askText = [
-    `${c.title ? `「${c.title}」の` : ""}お会計です`,
-    "金額を確かめて、払ったら自分の名前の「払った」を押してください",
-    url,
-    "",
-    MADE_WITH,
-  ].join("\n");
+  const askText = collectText(c.title, url);
   const remind = `${reminderText(c.audience, c.title, unpaid.map((p) => ({ name: p.name, amount: p.amount })))}\n${url}`;
 
   return (
