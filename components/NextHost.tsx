@@ -5,7 +5,7 @@ import { LogoMark } from "./Logo";
 // 「次はあなたが幹事」。答えた人や傾斜会計を見た人に、自分でも会を作ってもらう入口
 export function NextHost() {
   return (
-    <section className="rounded-3xl border border-border bg-surface px-5 py-5">
+    <section className="rounded-3xl border lux px-5 py-5">
       <div className="flex items-center gap-4">
         <LogoMark size={48} />
         <p className="min-w-0 flex-1">

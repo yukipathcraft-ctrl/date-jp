@@ -6,12 +6,12 @@
 */
 :root {
   /* 黒い地に、少し明るい黒のカード。主な色はビールの金色(主ボタン・選んだもの)で、文字は黒 */
-  --bg: #0b0a09;
-  --surface: #171513;
-  --surface-2: #221f1c;
+  --bg: #000000;
+  --surface: #0d0c0a;
+  --surface-2: #181611;
   --text: #f4f1ec;
   --muted: #9a948b;
-  --border: #2e2a26;
+  --border: #2b261b;
   --accent: #f5b83d;
   --accent-text: #000000;
   --accent-strong: #ffc85c;
@@ -153,6 +153,24 @@ body {
 }
 
 /* 主なカードの下に、金色がうっすらにじむ */
+/* 高級感の土台(もとのサイトと同じ作り): 金の細い縁、上からうっすら差す光、カードの下のほのかな金の光 */
+.page-bg {
+  background:
+    radial-gradient(ellipse 120% 420px at 50% -120px, color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%),
+    var(--bg);
+}
+@layer components {
+  .lux {
+    border-color: color-mix(in srgb, var(--accent) 18%, transparent);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--accent) 5%, transparent), transparent 120px),
+      var(--surface);
+    box-shadow:
+      inset 0 1px 0 rgb(255 236 190 / 0.06),
+      0 24px 60px -30px color-mix(in srgb, var(--accent) 28%, transparent);
+  }
+}
+
 .glow {
   box-shadow: 0 30px 90px -30px color-mix(in srgb, var(--accent) 40%, transparent);
 }

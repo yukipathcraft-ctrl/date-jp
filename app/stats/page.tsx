@@ -60,7 +60,7 @@ export default async function StatsPage(props: PageProps<"/stats">) {
 
         <div className="mt-5 grid grid-cols-2 gap-3">
           {tiles.map((t) => (
-            <div key={t.label} className="rounded-3xl border border-border bg-surface px-4 py-4">
+            <div key={t.label} className="rounded-3xl border lux px-4 py-4">
               <p className="text-xs font-bold text-muted">{t.label}</p>
               <p className="mt-1 text-3xl font-extrabold tabular-nums">{t.value.toLocaleString("ja-JP")}</p>
               <p className="mt-0.5 text-[11px] text-muted">{t.note}</p>
@@ -86,7 +86,7 @@ export default async function StatsPage(props: PageProps<"/stats">) {
         </section>
 
         <h2 className="mt-9 mb-3 px-1 text-sm font-bold text-muted">今月よく押されたお店</h2>
-        <section className="overflow-hidden rounded-3xl border border-border bg-surface">
+        <section className="overflow-hidden rounded-3xl border lux">
           {shops.length === 0 ? (
             <p className="px-5 py-5 text-sm text-muted">今月はまだお店が押されていません</p>
           ) : (

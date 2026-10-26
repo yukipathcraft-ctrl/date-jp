@@ -21,7 +21,7 @@ export function saveAdminToken(partyId: string, token: string) {
 function FieldHead({ icon, title, sub }: { icon: React.ReactNode; title: string; sub: string }) {
   return (
     <div className="flex items-center gap-4">
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-accent">{icon}</span>
+      <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-accent/25 bg-accent/5 text-accent">{icon}</span>
       <span className="min-w-0 flex-1">
         <span className="block font-extrabold">{title}</span>
         <span className="mt-0.5 block text-xs text-muted">{sub}</span>
@@ -70,7 +70,7 @@ export function CreateForm() {
 
   return (
     <>
-      <div className="overflow-hidden rounded-3xl border border-border bg-surface">
+      <div className="overflow-hidden rounded-3xl border lux">
         <div className="border-b border-border px-5 py-5">
           <FieldHead icon={<PenLine className="size-6" aria-hidden />} title="飲み会の名前" sub="みんなに送る画面の見出しになります" />
           <input

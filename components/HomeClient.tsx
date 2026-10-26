@@ -22,7 +22,7 @@ function HomeRow({ href, icon, title, sub }: { href: string; icon: React.ReactNo
       transitionTypes={["nav-forward"]}
       className="flex min-h-20 items-center gap-4 border-t border-border px-5 py-3 transition-colors first:border-t-0 hover:bg-surface-2/60"
     >
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-accent">{icon}</span>
+      <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-accent/25 bg-accent/5 text-accent">{icon}</span>
       <span className="min-w-0 flex-1">
         <span className="block truncate font-extrabold">{title}</span>
         <span className="mt-0.5 block text-xs text-muted">{sub}</span>
@@ -41,7 +41,7 @@ function NameStory() {
   return (
     <details className="group border-t border-border px-5 first:border-t-0">
       <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 py-3">
-        <span aria-hidden className="grid size-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-lg font-extrabold text-accent">
+        <span aria-hidden className="grid size-12 shrink-0 place-items-center rounded-2xl border border-accent/25 bg-accent/5 text-lg font-extrabold text-accent">
           伊
         </span>
         <span className="min-w-0 flex-1">
@@ -143,7 +143,7 @@ export function HomeClient() {
                   key={a}
                   type="button"
                   onClick={() => choose(a)}
-                  className="flex min-h-24 items-center gap-4 rounded-3xl border border-border bg-surface px-5 text-left transition-colors hover:border-accent"
+                  className="flex min-h-24 items-center gap-4 rounded-3xl border lux px-5 text-left transition-colors hover:border-accent"
                 >
                   <span className="grid size-14 shrink-0 place-items-center rounded-2xl border border-accent/60 text-accent">
                     <Icon className="size-7" aria-hidden />
@@ -178,7 +178,7 @@ export function HomeClient() {
           {HERO_ITEMS.map(({ Icon, label }, i) => (
             <li
               key={label}
-              className="anim-stagger flex flex-col items-center gap-1 rounded-2xl border border-border bg-surface py-2.5"
+              className="anim-stagger lux flex flex-col items-center gap-1 rounded-2xl border py-2.5"
               style={{ "--i": i + 2 } as React.CSSProperties}
             >
               <Icon className="size-5 text-accent" aria-hidden />
@@ -197,7 +197,7 @@ export function HomeClient() {
         {parties.length > 0 && (
           <>
             <SectionTitle>あなたの会</SectionTitle>
-            <section className="overflow-hidden rounded-3xl border border-border bg-surface">
+            <section className="overflow-hidden rounded-3xl border lux">
               {parties.map((p) => (
                 <HomeRow
                   key={p.id}
@@ -212,7 +212,7 @@ export function HomeClient() {
         )}
 
         <SectionTitle>お店を探したいとき</SectionTitle>
-        <section className="overflow-hidden rounded-3xl border border-border bg-surface">
+        <section className="overflow-hidden rounded-3xl border lux">
           <HomeRow
             href="/shops"
             icon={<Store className="size-6" aria-hidden />}
@@ -222,7 +222,7 @@ export function HomeClient() {
         </section>
 
         <SectionTitle>飲んだあと</SectionTitle>
-        <section className="overflow-hidden rounded-3xl border border-border bg-surface">
+        <section className="overflow-hidden rounded-3xl border lux">
           <HomeRow
             href="/split"
             icon={
@@ -253,14 +253,14 @@ export function HomeClient() {
         </section>
 
         <SectionTitle>このアプリについて</SectionTitle>
-        <section className="overflow-hidden rounded-3xl border border-border bg-surface">
+        <section className="overflow-hidden rounded-3xl border lux">
           <NameStory />
           <button
             type="button"
             onClick={() => setPhase("choose")}
             className="flex min-h-20 w-full items-center gap-4 border-t border-border px-5 py-3 text-left transition-colors hover:bg-surface-2/60"
           >
-            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-accent">
+            <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-accent/25 bg-accent/5 text-accent">
               <Repeat className="size-6" aria-hidden />
             </span>
             <span className="min-w-0 flex-1">

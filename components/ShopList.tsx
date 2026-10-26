@@ -41,7 +41,7 @@ export function ShopList({
   if (shops.length === 0 && !empty) return null;
   const isSample = shops.some((s) => s.sample);
   return (
-    <section id={id} className="mt-4 mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
+    <section id={id} className="mt-4 mx-4 rounded-3xl border lux px-4 py-6">
       <h2 className="text-lg font-extrabold">{heading}</h2>
       <p className="mt-1 text-sm text-muted">
         {lead ?? (otherArea ? "その場所には合うお店がなかったので、近くのエリアから出しています" : "予算と場所と人数に合うお店を選びました")}

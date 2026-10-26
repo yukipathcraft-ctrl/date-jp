@@ -108,7 +108,7 @@ export function CollectionView({
         </p>
       </div>
 
-      <section className="mx-4 rounded-3xl border border-border bg-surface px-5 py-5" aria-live="polite">
+      <section className="mx-4 rounded-3xl border lux px-5 py-5" aria-live="polite">
         <p className="flex items-center gap-2 font-extrabold">
           <Wallet className="size-5" aria-hidden />
           {payers.length}人中{payers.length - unpaid.length}人が払いました
@@ -137,7 +137,7 @@ export function CollectionView({
         )}
       </section>
 
-      <ul className="mx-4 mt-3 divide-y divide-border overflow-hidden rounded-3xl border border-border bg-surface">
+      <ul className="mx-4 mt-3 divide-y divide-border overflow-hidden rounded-3xl border lux">
         {c.people.map((p, i) => {
           const pay = c.payments[p.id];
           return (
@@ -212,7 +212,7 @@ export function CollectionView({
 
       {isHost && (
         <>
-          <section className="mx-4 mt-4 rounded-3xl border border-border bg-surface px-5 py-5">
+          <section className="mx-4 mt-4 rounded-3xl border lux px-5 py-5">
             <h2 className="flex items-center gap-2 text-lg font-extrabold">
               <Users className="size-5" aria-hidden />
               みんなにこのページを送る
@@ -222,7 +222,7 @@ export function CollectionView({
           </section>
 
           {unpaid.length > 0 && (
-            <section className="mx-4 mt-4 rounded-3xl border border-border bg-surface px-5 py-5">
+            <section className="mx-4 mt-4 rounded-3xl border lux px-5 py-5">
               <h2 className="text-lg font-extrabold">まだの人に催促する</h2>
               <p className="mt-1 text-xs text-muted">まだの{unpaid.length}人の名前と金額だけが入ります。払った人の名前は出ません</p>
               <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm leading-relaxed break-all whitespace-pre-wrap">{remind}</p>

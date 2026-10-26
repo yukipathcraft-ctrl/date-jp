@@ -12,7 +12,7 @@ export function PageMotion({ children }: { children: React.ReactNode }) {
       default="none"
     >
       {/* 地の色を付けておく(広がる丸の中に、沈んでいく前の画面が透けないように) */}
-      <div className="min-h-dvh bg-bg">{children}</div>
+      <div className="page-bg min-h-dvh">{children}</div>
     </ViewTransition>
   );
 }

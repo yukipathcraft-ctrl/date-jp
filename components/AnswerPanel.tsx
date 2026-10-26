@@ -165,11 +165,11 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
     });
   }
 
-  if (!loaded) return <section className="mx-4 min-h-40 rounded-3xl border border-border bg-surface" />;
+  if (!loaded) return <section className="mx-4 min-h-40 rounded-3xl border lux" />;
 
   if (mine && !editing) {
     return (
-      <section className="anim-rise mx-4 rounded-3xl border border-border bg-surface px-4 py-5">
+      <section className="anim-rise mx-4 rounded-3xl border lux px-4 py-5">
         <p className="flex items-center gap-2 font-extrabold">
           <span className="grid size-6 place-items-center rounded-full bg-accent text-accent-text">
             <Check className="size-4" aria-hidden />
@@ -201,7 +201,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
   return (
     <section>
       <h2 className="px-4 pb-3 text-lg font-extrabold">{editing ? "回答を直す" : "30秒で答える"}</h2>
-      <div className="mx-4 overflow-hidden rounded-3xl border border-border bg-surface">
+      <div className="mx-4 overflow-hidden rounded-3xl border lux">
         <label className="block border-b border-border px-5 py-5">
           <span className={LABEL}>
             <UserRound className="size-4" aria-hidden />
