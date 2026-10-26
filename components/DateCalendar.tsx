@@ -59,7 +59,7 @@ export function DateCalendar({
         >
           <ChevronLeft className="size-5" aria-hidden />
         </button>
-        <p className="font-extrabold" aria-live="polite">
+        <p className="font-black" aria-live="polite">
           {year}年{month + 1}月
         </p>
         <button
@@ -98,7 +98,7 @@ export function DateCalendar({
               disabled={out}
               aria-pressed={on}
               aria-label={dateLabel(day)}
-              className={`relative flex aspect-square min-h-11 flex-col items-center justify-center rounded-xl text-sm font-extrabold tabular-nums transition-colors disabled:opacity-25 ${
+              className={`relative flex aspect-square min-h-11 flex-col items-center justify-center rounded-xl text-sm font-black tabular-nums transition-colors disabled:opacity-25 ${
                 on ? "bg-accent text-accent-text" : `bg-surface-2 hover:ring-1 hover:ring-muted ${weekdayColor(w)}`
               } ${day === today && !on ? "ring-1 ring-accent" : ""}`}
             >

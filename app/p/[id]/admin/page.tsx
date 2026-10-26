@@ -6,6 +6,7 @@ import { DecisionCard } from "@/components/DecisionCard";
 import { SecondPartyShops } from "@/components/SecondPartyShops";
 import { ShopList } from "@/components/ShopList";
 import { SiteHeader } from "@/components/SiteHeader";
+import { StepBar } from "@/components/StepBar";
 import { SummaryView } from "@/components/SummaryView";
 import { verifyToken } from "@/lib/tokens";
 import { dietNotice } from "@/lib/diet";
@@ -27,7 +28,7 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
       <PageMotion>
         <SiteHeader />
         <div className="mx-auto max-w-xl px-4 py-10">
-          <h1 className="text-xl font-extrabold">幹事のURLが正しくありません</h1>
+          <h1 className="text-xl font-black">幹事のURLが正しくありません</h1>
           <p className="mt-2 text-sm text-muted">会を作ったときに保存した幹事用のURLから開いてください</p>
         </div>
       </PageMotion>
@@ -36,11 +37,14 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
 
   return (
     <PageMotion>
-      <SiteHeader />
+      {/* 日にちが決まるまでは「日程調整」、決まったら「お店探し」 */}
+      <SiteHeader>
+        <StepBar current={party.decision ? 1 : 0} />
+      </SiteHeader>
       <div className="mx-auto max-w-xl pb-16">
         <div className="px-4 pt-6 pb-4">
-          <p className="text-sm font-bold text-muted">幹事の画面</p>
-          <h1 className="mt-1 text-2xl font-extrabold tracking-tight">{party.title}</h1>
+          <p className="text-[11px] font-black tracking-[0.2em] text-stone-400">幹事の画面</p>
+          <h1 className="mt-1 text-[22px] font-black tracking-tight">{party.title}</h1>
         </div>
         {party.decision && (
           <div className="mb-4">

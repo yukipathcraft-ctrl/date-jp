@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, Check, PenLine } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { addTransitionType, startTransition, useEffect, useState, useTransition } from "react";
 import { createParty } from "@/app/actions";
@@ -17,15 +17,12 @@ export function saveAdminToken(partyId: string, token: string) {
   } catch {}
 }
 
-/** 入力の見出し。ホームの行と同じく「アイコンの四角 → 見出しと説明」の形にする */
-function FieldHead({ icon, title, sub }: { icon: React.ReactNode; title: string; sub: string }) {
+/** 入力の見出し。もとにした KANJI と同じく、灰色の小さめの字だけにする */
+function FieldHead({ title, sub }: { title: string; sub: string }) {
   return (
-    <div className="flex items-center gap-4">
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-accent/25 bg-accent/5 text-accent">{icon}</span>
-      <span className="min-w-0 flex-1">
-        <span className="block font-extrabold">{title}</span>
-        <span className="mt-0.5 block text-xs text-muted">{sub}</span>
-      </span>
+    <div className="flex items-baseline justify-between gap-3">
+      <p className="text-sm font-bold text-white/50">{title}</p>
+      <p className="text-[11px] font-semibold text-white/35">{sub}</p>
     </div>
   );
 }
@@ -68,13 +65,16 @@ export function CreateForm() {
     });
   }
 
+  // 押せないときは、何が足りないかをボタンの上に出す(もとにした KANJI と同じ)
+  const missing = title.trim() === "" ? "会の名前を入力してください" : dates.length === 0 ? "候補の日を選んでください" : null;
+
   return (
     <>
-      <div className="overflow-hidden rounded-3xl border lux">
-        <div className="border-b border-border px-5 py-5">
-          <FieldHead icon={<PenLine className="size-6" aria-hidden />} title="飲み会の名前" sub="みんなに送る画面の見出しになります" />
+      <section className="rounded-3xl bg-surface px-5 py-5 ring-1 ring-white/8">
+        <div>
+          <FieldHead title="飲み会の名前" sub="みんなに送る画面の見出しになります" />
           <input
-            className={`${INPUT} mt-4`}
+            className={`${INPUT} mt-2`}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder={audience === "student" ? "例: ゼミの打ち上げ" : "例: 部署の歓迎会"}
@@ -83,14 +83,10 @@ export function CreateForm() {
           />
         </div>
 
-        <div className="border-b border-border px-5 py-5">
-          <FieldHead
-            icon={<CalendarDays className="size-6" aria-hidden />}
-            title="候補の日"
-            sub={dates.length > 0 ? `${dates.length}日選んでいます` : "行けそうな日をいくつでも選べます"}
-          />
+        <div className="mt-5 border-t border-white/8 pt-5">
+          <FieldHead title="候補の日" sub={dates.length > 0 ? `${dates.length}日選んでいます` : "いくつでも選べます"} />
           {/* 近い3週間はタイルで、それより先はカレンダーで選ぶ。選んだ日はどちらにも出る */}
-          <div className="mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-surface-2 p-1" role="group" aria-label="選び方">
+          <div className="mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-white/6 p-1 ring-1 ring-white/8" role="group" aria-label="選び方">
             {(["tiles", "calendar"] as const).map((v) => (
               <button
                 key={v}
@@ -98,7 +94,7 @@ export function CreateForm() {
                 aria-pressed={view === v}
                 onClick={() => setView(v)}
                 className={`min-h-10 rounded-xl text-sm font-bold transition-colors ${
-                  view === v ? "bg-surface text-text shadow" : "text-muted hover:text-text"
+                  view === v ? "bg-white/12 text-white" : "text-white/40 hover:text-white/70"
                 }`}
               >
                 {v === "tiles" ? "近い日から選ぶ" : "カレンダーで選ぶ"}
@@ -111,11 +107,18 @@ export function CreateForm() {
             </div>
           )}
           {dates.length > 0 && (
-            <p className="mt-3 text-xs text-muted">
-              選んだ日: {[...dates].sort().map(dateLabel).join("・")}
-            </p>
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <p className="min-w-0 text-xs text-white/50">選んだ日: {[...dates].sort().map(dateLabel).join("・")}</p>
+              <button
+                type="button"
+                onClick={() => setDates([])}
+                className="shrink-0 text-xs font-bold text-white/35 underline underline-offset-2 hover:text-white/55"
+              >
+                すべて外す
+              </button>
+            </div>
           )}
-          <div className={`mt-4 grid min-h-48 grid-cols-4 gap-2 ${view === "tiles" ? "" : "hidden"}`}>
+          <div className={`mt-3 grid min-h-48 grid-cols-4 gap-1.5 ${view === "tiles" ? "" : "hidden"}`}>
             {options.map((d) => {
               const on = dates.includes(d);
               const w = weekdayOf(d);
@@ -127,17 +130,17 @@ export function CreateForm() {
                   onClick={() => toggle(d)}
                   aria-pressed={on}
                   aria-label={dateLabel(d)}
-                  className={`flex min-h-14 flex-col items-center justify-center rounded-2xl border transition-colors ${
-                    on ? "border-accent bg-accent text-accent-text" : "border-transparent bg-surface-2 text-text hover:border-muted"
+                  className={`flex min-h-14 flex-col items-center justify-center rounded-xl transition-all duration-150 active:scale-95 ${
+                    on ? "bg-accent text-accent-text" : "bg-white/6 text-white ring-1 ring-white/10 hover:bg-white/10"
                   }`}
                 >
-                  <span className="flex items-center gap-0.5 text-sm font-extrabold tabular-nums">
+                  <span className="flex items-center gap-0.5 text-sm font-black tabular-nums">
                     {on && <Check className="size-3.5" aria-hidden />}
                     {md}
                   </span>
                   <span
-                    className={`text-[11px] font-bold ${
-                      on ? "opacity-75" : w === 0 ? "text-danger" : w === 6 ? "text-[#7fb2ff]" : w === 5 ? "text-[#ffd47e]" : "text-muted"
+                    className={`text-[10px] font-bold ${
+                      on ? "opacity-75" : w === 0 ? "text-danger" : w === 6 ? "text-[#7fb2ff]" : w === 5 ? "text-[#ffd47e]" : "text-white/40"
                     }`}
                   >
                     {wd.replace(")", "")}
@@ -147,20 +150,27 @@ export function CreateForm() {
             })}
           </div>
         </div>
+      </section>
 
-        <div className="px-5 py-5">
-          {error && (
-            <p role="alert" className="mb-3 text-sm font-bold text-danger">
-              {error}
-            </p>
-          )}
-          <button type="button" onClick={submit} disabled={pending} className={`${BUTTON_PRIMARY} w-full`}>
-            {pending ? "作っています…" : "URLを作る"}
-          </button>
-          <p className="mt-3 text-center text-xs text-muted">
-            登録はいらず、{AUDIENCES[audience].label}向けの予算と時間でみんなに聞きます
+      {/* 決めるボタンは画面の下に固定する(もとにした KANJI と同じ) */}
+      <div className="sticky bottom-0 -mx-4 bg-gradient-to-t from-black via-black/95 to-transparent px-4 pt-4 pb-6">
+        {error ? (
+          <p role="alert" className="mb-2 text-center text-[11px] font-bold text-danger">
+            {error}
           </p>
-        </div>
+        ) : (
+          <p className="mb-2 text-center text-[11px] text-white/40">
+            {missing ?? `登録はいらず、${AUDIENCES[audience].label}向けの予算と時間でみんなに聞きます`}
+          </p>
+        )}
+        <button type="button" onClick={submit} disabled={pending || missing !== null} className={`${BUTTON_PRIMARY} w-full gap-2`}>
+          {pending ? "作っています…" : missing ? "名前と候補の日を入れてください" : (
+            <>
+              URLを作る
+              <ArrowRight className="size-4" aria-hidden />
+            </>
+          )}
+        </button>
       </div>
     </>
   );

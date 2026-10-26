@@ -66,7 +66,7 @@ export function SplashIntro({ onSkip }: { onSkip: () => void }) {
             {NAME.split("").map((c, i) => (
               <span
                 key={i}
-                className="intro-letter inline-block text-7xl font-extrabold tracking-tight text-text"
+                className="intro-letter inline-block text-7xl font-black tracking-tight text-text"
                 style={{ animationDelay: `${1.45 + i * 0.06}s` }}
               >
                 {c}

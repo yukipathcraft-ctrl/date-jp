@@ -101,7 +101,7 @@ export function ShopSearch() {
 
   return (
     <>
-      <div id="filters" className="mx-4 overflow-hidden rounded-3xl border lux">
+      <div id="filters" className="mx-4 overflow-hidden rounded-3xl border panel">
         <fieldset className="border-b border-border px-4 py-5">
           <legend className="sr-only">場所</legend>
           <p className={LABEL} aria-hidden>
@@ -188,7 +188,7 @@ export function ShopSearch() {
               <ShopList partyId="search" shops={result.shops} otherArea={result.otherArea} />
             </>
           ) : (
-            <p id="shops" className="mx-4 rounded-3xl border lux px-5 py-6 text-sm text-muted">
+            <p id="shops" className="mx-4 rounded-3xl border panel px-5 py-6 text-sm text-muted">
               合うお店が見つからなかったので、予算や料理の条件をゆるめてみてください
             </p>
           ))}

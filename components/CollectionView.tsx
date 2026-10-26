@@ -102,14 +102,14 @@ export function CollectionView({
     <>
       <div className="px-4 pt-6 pb-4">
         <p className="text-sm font-bold text-muted">{isHost ? "幹事の集金ページ" : "集金"}</p>
-        <h1 className="mt-1 text-2xl font-extrabold tracking-tight">{heading}</h1>
+        <h1 className="mt-1 text-[22px] font-black tracking-tight">{heading}</h1>
         <p className="mt-1 text-sm text-muted">
           合計 {yen(c.total)}・{c.people.length}人{host ? `・幹事は${host.name}さん` : ""}
         </p>
       </div>
 
-      <section className="mx-4 rounded-3xl border lux px-5 py-5" aria-live="polite">
-        <p className="flex items-center gap-2 font-extrabold">
+      <section className="mx-4 rounded-3xl border panel px-5 py-5" aria-live="polite">
+        <p className="flex items-center gap-2 font-black">
           <Wallet className="size-5" aria-hidden />
           {payers.length}人中{payers.length - unpaid.length}人が払いました
         </p>
@@ -137,14 +137,14 @@ export function CollectionView({
         )}
       </section>
 
-      <ul className="mx-4 mt-3 divide-y divide-border overflow-hidden rounded-3xl border lux">
+      <ul className="mx-4 mt-3 divide-y divide-border overflow-hidden rounded-3xl border panel">
         {c.people.map((p, i) => {
           const pay = c.payments[p.id];
           return (
             <li key={p.id} className="anim-stagger flex min-h-16 items-center gap-2.5 px-4" style={{ "--i": i } as React.CSSProperties}>
               <span
                 aria-hidden
-                className={`tier-${p.tone} grid size-9 shrink-0 place-items-center rounded-full bg-[var(--ts)] text-sm font-extrabold text-[var(--tc)]`}
+                className={`tier-${p.tone} grid size-9 shrink-0 place-items-center rounded-full bg-[var(--ts)] text-sm font-black text-[var(--tc)]`}
               >
                 {[...p.name][0] ?? "?"}
               </span>
@@ -165,7 +165,7 @@ export function CollectionView({
                   )}
                 </span>
               </span>
-              <span className={`shrink-0 text-lg font-extrabold tabular-nums ${pay ? "text-muted line-through decoration-2" : ""}`}>
+              <span className={`shrink-0 text-lg font-black tabular-nums ${pay ? "text-muted line-through decoration-2" : ""}`}>
                 {yen(p.amount)}
               </span>
               <span className="flex w-[5.5rem] shrink-0 flex-col items-center gap-0.5">
@@ -212,8 +212,8 @@ export function CollectionView({
 
       {isHost && (
         <>
-          <section className="mx-4 mt-4 rounded-3xl border lux px-5 py-5">
-            <h2 className="flex items-center gap-2 text-lg font-extrabold">
+          <section className="mx-4 mt-4 rounded-3xl border panel px-5 py-5">
+            <h2 className="flex items-center gap-2 text-lg font-black">
               <Users className="size-5" aria-hidden />
               みんなにこのページを送る
             </h2>
@@ -222,8 +222,8 @@ export function CollectionView({
           </section>
 
           {unpaid.length > 0 && (
-            <section className="mx-4 mt-4 rounded-3xl border lux px-5 py-5">
-              <h2 className="text-lg font-extrabold">まだの人に催促する</h2>
+            <section className="mx-4 mt-4 rounded-3xl border panel px-5 py-5">
+              <h2 className="text-lg font-black">まだの人に催促する</h2>
               <p className="mt-1 text-xs text-muted">まだの{unpaid.length}人の名前と金額だけが入ります。払った人の名前は出ません</p>
               <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm leading-relaxed break-all whitespace-pre-wrap">{remind}</p>
               <SendButtons mainLabel="共有して催促を送る" line={remind} share={{ text: remind }} copy={remind} copyLabel="催促の文をコピー" canShare={canShare} />

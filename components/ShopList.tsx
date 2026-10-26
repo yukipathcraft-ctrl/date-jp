@@ -41,8 +41,8 @@ export function ShopList({
   if (shops.length === 0 && !empty) return null;
   const isSample = shops.some((s) => s.sample);
   return (
-    <section id={id} className="mt-4 mx-4 rounded-3xl border lux px-4 py-6">
-      <h2 className="text-lg font-extrabold">{heading}</h2>
+    <section id={id} className="mt-4 mx-4 rounded-3xl border panel px-4 py-6">
+      <h2 className="text-lg font-black">{heading}</h2>
       <p className="mt-1 text-sm text-muted">
         {lead ?? (otherArea ? "その場所には合うお店がなかったので、近くのエリアから出しています" : "予算と場所と人数に合うお店を選びました")}
       </p>
@@ -73,7 +73,7 @@ export function ShopList({
               )}
               <div className="min-w-0">
                 {chosenId === s.id && <p className="text-xs font-bold text-match-text">★ このお店に決定</p>}
-                <p className="font-extrabold">{s.name}</p>
+                <p className="font-black">{s.name}</p>
                 <p className="text-xs text-muted">
                   {/* 実際のお店は、場所を最寄り駅からの道のりで示す(エリア名は検索の条件で、お店の住所とずれることがある) */}
                   {s.sample ? `${s.genre} ・ ${areaLabel(s.area)} ・ ${s.access}` : `${s.genre} ・ ${s.access}`}

@@ -60,16 +60,16 @@ function Diet({ diet }: { diet: Summary["diet"] }) {
 export function SummaryView({ summary }: { summary: Summary }) {
   if (summary.answered === 0) {
     return (
-      <section className="mx-4 rounded-3xl border lux px-4 py-6">
-        <h2 className="text-lg font-extrabold">みんなの答え</h2>
+      <section className="mx-4 rounded-3xl border panel px-4 py-6">
+        <h2 className="text-lg font-black">みんなの答え</h2>
         <p className="mt-2 text-sm text-muted">まだ誰も答えていません</p>
       </section>
     );
   }
   if (summary.date === null) {
     return (
-      <section className="mx-4 rounded-3xl border lux px-4 py-6">
-        <h2 className="text-lg font-extrabold">みんなの答え({summary.answered}人)</h2>
+      <section className="mx-4 rounded-3xl border panel px-4 py-6">
+        <h2 className="text-lg font-black">みんなの答え({summary.answered}人)</h2>
         <p className="mt-2 text-sm text-muted">どの日も全員が行けないと答えているので、候補の日を足して作り直してください</p>
         <Notes notes={summary.notes} />
       </section>
@@ -100,8 +100,8 @@ export function SummaryView({ summary }: { summary: Summary }) {
   ];
 
   return (
-    <section className="mx-4 rounded-3xl border lux px-4 py-6">
-      <h2 className="text-lg font-extrabold">みんなの答えで決まったこと</h2>
+    <section className="mx-4 rounded-3xl border panel px-4 py-6">
+      <h2 className="text-lg font-black">みんなの答えで決まったこと</h2>
       <p className="mt-1 text-sm text-muted">{summary.answered}人が回答</p>
       <dl className="mt-4 divide-y divide-border rounded-2xl border border-border">
         {rows.map(({ icon: Icon, label, value, sub }) => (
@@ -109,7 +109,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
             <Icon className="mt-1 size-5 shrink-0" aria-hidden />
             <dt className="w-14 shrink-0 pt-0.5 text-sm font-bold text-muted">{label}</dt>
             <dd className="min-w-0">
-              <span className="block text-lg font-extrabold">{value}</span>
+              <span className="block text-lg font-black">{value}</span>
               <span className="block text-xs text-muted">{sub}</span>
             </dd>
           </div>

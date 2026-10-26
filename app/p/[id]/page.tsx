@@ -34,7 +34,7 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
       <div className="mx-auto max-w-xl pb-16">
         <div className="px-4 pt-6 pb-4">
           <p className="text-sm font-bold text-muted">飲み会の日程とお店</p>
-          <h1 className="mt-1 text-2xl font-extrabold tracking-tight">{party.title}</h1>
+          <h1 className="mt-1 text-[22px] font-black tracking-tight">{party.title}</h1>
         </div>
         {party.decision && <DecisionCard decision={party.decision} />}
         <div className={party.decision ? "mt-4" : ""}>

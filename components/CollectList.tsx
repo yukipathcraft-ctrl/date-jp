@@ -45,7 +45,7 @@ export function CollectList() {
       {items && items.length > 0 && (
         <>
           <h2 className="mt-8 mb-3 px-5 text-sm font-bold text-muted">あなたの集金</h2>
-          <ul className="mx-4 overflow-hidden rounded-3xl border lux">
+          <ul className="mx-4 overflow-hidden rounded-3xl border panel">
             {items.map((c, i) => {
               const p = progress[c.id];
               const done = p && p.paid === p.payers;
@@ -57,7 +57,7 @@ export function CollectList() {
                     className="flex min-h-20 items-center gap-4 px-5 py-3 transition-colors hover:bg-surface-2/60"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate font-extrabold">{c.title || "お会計"}</span>
+                      <span className="block truncate font-black">{c.title || "お会計"}</span>
                       <span className="mt-0.5 block text-xs text-muted">
                         {new Date(c.createdAt).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}・合計 {yen(c.total)}
                       </span>
@@ -90,14 +90,14 @@ export function CollectList() {
         <ListChecks className="size-4" aria-hidden />
         集金のしかた
       </h2>
-      <ol className="mx-4 overflow-hidden rounded-3xl border lux">
+      <ol className="mx-4 overflow-hidden rounded-3xl border panel">
         {STEPS.map((s, i) => (
           <li key={s.title} className="flex gap-4 border-t border-border px-5 py-4 first:border-t-0">
-            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-sm font-extrabold text-accent-text" aria-hidden>
+            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-sm font-black text-accent-text" aria-hidden>
               {i + 1}
             </span>
             <span className="min-w-0">
-              <span className="block font-extrabold">{s.title}</span>
+              <span className="block font-black">{s.title}</span>
               <span className="mt-0.5 block text-xs text-muted">{s.note}</span>
             </span>
           </li>

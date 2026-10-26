@@ -1,20 +1,28 @@
+import { House } from "lucide-react";
 import Link from "next/link";
 import { BackButton } from "./BackButton";
-import { LogoMark } from "./Logo";
+import { Wordmark } from "./Logo";
 
-// 画面が切り替わっても上のバーは動かさない(globals.css の site-header)
-export function SiteHeader() {
+// 上のバー。もとにした KANJI と同じく、名前を真ん中に置き、左に戻る・右にホーム。
+// 画面が切り替わっても動かさない(globals.css の site-header)
+export function SiteHeader({ children }: { children?: React.ReactNode }) {
   return (
-    <header className="sticky top-0 z-10 border-b border-accent/10 bg-black/70 backdrop-blur-xl" style={{ viewTransitionName: "site-header" }}>
-      <div className="mx-auto flex h-14 max-w-xl items-center justify-between px-4">
-        <div className="flex items-center">
+    <header className="sticky top-0 z-10 border-b border-white/8 bg-black/95 backdrop-blur-sm" style={{ viewTransitionName: "site-header" }}>
+      <div className="mx-auto max-w-xl px-4 pt-2 pb-2">
+        <div className="grid h-11 grid-cols-[2.75rem_1fr_2.75rem] items-center">
           <BackButton />
-          <Link href="/" className="flex items-center gap-2.5 text-lg font-semibold tracking-[0.18em]">
-            <LogoMark size={28} />
-            Date
+          <Link href="/" className="justify-self-center" aria-label="Date のトップ">
+            <Wordmark size={24} />
+          </Link>
+          <Link
+            href="/"
+            aria-label="ホーム"
+            className="-mr-2 grid size-11 place-items-center justify-self-end rounded-xl text-stone-400 transition hover:text-white active:scale-95"
+          >
+            <House className="size-5" aria-hidden />
           </Link>
         </div>
-        <span className="rounded-full border border-accent/30 px-3 py-1 text-[11px] font-medium tracking-[0.2em] text-accent/85">仙台限定</span>
+        {children}
       </div>
     </header>
   );

@@ -7,11 +7,11 @@
 :root {
   /* 黒い地に、少し明るい黒のカード。主な色はビールの金色(主ボタン・選んだもの)で、文字は黒 */
   --bg: #000000;
-  --surface: #0d0c0a;
-  --surface-2: #181611;
-  --text: #f4f1ec;
-  --muted: #9a948b;
-  --border: #2b261b;
+  --surface: #1d1d1d;
+  --surface-2: #2a2a2a;
+  --text: #ffffff;
+  --muted: rgb(255 255 255 / 0.5);
+  --border: rgb(255 255 255 / 0.08);
   --accent: #f5b83d;
   --accent-text: #000000;
   --accent-strong: #ffc85c;
@@ -44,7 +44,7 @@
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-danger: var(--danger);
-  --font-sans: var(--font-latin), var(--font-jp), -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP",
+  --font-sans: "Hiragino Kaku Gothic ProN", "Hiragino Sans", var(--font-jp), "Noto Sans JP",
     "Yu Gothic UI", Meiryo, system-ui, sans-serif;
 }
 
@@ -153,21 +153,18 @@ body {
 }
 
 /* 主なカードの下に、金色がうっすらにじむ */
-/* 高級感の土台(もとのサイトと同じ作り): 金の細い縁、上からうっすら差す光、カードの下のほのかな金の光 */
-.page-bg {
-  background:
-    radial-gradient(ellipse 120% 420px at 50% -120px, color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%),
-    var(--bg);
-}
+/* 画面の作りは、もとにした KANJI(family-thanks)にそろえる:
+   真っ黒の地に、#1d1d1d のカードと白8%の細い縁。金の光をまとわせるのは、ホームのいちばん上の「会をつくる」だけ */
+.page-bg { background: var(--bg); }
 @layer components {
-  .lux {
-    border-color: color-mix(in srgb, var(--accent) 18%, transparent);
-    background:
-      linear-gradient(180deg, color-mix(in srgb, var(--accent) 5%, transparent), transparent 120px),
-      var(--surface);
-    box-shadow:
-      inset 0 1px 0 rgb(255 236 190 / 0.06),
-      0 24px 60px -30px color-mix(in srgb, var(--accent) 28%, transparent);
+  .panel {
+    border-color: rgb(255 255 255 / 0.08);
+    background: var(--surface);
+  }
+  .hero {
+    background: #0d0c0a;
+    border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+    box-shadow: 0 24px 60px -20px color-mix(in srgb, var(--accent) 20%, transparent);
   }
 }
 

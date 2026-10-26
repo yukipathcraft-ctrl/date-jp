@@ -54,7 +54,7 @@ function Avatar({ name, tone, size = "md" }: { name: string; tone: Weight["tone"
   return (
     <span
       aria-hidden
-      className={`tier-${tone} grid shrink-0 place-items-center rounded-full bg-[var(--ts)] font-extrabold text-[var(--tc)] ring-1 ring-[var(--tb)]/40 ${
+      className={`tier-${tone} grid shrink-0 place-items-center rounded-full bg-[var(--ts)] font-black text-[var(--tc)] ring-1 ring-[var(--tb)]/40 ${
         size === "md" ? "size-11 text-base" : "size-8 text-xs"
       }`}
     >
@@ -213,7 +213,7 @@ export function SplitClient() {
   return (
     <>
       {/* 何の会計かのメモ。催促の文にも入る */}
-      <label className="mx-4 mb-3 flex items-center gap-3 rounded-3xl border lux px-5 py-3">
+      <label className="mx-4 mb-3 flex items-center gap-3 rounded-3xl border panel px-5 py-3">
         <NotebookPen className="size-5 shrink-0 text-accent" aria-hidden />
         <input
           className="min-h-11 w-full min-w-0 bg-transparent font-bold outline-none placeholder:font-normal placeholder:text-muted"
@@ -225,12 +225,12 @@ export function SplitClient() {
       </label>
 
       {/* 合計 */}
-      <label className="mx-4 block rounded-3xl border lux px-5 py-5">
+      <label className="mx-4 block rounded-3xl border panel px-5 py-5">
         <span className="text-sm font-bold text-muted">お会計の合計</span>
         <span className="mt-2 flex items-baseline gap-2">
-          <span className="text-2xl font-extrabold text-muted">¥</span>
+          <span className="text-2xl font-black text-muted">¥</span>
           <input
-            className="w-full min-w-0 bg-transparent text-4xl font-extrabold tracking-tight tabular-nums outline-none placeholder:text-border"
+            className="w-full min-w-0 bg-transparent text-4xl font-black tracking-tight tabular-nums outline-none placeholder:text-border"
             inputMode="numeric"
             value={total === "" ? "" : Number(total).toLocaleString("ja-JP")}
             onChange={(e) => setTotal(e.target.value.replace(/[^\d]/g, "").replace(/^0+/, "").slice(0, 7))}
@@ -344,11 +344,11 @@ export function SplitClient() {
               )}
               {weighted && customOn && (
                 <label className="mt-2.5 flex items-center gap-2">
-                  <span className="text-lg font-extrabold text-[var(--tc)]" aria-hidden>
+                  <span className="text-lg font-black text-[var(--tc)]" aria-hidden>
                     ×
                   </span>
                   <input
-                    className="min-h-11 w-24 rounded-xl bg-surface-2 px-3 text-lg font-extrabold tabular-nums outline-none placeholder:font-normal placeholder:text-muted focus:ring-1 focus:ring-[var(--tb)]"
+                    className="min-h-11 w-24 rounded-xl bg-surface-2 px-3 text-lg font-black tabular-nums outline-none placeholder:font-normal placeholder:text-muted focus:ring-1 focus:ring-[var(--tb)]"
                     inputMode="decimal"
                     value={p.custom}
                     onChange={(e) => update(p.id, { custom: e.target.value.slice(0, 4) })}
@@ -393,7 +393,7 @@ export function SplitClient() {
       {/* 結果 */}
       <section className="glow mx-4 mt-5 overflow-hidden rounded-3xl border border-accent/40 bg-surface" aria-live="polite">
         <div className="flex items-baseline justify-between px-5 pt-5">
-          <h2 className="text-lg font-extrabold">1人いくら?</h2>
+          <h2 className="text-lg font-black">1人いくら?</h2>
           {result && <span className="text-xs font-bold text-muted">{unit}円単位でそろえています</span>}
         </div>
         {result ? (
@@ -427,7 +427,7 @@ export function SplitClient() {
                         )}
                       </span>
                     </span>
-                    <span className="shrink-0 text-lg font-extrabold tabular-nums">{yen(result.amounts[i])}</span>
+                    <span className="shrink-0 text-lg font-black tabular-nums">{yen(result.amounts[i])}</span>
                   </li>
                 );
               })}
@@ -436,7 +436,7 @@ export function SplitClient() {
               <span className="text-sm font-bold">合計</span>
               <span className="flex items-center gap-2">
                 <span className="rounded-md px-1.5 py-0.5 text-[11px] font-bold text-[#93e3b2] ring-1 ring-[#93e3b2]/60">✓ 一致</span>
-                <span className="text-lg font-extrabold tabular-nums">{yen(totalYen)}</span>
+                <span className="text-lg font-black tabular-nums">{yen(totalYen)}</span>
               </span>
             </div>
             <p className="px-5 text-xs text-muted">
@@ -462,8 +462,8 @@ export function SplitClient() {
 
       {/* 集金。払った人が自分で「払った」を押せるページを作り、幹事はそこで受け取りの記録と催促をする */}
       {/* トップの「集金のチェック」からはここへ来る(#collect) */}
-      <section id="collect" className="mx-4 mt-4 scroll-mt-20 rounded-3xl border lux px-5 py-5">
-          <h2 className="flex items-center gap-2 text-lg font-extrabold">
+      <section id="collect" className="mx-4 mt-4 scroll-mt-20 rounded-3xl border panel px-5 py-5">
+          <h2 className="flex items-center gap-2 text-lg font-black">
             <Wallet className="size-5" aria-hidden />
             集金のチェック
           </h2>

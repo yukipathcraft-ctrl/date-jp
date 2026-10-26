@@ -56,20 +56,20 @@ export default async function StatsPage(props: PageProps<"/stats">) {
       <SiteHeader />
       <div className="mx-auto max-w-xl px-4 pt-6 pb-16">
         <p className="text-sm font-bold text-muted">自分だけが見る画面です</p>
-        <h1 className="mt-1 text-2xl font-extrabold tracking-tight">{month}の使われ方</h1>
+        <h1 className="mt-1 text-[22px] font-black tracking-tight">{month}の使われ方</h1>
 
         <div className="mt-5 grid grid-cols-2 gap-3">
           {tiles.map((t) => (
-            <div key={t.label} className="rounded-3xl border lux px-4 py-4">
+            <div key={t.label} className="rounded-3xl border panel px-4 py-4">
               <p className="text-xs font-bold text-muted">{t.label}</p>
-              <p className="mt-1 text-3xl font-extrabold tabular-nums">{t.value.toLocaleString("ja-JP")}</p>
+              <p className="mt-1 text-3xl font-black tabular-nums">{t.value.toLocaleString("ja-JP")}</p>
               <p className="mt-0.5 text-[11px] text-muted">{t.note}</p>
             </div>
           ))}
         </div>
 
         <section className="mt-4 rounded-3xl border border-accent/40 bg-surface px-5 py-5">
-          <h2 className="font-extrabold">アフィリエイトを始める目安</h2>
+          <h2 className="font-black">アフィリエイトを始める目安</h2>
           <p className="mt-1 text-sm text-muted">
             お店が月に{AFFILIATE_SIGNAL}回押されるようになったら、紹介料でサーバー代をまかなえるくらいになります
           </p>
@@ -86,16 +86,16 @@ export default async function StatsPage(props: PageProps<"/stats">) {
         </section>
 
         <h2 className="mt-9 mb-3 px-1 text-sm font-bold text-muted">今月よく押されたお店</h2>
-        <section className="overflow-hidden rounded-3xl border lux">
+        <section className="overflow-hidden rounded-3xl border panel">
           {shops.length === 0 ? (
             <p className="px-5 py-5 text-sm text-muted">今月はまだお店が押されていません</p>
           ) : (
             <ol>
               {shops.map((s, i) => (
                 <li key={s.shopId} className="flex min-h-14 items-center gap-3 border-t border-border px-5 first:border-t-0">
-                  <span className="w-5 shrink-0 text-sm font-extrabold text-muted tabular-nums">{i + 1}</span>
+                  <span className="w-5 shrink-0 text-sm font-black text-muted tabular-nums">{i + 1}</span>
                   <span className="min-w-0 flex-1 truncate font-bold">{s.name}</span>
-                  <span className="shrink-0 font-extrabold tabular-nums">{s.count}回</span>
+                  <span className="shrink-0 font-black tabular-nums">{s.count}回</span>
                 </li>
               ))}
             </ol>

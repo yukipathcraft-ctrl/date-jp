@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Noto_Sans_JP } from "next/font/google";
+import { Noto_Sans_JP } from "next/font/google";
 import { TapOrigin } from "@/components/TapOrigin";
 import "./globals.css";
 
-const latin = Inter({ subsets: ["latin"], display: "swap", variable: "--font-latin" });
 const jp = Noto_Sans_JP({
-  weight: ["400", "500", "700", "800"],
+  // もとにした KANJI と同じく、見出しはいちばん太い字(900)を使う
+  weight: ["400", "500", "700", "900"],
   subsets: ["latin"],
   display: "swap",
   variable: "--font-jp",
@@ -22,12 +22,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0b0a09",
+  themeColor: "#000000",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ja" className={`${latin.variable} ${jp.variable} h-full antialiased`}>
+    <html lang="ja" className={`${jp.variable} h-full antialiased`}>
       <body className="min-h-full">
         <TapOrigin />
         <main>{children}</main>

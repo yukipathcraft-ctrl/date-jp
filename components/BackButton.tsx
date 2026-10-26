@@ -45,7 +45,7 @@ export function BackButton() {
           else router.push("/");
         })
       }
-      className="-ml-2 grid size-11 shrink-0 place-items-center rounded-full text-text hover:bg-surface-2"
+      className="-ml-2 grid size-11 shrink-0 place-items-center rounded-xl text-stone-400 transition hover:text-white active:scale-95"
     >
       <ChevronLeft className="size-6" aria-hidden />
     </button>

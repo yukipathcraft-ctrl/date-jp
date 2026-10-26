@@ -165,12 +165,12 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
     });
   }
 
-  if (!loaded) return <section className="mx-4 min-h-40 rounded-3xl border lux" />;
+  if (!loaded) return <section className="mx-4 min-h-40 rounded-3xl border panel" />;
 
   if (mine && !editing) {
     return (
-      <section className="anim-rise mx-4 rounded-3xl border lux px-4 py-5">
-        <p className="flex items-center gap-2 font-extrabold">
+      <section className="anim-rise mx-4 rounded-3xl border panel px-4 py-5">
+        <p className="flex items-center gap-2 font-black">
           <span className="grid size-6 place-items-center rounded-full bg-accent text-accent-text">
             <Check className="size-4" aria-hidden />
           </span>
@@ -200,8 +200,8 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
 
   return (
     <section>
-      <h2 className="px-4 pb-3 text-lg font-extrabold">{editing ? "回答を直す" : "30秒で答える"}</h2>
-      <div className="mx-4 overflow-hidden rounded-3xl border lux">
+      <h2 className="px-4 pb-3 text-lg font-black">{editing ? "回答を直す" : "30秒で答える"}</h2>
+      <div className="mx-4 overflow-hidden rounded-3xl border panel">
         <label className="block border-b border-border px-5 py-5">
           <span className={LABEL}>
             <UserRound className="size-4" aria-hidden />
@@ -226,7 +226,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
           <ul className="space-y-4">
             {dates.map((d) => (
               <li key={d}>
-                <p className="mb-2 text-base font-extrabold">{dateLabel(d)}</p>
+                <p className="mb-2 text-base font-black">{dateLabel(d)}</p>
                 <div className="grid grid-cols-3 gap-1.5" role="group" aria-label={`${dateLabel(d)}に行けるか`}>
                   {DATE_CHOICES.map((c) => {
                     const on = form.dates[d] === c.value;
@@ -242,7 +242,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
                             : "border-white/15 bg-surface-2 text-text hover:border-white/30"
                         }`}
                       >
-                        <span aria-hidden className={`text-xl leading-none font-extrabold ${on ? "" : "text-[var(--tc)]"}`}>
+                        <span aria-hidden className={`text-xl leading-none font-black ${on ? "" : "text-[var(--tc)]"}`}>
                           {c.mark}
                         </span>
                         {c.label}

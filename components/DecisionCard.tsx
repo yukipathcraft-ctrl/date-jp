@@ -9,7 +9,7 @@ export function DecisionCard({ decision }: { decision: Decision }) {
         <PartyPopper className="size-4" aria-hidden />
         決まりました!
       </p>
-      <p className="mt-2 text-3xl font-extrabold tracking-tight">
+      <p className="mt-2 text-3xl font-black tracking-tight">
         {dateLabel(decision.date)} {clock(decision.start)}〜
       </p>
       {decision.shopName && <p className="mt-1 text-lg font-bold">{decision.shopName}</p>}
