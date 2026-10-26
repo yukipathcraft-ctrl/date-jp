@@ -1,7 +1,7 @@
 import "server-only";
 import { cleanEnv } from "./env";
 import { AUDIENCES, type Audience } from "./audience";
-import { AREAS, GENRES, type AreaKey, type GenreKey } from "./sendai";
+import { AREAS, GENRES, SECOND_GENRES, type AreaKey, type GenreKey, type SecondGenreKey } from "./sendai";
 
 // お店の候補。ホットペッパーの API キーがあれば実際のお店を出し、なければ見本のお店を出す。
 // お店のページへは必ず /go を通し、押された数を数える(送客の手数料の根拠にする)
@@ -21,6 +21,9 @@ export type Shop = {
   photo: string | null;
   /** お店のページ。見本のお店は null */
   url: string | null;
+  /** 位置。二次会のお店を、このお店の近くで探すのに使う。見本のお店は null */
+  lat: number | null;
+  lng: number | null;
   sample: boolean;
 };
 
@@ -78,6 +81,8 @@ function sample(
     features,
     photo: null,
     url: null,
+    lat: null,
+    lng: null,
     sample: true,
   };
 }
@@ -173,6 +178,8 @@ function fromHotpepper(s: HotpepperShop, area: AreaKey): Shop {
     features,
     photo: s.photo?.pc?.l ?? null,
     url: s.urls?.pc ?? null,
+    lat: Number.isFinite(Number(s.lat)) ? Number(s.lat) : null,
+    lng: Number.isFinite(Number(s.lng)) ? Number(s.lng) : null,
     sample: false,
   };
 }
@@ -220,6 +227,38 @@ export async function searchShops(q: ShopQuery, limit = 3): Promise<{ shops: Sho
   } catch (e) {
     console.error("[shops] ホットペッパーから読めなかったため、見本を出します", e);
     return pickSamples(q, limit);
+  }
+}
+
+/**
+ * 二次会のお店。一次会のお店の近く(500m、足りなければ1km)で、23時以降も開いているお店を近い順に出す。
+ * 一次会のお店は除く。お店のデータがつながっていなければ空にする
+ */
+export async function searchSecondShops(
+  q: { lat: number; lng: number; size: number; genre: SecondGenreKey | null; exclude: string | null; area: AreaKey },
+  limit = 5,
+): Promise<Shop[]> {
+  const key = cleanEnv(process.env.HOTPEPPER_API_KEY);
+  if (!key) return [];
+  const params = {
+    lat: String(q.lat),
+    lng: String(q.lng),
+    midnight: "1",
+    party_capacity: String(Math.max(2, q.size)),
+    ...(q.genre ? { genre: SECOND_GENRES.find((g) => g.key === q.genre)!.hotpepper.join(",") } : {}),
+    count: "30",
+  };
+  try {
+    const pick = (list: HotpepperShop[]) => list.filter((s) => s.id !== q.exclude).map((s) => fromHotpepper(s, q.area));
+    let shops = pick(await callHotpepper(key, { ...params, range: "2" }));
+    if (shops.length < limit) {
+      const seen = new Set(shops.map((s) => s.id));
+      shops = [...shops, ...pick(await callHotpepper(key, { ...params, range: "3" })).filter((s) => !seen.has(s.id))];
+    }
+    return shops.slice(0, limit);
+  } catch (e) {
+    console.error("[shops] 二次会のお店を読めませんでした", e);
+    return [];
   }
 }
 

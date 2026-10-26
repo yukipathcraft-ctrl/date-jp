@@ -1,3 +1,4 @@
+import { summarizeDiet, type DietSummary } from "./diet";
 import { AREAS, FIRST_PARTY_MINUTES, type AreaKey } from "./sendai";
 
 // みんなの回答から、日・時刻・予算・場所・残れる人を決める。純粋関数
@@ -17,6 +18,10 @@ export type Answer = {
   areas: AreaKey[];
   /** ひとこと。みんなに見える(予定の事情や、2次会は無理など) */
   memo?: string;
+  /** 苦手なもの・アレルギー(lib/diet.ts の key)。人数だけを出し、誰が選んだかは出さない */
+  avoids?: string[];
+  /** お酒を飲むか。前の答えにはないので、ないときは飲むとみなす */
+  drinks?: boolean;
 };
 
 export type DateRank = { date: string; ok: number; maybe: number };
@@ -26,8 +31,10 @@ export type Summary = {
   ranking: DateRank[];
   /** 行ける人がいちばん多い日。誰も行けなければ null */
   date: string | null;
-  /** その日に行ける人 */
-  attendees: { name: string; arrival: number; stay: number }[];
+  /** その日に行ける人。soft = お酒を飲まない(会計で「飲まない」の区分に入れる) */
+  attendees: { name: string; arrival: number; stay: number; soft: boolean }[];
+  /** 行く人の苦手なものと、お酒を飲まない人の数(名前は持たない) */
+  diet: DietSummary;
   /** その日に「たぶん」の人 */
   maybes: string[];
   /** ひとことを書いた人(行けない人のものも出す) */
@@ -87,7 +94,8 @@ export function summarize(dates: string[], answers: Answer[], fixedDate?: string
     answered: answers.length,
     ranking,
     date: best,
-    attendees: going.map((a) => ({ name: a.name, arrival: a.arrival, stay: a.stay })),
+    attendees: going.map((a) => ({ name: a.name, arrival: a.arrival, stay: a.stay, soft: a.drinks === false })),
+    diet: summarizeDiet(going),
     maybes: best ? answers.filter((a) => a.dates[best] === "maybe").map((a) => a.name) : [],
     notes: answers.filter((a) => a.memo).map((a) => ({ name: a.name, memo: a.memo! })),
     start,

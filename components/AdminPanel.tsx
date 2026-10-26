@@ -23,8 +23,8 @@ type Props = {
   bestDate: string | null;
   shops: Shop[];
   decision: Decision | null;
-  /** その日に行く人の名前。会計に持っていく */
-  attendees: string[];
+  /** その日に行く人の名前と、お酒を飲まないか。会計に持っていく */
+  attendees: { name: string; soft: boolean }[];
 };
 
 /** 枠の見出し。アイコンの丸と、何をする枠かの一言 */

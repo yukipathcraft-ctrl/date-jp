@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { AdminPanel } from "@/components/AdminPanel";
 import { DecisionCard } from "@/components/DecisionCard";
+import { SecondPartyShops } from "@/components/SecondPartyShops";
 import { ShopList } from "@/components/ShopList";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SummaryView } from "@/components/SummaryView";
 import { verifyToken } from "@/lib/tokens";
+import { dietNotice } from "@/lib/diet";
 import { loadParty } from "@/lib/view";
 import { PageMotion } from "@/components/PageMotion";
 
@@ -54,12 +56,20 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
           bestDate={summary.date}
           shops={shops}
           decision={party.decision}
-          attendees={summary.attendees.map((a) => a.name)}
+          attendees={summary.attendees.map((a) => ({ name: a.name, soft: a.soft }))}
         />
         <div className="mt-4">
           <SummaryView summary={summary} />
         </div>
-        <ShopList partyId={party.id} shops={shops} otherArea={otherArea} chosenId={party.decision?.shopId} />
+        <ShopList
+          partyId={party.id}
+          shops={shops}
+          otherArea={otherArea}
+          chosenId={party.decision?.shopId}
+          notice={dietNotice(summary.diet)}
+        />
+        {/* お店まで決まったら、二次会のお店も出す */}
+        {party.decision && <SecondPartyShops partyId={party.id} />}
         <p className="px-4 pt-6 text-center text-sm">
           <a href={`/p/${party.id}`} className="font-bold underline">
             自分も回答する(みんなの画面へ)

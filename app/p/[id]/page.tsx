@@ -4,10 +4,12 @@ import { connection } from "next/server";
 import { AnswerPanel } from "@/components/AnswerPanel";
 import { DecisionCard } from "@/components/DecisionCard";
 import { NextHost } from "@/components/NextHost";
+import { SecondPartyShops } from "@/components/SecondPartyShops";
 import { ShopList } from "@/components/ShopList";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SummaryView } from "@/components/SummaryView";
 import { getStore } from "@/lib/store";
+import { dietNotice } from "@/lib/diet";
 import { loadParty } from "@/lib/view";
 import { PageMotion } from "@/components/PageMotion";
 
@@ -41,7 +43,15 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
         <div className="mt-4">
           <SummaryView summary={summary} />
         </div>
-        <ShopList partyId={party.id} shops={shops} otherArea={otherArea} chosenId={party.decision?.shopId} />
+        <ShopList
+          partyId={party.id}
+          shops={shops}
+          otherArea={otherArea}
+          chosenId={party.decision?.shopId}
+          notice={dietNotice(summary.diet)}
+        />
+        {/* お店まで決まったら、二次会のお店も出す */}
+        {party.decision && <SecondPartyShops partyId={party.id} />}
         {/* 答えた人を、次の会の幹事にする */}
         <div className="mx-4 mt-4">
           <NextHost />

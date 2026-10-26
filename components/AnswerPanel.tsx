@@ -1,10 +1,11 @@
 "use client";
 
-import { CalendarDays, Check, Clock, MapPin, MessageSquareText, Moon, Pencil, UserRound, Wallet } from "lucide-react";
+import { CalendarDays, Check, Clock, MapPin, MessageSquareText, Moon, Pencil, UserRound, UtensilsCrossed, Wallet, Wine } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { getMyAnswer, saveAnswer } from "@/app/actions";
 import { AUDIENCES, type Audience } from "@/lib/audience";
+import { AVOIDS } from "@/lib/diet";
 import { AREAS, STAYS, clock, dateLabel, inputFromMinutes, minutesFromInput, yen, type AreaKey } from "@/lib/sendai";
 import type { DateAnswer } from "@/lib/summary";
 import { MAX_MEMO, type AnswerInput } from "@/lib/validation";
@@ -122,6 +123,8 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
     stay: 0,
     budget: 0,
     areas: [],
+    avoids: [],
+    drinks: true,
   });
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -186,6 +189,11 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
   const setDate = (d: string, v: DateAnswer) => setForm((f) => ({ ...f, dates: { ...f.dates, [d]: v } }));
   const toggleArea = (k: AreaKey) =>
     setForm((f) => ({ ...f, areas: f.areas.includes(k) ? f.areas.filter((a) => a !== k) : [...f.areas, k] }));
+  const toggleAvoid = (k: string) =>
+    setForm((f) => {
+      const cur = f.avoids ?? [];
+      return { ...f, avoids: cur.includes(k) ? cur.filter((a) => a !== k) : [...cur, k] };
+    });
 
   const opts = AUDIENCES[audience];
   const areas = opts.areas.map((k) => AREAS.find((a) => a.key === k)!);
@@ -306,6 +314,37 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
               </Choice>
             ))}
           </div>
+        </fieldset>
+
+        {/* お酒と、苦手なもの・アレルギー。幹事に言い出しにくいことを、答えと一緒に聞く */}
+        <fieldset className="border-t border-border px-5 py-5">
+          <legend className="sr-only">お酒と食べもの</legend>
+          <p className={LABEL} aria-hidden>
+            <Wine className="size-4" />
+            お酒は飲む?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Choice on={form.drinks !== false} onClick={() => set({ drinks: true })}>
+              飲む
+            </Choice>
+            <Choice on={form.drinks === false} onClick={() => set({ drinks: false })}>
+              飲まない
+            </Choice>
+          </div>
+          <p className="mt-2 text-xs text-muted">飲まないと答えると、会計で「飲まない」の区分に入ります</p>
+
+          <p className={`${LABEL} mt-5`} aria-hidden>
+            <UtensilsCrossed className="size-4" />
+            苦手なもの・アレルギー <span className="font-normal">(なければそのままでOK)</span>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {AVOIDS.map((a) => (
+              <Choice key={a.key} on={(form.avoids ?? []).includes(a.key)} onClick={() => toggleAvoid(a.key)}>
+                {a.label}
+              </Choice>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-muted">誰が選んだかは幹事にも見えず、「えび・かにが苦手な人が1人」のように人数だけがお店選びに使われます</p>
         </fieldset>
 
         <label className="block border-t border-border px-5 py-5">

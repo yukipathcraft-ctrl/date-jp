@@ -2,9 +2,10 @@
 
 import { AUDIENCES, isAudience } from "@/lib/audience";
 import { canSetPayment, parseCollection, type CollectionInput } from "@/lib/collection";
-import { isAreaKey, isBudget, isGenreKey } from "@/lib/sendai";
-import { findShop, mergeShops, searchShops, type Shop } from "@/lib/shops";
+import { AREAS, isAreaKey, isBudget, isGenreKey, isSecondGenreKey } from "@/lib/sendai";
+import { findShop, mergeShops, searchSecondShops, searchShops, type Shop } from "@/lib/shops";
 import { getStore } from "@/lib/store";
+import { loadParty } from "@/lib/view";
 import { summarize } from "@/lib/summary";
 import { generateGroupId, generateToken, hashToken, verifyToken } from "@/lib/tokens";
 import { parseAnswer, parseParty, type AnswerInput } from "@/lib/validation";
@@ -55,8 +56,8 @@ export async function saveAnswer(
 export async function getMyAnswer(partyId: string, answerId: string, token: string): Promise<AnswerInput | null> {
   const answer = (await getStore().listAnswers(partyId)).find((a) => a.id === answerId);
   if (!answer || !verifyToken(token, answer.tokenHash)) return null;
-  const { name, dates, arrival, stay, budget, areas, memo } = answer;
-  return { name, dates, arrival, stay, budget, areas, ...(memo ? { memo } : {}) };
+  const { name, dates, arrival, stay, budget, areas, memo, avoids, drinks } = answer;
+  return { name, dates, arrival, stay, budget, areas, ...(memo ? { memo } : {}), avoids: avoids ?? [], drinks: drinks !== false };
 }
 
 export async function decide(
@@ -180,4 +181,30 @@ export async function collectionProgress(
     }),
   );
   return rows.filter((r): r is NonNullable<typeof r> => r !== null);
+}
+
+/**
+ * 二次会のお店。一次会のお店が決まっていればその近く、なければ一番人気の場所の近くで探す。
+ * 人数は二次会に残れる人(いなければ行く人全員)
+ */
+export async function findSecondShops(
+  partyId: string,
+  genre: string | null,
+): Promise<{ shops: Shop[]; size: number; near: string }> {
+  const view = await loadParty(partyId);
+  if (!view?.party.decision) return { shops: [], size: 0, near: "" };
+  const { party, summary } = view;
+  const decision = party.decision!;
+  const first = decision.shopId ? await findShop(decision.shopId) : null;
+  const area = AREAS.find((a) => a.key === summary.area) ?? AREAS[0];
+  const base = first?.lat != null && first.lng != null ? { lat: first.lat, lng: first.lng } : { lat: area.lat, lng: area.lng };
+  const size = summary.secondParty.length || summary.attendees.length;
+  const shops = await searchSecondShops({
+    ...base,
+    size,
+    genre: isSecondGenreKey(genre) ? genre : null,
+    exclude: decision.shopId,
+    area: area.key,
+  });
+  return { shops, size, near: first?.lat != null ? (decision.shopName ?? first.name) : area.label };
 }

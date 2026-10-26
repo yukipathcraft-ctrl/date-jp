@@ -1,4 +1,5 @@
 import { isAudience, type Audience } from "./audience";
+import { isAvoidKey } from "./diet";
 import { isArrival, isAreaKey, isBudget, isStay, type AreaKey } from "./sendai";
 import type { Answer, DateAnswer } from "./summary";
 
@@ -60,6 +61,8 @@ export function parseAnswer(input: Record<string, unknown>, partyDates: string[]
       budget: input.budget,
       areas: areas as AreaKey[],
       ...(memo ? { memo } : {}),
+      avoids: Array.isArray(input.avoids) ? [...new Set(input.avoids.filter(isAvoidKey))] : [],
+      drinks: input.drinks !== false,
     },
   };
 }

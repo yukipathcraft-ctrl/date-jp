@@ -19,7 +19,7 @@ import { BUTTON_PRIMARY, BUTTON_SUB, PILL, PILL_OFF, PILL_ON } from "./ui";
 /** weight は区分の key。自分で倍率を書いたときは "custom" にして、書いた文字を custom に持つ */
 type Person = { id: number; name: string; weight: string; custom: string };
 
-/** 幹事の画面から「この会の会計」で来たとき、行く人の名前を受け取る(URL には載せない) */
+/** 幹事の画面から「この会の会計」で来たとき、行く人の名前とお酒を飲まないかを受け取る(URL には載せない) */
 export const SPLIT_NAMES_KEY = "nomi:split-names";
 
 /** 集金が終わるまで続きから使えるよう、最後の会計をこの端末に残す(サーバーには送らない) */
@@ -92,10 +92,16 @@ export function SplitClient() {
 
   useEffect(() => {
     const a = loadAudience() ?? "student";
-    let names: string[] = [];
+    // 前の形(名前だけの文字列)でも受け取れるようにする
+    let names: (string | { name: string; soft?: boolean })[] = [];
     try {
       names = JSON.parse(sessionStorage.getItem(SPLIT_NAMES_KEY) ?? "[]");
-      sessionStorage.removeItem(SPLIT_NAMES_KEY);
+      // 受け取ったら消す。開発中は準備が2回走るので、すぐには消さず、2回とも同じ名前を読めるようにする
+      setTimeout(() => {
+        try {
+          sessionStorage.removeItem(SPLIT_NAMES_KEY);
+        } catch {}
+      }, 0);
     } catch {}
     const saved = names.length > 0 ? null : loadSaved();
     /* eslint-disable react-hooks/set-state-in-effect */
@@ -112,7 +118,11 @@ export function SplitClient() {
       setUnit(saved.unit ?? 100);
       setOrganizer(saved.organizer ?? 0);
     } else {
-      setPeople(names.length > 0 ? names.slice(0, 30).map((n) => person("normal", String(n).slice(0, 20))) : startPeople());
+      setPeople(names.length > 0 ? names.slice(0, 30).map((n) =>
+              typeof n === "string"
+                ? person("normal", n.slice(0, 20))
+                : person(n.soft ? "soft" : "normal", String(n.name).slice(0, 20)),
+            ) : startPeople());
     }
     setLoaded(true);
     /* eslint-enable react-hooks/set-state-in-effect */

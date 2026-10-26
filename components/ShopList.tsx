@@ -9,20 +9,43 @@ export function ShopList({
   shops,
   otherArea,
   chosenId,
+  heading = "合いそうなお店",
+  lead,
+  notice,
+  id = "shops",
+  children,
+  empty,
 }: {
   partyId: string;
   shops: Shop[];
   otherArea: boolean;
   chosenId?: string | null;
+  /** 二次会のように別の一覧として出すときの見出しと説明 */
+  heading?: string;
+  lead?: string;
+  /** 予約のときにお店に伝えること(苦手なもの・お酒を飲まない人の数) */
+  notice?: string | null;
+  id?: string;
+  /** 説明の下に置くもの(絞り込みのボタンなど) */
+  children?: React.ReactNode;
+  /** お店がないときの一言。なければ一覧ごと出さない */
+  empty?: string;
 }) {
-  if (shops.length === 0) return null;
+  if (shops.length === 0 && !empty) return null;
   const isSample = shops.some((s) => s.sample);
   return (
-    <section id="shops" className="mt-4 mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
-      <h2 className="text-lg font-extrabold">合いそうなお店</h2>
+    <section id={id} className="mt-4 mx-4 rounded-3xl border border-border bg-surface px-4 py-6">
+      <h2 className="text-lg font-extrabold">{heading}</h2>
       <p className="mt-1 text-sm text-muted">
-        {otherArea ? "その場所には合うお店がなかったので、近くのエリアから出しています" : "予算と場所と人数に合うお店を選びました"}
+        {lead ?? (otherArea ? "その場所には合うお店がなかったので、近くのエリアから出しています" : "予算と場所と人数に合うお店を選びました")}
       </p>
+      {notice && (
+        <p className="mt-3 rounded-xl border border-[#ff9da3]/40 px-3 py-2 text-xs font-bold text-[#ffb3b8]">
+          予約のときに伝えること: {notice}
+        </p>
+      )}
+      {children}
+      {shops.length === 0 && empty && <p className="mt-4 text-sm text-muted">{empty}</p>}
       {isSample && (
         <p className="mt-2 rounded-xl bg-match-soft px-3 py-2 text-xs font-bold text-match-text">
           今出ているのは実在しない見本のお店で、お店のデータをつなぐと仙台の本物のお店に変わります

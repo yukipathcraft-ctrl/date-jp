@@ -124,3 +124,15 @@ export function upcomingDates(now: Date, days: number): string[] {
   }
   return out;
 }
+
+/** 二次会で絞り込める種類。hotpepper はホットペッパーのジャンルコード */
+export const SECOND_GENRES = [
+  { key: "izakaya", label: "居酒屋", hotpepper: ["G001"] },
+  { key: "bar", label: "バー", hotpepper: ["G002", "G012"] },
+  { key: "karaoke", label: "カラオケ", hotpepper: ["G011"] },
+] as const;
+export type SecondGenreKey = (typeof SECOND_GENRES)[number]["key"];
+
+export function isSecondGenreKey(v: unknown): v is SecondGenreKey {
+  return SECOND_GENRES.some((g) => g.key === v);
+}

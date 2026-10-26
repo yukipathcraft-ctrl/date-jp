@@ -1,4 +1,4 @@
-import { CalendarDays, Clock, MapPin, MessageSquareText, Moon, Users, Wallet } from "lucide-react";
+import { CalendarDays, Clock, MapPin, MessageSquareText, Moon, UtensilsCrossed, Users, Wallet, Wine } from "lucide-react";
 import { areaLabel, clock, dateLabel, stayLabel, yen } from "@/lib/sendai";
 import type { Summary } from "@/lib/summary";
 
@@ -21,6 +21,33 @@ function Notes({ notes }: { notes: Summary["notes"] }) {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+/** 行く人の苦手なものと、お酒を飲まない人の数。誰が選んだかは出さない */
+function Diet({ diet }: { diet: Summary["diet"] }) {
+  if (diet.avoids.length === 0 && diet.nonDrinkers === 0) return null;
+  return (
+    <div className="mt-4 rounded-2xl border border-border px-4 py-3">
+      <p className="flex items-center gap-2 text-sm font-bold">
+        <UtensilsCrossed className="size-4" aria-hidden />
+        お店を選ぶときに気をつけること
+      </p>
+      <ul className="mt-2 flex flex-wrap gap-1.5">
+        {diet.nonDrinkers > 0 && (
+          <li className="tier-purple inline-flex items-center gap-1 rounded-full bg-[var(--ts)] px-2.5 py-1 text-xs font-bold text-[var(--tc)]">
+            <Wine className="size-3.5" aria-hidden />
+            お酒を飲まない人 {diet.nonDrinkers}人
+          </li>
+        )}
+        {diet.avoids.map((a) => (
+          <li key={a.key} className="tier-red inline-flex items-center rounded-full bg-[var(--ts)] px-2.5 py-1 text-xs font-bold text-[var(--tc)]">
+            {a.label}が苦手 {a.count}人
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 text-xs text-muted">誰が選んだかは出していません。予約のときにお店に伝えましょう</p>
     </div>
   );
 }
@@ -83,6 +110,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
           </div>
         ))}
       </dl>
+      <Diet diet={summary.diet} />
       <Notes notes={summary.notes} />
 
       <details className="mt-4 rounded-2xl bg-surface-2 px-4 py-3">
