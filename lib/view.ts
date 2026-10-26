@@ -25,7 +25,7 @@ export async function loadParty(id: string): Promise<(PartyView & { adminHash: s
         budget: summary.budget!,
         size: summary.attendees.length,
         audience: party.audience,
-      })
+      }, 10)
     : { shops: [], otherArea: false };
   const { adminHash, ...rest } = party;
   return { party: rest, adminHash, summary, shops, otherArea };

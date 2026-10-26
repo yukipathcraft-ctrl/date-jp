@@ -1,4 +1,7 @@
-import { ExternalLink, Store } from "lucide-react";
+"use client";
+
+import { ChevronDown, ExternalLink, Store } from "lucide-react";
+import { useState } from "react";
 import type { Shop } from "@/lib/shops";
 import { areaLabel } from "@/lib/sendai";
 
@@ -15,6 +18,7 @@ export function ShopList({
   id = "shops",
   children,
   empty,
+  initial = 5,
 }: {
   partyId: string;
   shops: Shop[];
@@ -30,7 +34,10 @@ export function ShopList({
   children?: React.ReactNode;
   /** お店がないときの一言。なければ一覧ごと出さない */
   empty?: string;
+  /** 最初に見せる数。残りは「もっと見る」で出す */
+  initial?: number;
 }) {
+  const [expanded, setExpanded] = useState(false);
   if (shops.length === 0 && !empty) return null;
   const isSample = shops.some((s) => s.sample);
   return (
@@ -52,7 +59,7 @@ export function ShopList({
         </p>
       )}
       <ul className="mt-4 space-y-3">
-        {shops.map((s, i) => (
+        {(expanded ? shops : shops.slice(0, initial)).map((s, i) => (
           <li key={s.id} style={{ "--i": i } as React.CSSProperties} className={`anim-stagger rounded-2xl border p-4 ${chosenId === s.id ? "border-match bg-match-soft" : "border-border"}`}>
             <div className="flex items-start gap-3">
               {s.photo ? (
@@ -96,6 +103,16 @@ export function ShopList({
           </li>
         ))}
       </ul>
+      {!expanded && shops.length > initial && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="mt-3 flex min-h-11 w-full items-center justify-center gap-1 rounded-xl border border-white/15 text-sm font-bold transition-transform active:scale-[0.98]"
+        >
+          もっと見る(あと{shops.length - initial}軒)
+          <ChevronDown className="size-4" aria-hidden />
+        </button>
+      )}
       {/* ホットペッパーの規約で、クレジットと、写真を使うときの「画像提供」の表示が必要 */}
       {!isSample && (
         <p className="mt-3 text-xs text-muted">

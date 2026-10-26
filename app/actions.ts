@@ -102,14 +102,14 @@ export async function findShops(input: {
   const asked = isBudget(input.budget) ? input.budget : Math.max(...budgets);
   // 場所をいくつか選んだら、場所ごとに探して交互に並べる
   const search = async (budget: number) => {
-    const perArea = areas.length === 1 ? 6 : 4;
+    const perArea = areas.length === 1 ? 10 : 6;
     const results = await Promise.all(
       areas.map((area) =>
         searchShops({ area, genres, budget, privateRoom: input.privateRoom === true, size: 2, audience }, perArea),
       ),
     );
     return {
-      shops: mergeShops(results.map((r) => r.shops), areas.length === 1 ? 6 : 12),
+      shops: mergeShops(results.map((r) => r.shops), areas.length === 1 ? 10 : 16),
       otherArea: results.every((r) => r.otherArea || r.shops.length === 0) && results.some((r) => r.otherArea),
     };
   };

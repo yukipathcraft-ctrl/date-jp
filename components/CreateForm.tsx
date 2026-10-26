@@ -87,7 +87,7 @@ export function CreateForm() {
           <FieldHead
             icon={<CalendarDays className="size-6" aria-hidden />}
             title="候補の日"
-            sub={dates.length > 0 ? `${dates.length}日選んでいます(${MAX_DATES}日まで)` : `行けそうな日を${MAX_DATES}日まで選べます`}
+            sub={dates.length > 0 ? `${dates.length}日選んでいます` : "行けそうな日をいくつでも選べます"}
           />
           {/* 近い3週間はタイルで、それより先はカレンダーで選ぶ。選んだ日はどちらにも出る */}
           <div className="mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-surface-2 p-1" role="group" aria-label="選び方">

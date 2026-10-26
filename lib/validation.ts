@@ -6,7 +6,8 @@ import type { Answer, DateAnswer } from "./summary";
 type Result<T> = { ok: true; value: T } | { ok: false; error: string };
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
-export const MAX_DATES = 10;
+/** 候補の日はいくつでも選べる。大きすぎる会を防ぐためだけの上限(カレンダーで選べる90日の3分の2) */
+export const MAX_DATES = 60;
 export const MAX_MEMO = 100;
 
 function text(v: unknown, label: string, max: number): Result<string> {

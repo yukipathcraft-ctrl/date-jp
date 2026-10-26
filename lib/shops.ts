@@ -236,7 +236,7 @@ export async function searchShops(q: ShopQuery, limit = 3): Promise<{ shops: Sho
  */
 export async function searchSecondShops(
   q: { lat: number; lng: number; size: number; genre: SecondGenreKey | null; exclude: string | null; area: AreaKey },
-  limit = 5,
+  limit = 10,
 ): Promise<Shop[]> {
   const key = cleanEnv(process.env.HOTPEPPER_API_KEY);
   if (!key) return [];
