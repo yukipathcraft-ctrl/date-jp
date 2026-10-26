@@ -170,10 +170,9 @@ export function HomeClient() {
       <SiteHeader />
       <div className="anim-rise mx-auto max-w-xl px-4 pt-5 pb-16">
         <p className="text-sm font-bold text-muted">仙台で{AUDIENCES[audience].label}の飲み会をするなら</p>
-        {/* 2行目を金色のグラデーションで光らせる。行の切れ目は決めておき、どの幅でも2行で収める */}
-        <h1 className="mt-2 text-[2.1rem] leading-[1.15] font-black tracking-tight">
-          <span className="block">URLを送るだけで</span>
-          <span className="hero-shine block">飲み会が決まる</span>
+        <h1 className="mt-1 text-[1.75rem] leading-tight font-extrabold tracking-tight">
+          <span className="inline-block">URLを貼るだけで</span>
+          <span className="inline-block">飲み会が決まります</span>
         </h1>
         {/* 何が決まるか。4つを順に浮かせて並べる */}
         <ul className="mt-4 grid grid-cols-4 gap-2" aria-label="みんなの答えから決まること">

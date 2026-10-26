@@ -234,22 +234,3 @@ body {
 .tier-purple { --ts: #2b2148; --tc: #cbb8ff; --tb: #9d7bff; }
 /* 自分で倍率を書いた人 */
 .tier-gray { --ts: #2c2925; --tc: #ece6dc; --tb: #b9b0a2; }
-
-/* トップの見出しの2行目。金色のグラデーションの文字に、光がゆっくり横切る */
-.hero-shine {
-  background: linear-gradient(100deg, #f5b83d 0%, #ffe3a3 22%, #f5b83d 44%, #e09a1f 100%);
-  background-size: 220% 100%;
-  background-position: 100% 0;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .hero-shine {
-    animation: hero-shine 3.2s ease-in-out 0.4s infinite;
-  }
-}
-@keyframes hero-shine {
-  0% { background-position: 100% 0; }
-  45%, 100% { background-position: 0% 0; }
-}

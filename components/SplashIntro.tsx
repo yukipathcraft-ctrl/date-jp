@@ -75,13 +75,6 @@ export function SplashIntro({ onSkip }: { onSkip: () => void }) {
           </span>
         </span>
 
-        {/* 名前の意味。伊達(仙台)と date(会う日)をかけていることを、ひと目で分かる2行にする */}
-        <span className="intro-sub mt-5 flex flex-col items-center gap-1 text-center text-sm font-bold">
-          <span className="text-muted">伊達政宗の街・仙台で</span>
-          <span className="text-text">
-            みんなの<span className="text-accent"> date</span>(会う日)を決める
-          </span>
-        </span>
         <span className="sr-only">{NAME}</span>
       </span>
     </button>
