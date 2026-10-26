@@ -118,7 +118,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
   const [loaded, setLoaded] = useState(false);
   const [form, setForm] = useState<AnswerInput>({
     name: "",
-    dates: Object.fromEntries(dates.map((d) => [d, "no"])),
+    dates: Object.fromEntries(dates.map((d) => [d, "ok"])),
     arrival: 0,
     stay: 0,
     budget: 0,
