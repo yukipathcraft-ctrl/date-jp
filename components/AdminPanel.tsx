@@ -93,21 +93,26 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           canShare={canShare}
         />
 
-        <div className="mt-5 rounded-2xl border border-accent/40 bg-match-soft p-4">
-          <BoxHead
-            tone="key"
-            icon={<KeyRound className="size-5" />}
-            title="幹事用のURLを自分に残す"
-            note="日にちとお店はこのページで決めます。なくすと戻せないので、人には送らず自分だけに残してください"
-          />
+        {/* 作った会はこの端末の「あなたの会」に自動で残るので、送るのは別の端末でも開きたいときだけ。たたんでおく */}
+        <details className="mt-5 rounded-2xl border border-border bg-surface-2 px-4 py-3">
+          <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 text-sm">
+            <KeyRound className="size-4 shrink-0 text-accent" aria-hidden />
+            <span className="min-w-0 flex-1">
+              <span className="block font-bold">この会はトップの「あなたの会」に保存されています</span>
+              <span className="block text-xs text-muted">別のスマホやパソコンでも開きたいときは、ここから送れます</span>
+            </span>
+          </summary>
+          <p className="mt-2 text-xs text-muted">
+            保存されるのはこの端末だけです。幹事用のURLは日にちとお店を決めるためのものなので、人には送らないでください
+          </p>
           <SendButtons
             line={`${adminNote}\n${adminUrl}`}
-            mainLabel="共有して自分に残す"
+            mainLabel="共有して自分に送る"
             share={{ title: adminNote, text: adminNote, url: adminUrl }}
             copy={adminUrl}
             canShare={canShare}
           />
-        </div>
+        </details>
       </section>
   );
 
