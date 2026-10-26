@@ -159,3 +159,25 @@ export async function setCollectionPayment(
   await store.setPayment(collectionId, personId, paid === true ? { by: isHost ? "host" : "self" } : null);
   return { ok: true };
 }
+
+/** 「集金のチェック」の一覧に出す、集金ごとの進み具合。払ったかどうかの数だけを返す */
+export async function collectionProgress(
+  ids: string[],
+): Promise<{ id: string; payers: number; paid: number; unpaidYen: number }[]> {
+  const list = (Array.isArray(ids) ? ids : []).filter((id) => typeof id === "string" && /^[a-z0-9]{6,20}$/.test(id)).slice(0, 30);
+  const store = getStore();
+  const rows = await Promise.all(
+    list.map(async (id) => {
+      try {
+        const c = await store.getCollection(id);
+        if (!c) return null;
+        const payers = c.people.filter((p) => !p.organizer);
+        const unpaid = payers.filter((p) => !c.payments[p.id]);
+        return { id, payers: payers.length, paid: payers.length - unpaid.length, unpaidYen: unpaid.reduce((s, p) => s + p.amount, 0) };
+      } catch {
+        return null;
+      }
+    }),
+  );
+  return rows.filter((r): r is NonNullable<typeof r> => r !== null);
+}

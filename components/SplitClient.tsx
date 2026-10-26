@@ -13,7 +13,7 @@ import { SendButtons, useCanShare } from "./SendButtons";
 import { ROUND_UNITS, WEIGHTS, splitBill, tenthsFromInput, type Weight } from "@/lib/split";
 import { BUTTON_PRIMARY, BUTTON_SUB, PILL, PILL_OFF, PILL_ON } from "./ui";
 
-// 会計。いつもはふつうの割り勘で、「傾斜をつける」にしたときだけ区分や倍率を選ぶ。
+// 会計。最初は傾斜(区分や倍率を選ぶ)で、「割り勘」に切り替えると全員同じ額にする。
 // 傾斜では hasuru と同じく、区分ごとに色・記号・頭文字の丸で人を見分ける(色だけに頼らない)
 
 /** weight は区分の key。自分で倍率を書いたときは "custom" にして、書いた文字を custom に持つ */
@@ -31,7 +31,7 @@ type Saved = {
   people: Person[];
   unit: number;
   organizer: number;
-  /** 傾斜をつけるか。前の保存にないときは、区分を変えた人がいれば傾斜とみなす */
+  /** 傾斜で割るか。前の保存にないときは傾斜にする */
   weighted?: boolean;
   collection?: { id: string; token: string } | null;
 };
@@ -84,7 +84,7 @@ export function SplitClient() {
   const [origin, setOrigin] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [collection, setCollection] = useState<Saved["collection"]>(null);
-  const [weighted, setWeighted] = useState(false);
+  const [weighted, setWeighted] = useState(true);
   const [collectError, setCollectError] = useState<string | null>(null);
   const [collecting, startCollecting] = useTransition();
   const router = useRouter();
@@ -108,7 +108,7 @@ export function SplitClient() {
       setTotal(saved.total ?? "");
       setPeople(saved.people.map((p) => ({ id: p.id, name: p.name, weight: p.weight, custom: p.custom ?? "" })));
       setCollection(saved.collection ?? null);
-      setWeighted(saved.weighted ?? saved.people.some((p) => p.weight !== "normal"));
+      setWeighted(saved.weighted ?? true);
       setUnit(saved.unit ?? 100);
       setOrganizer(saved.organizer ?? 0);
     } else {
@@ -133,13 +133,13 @@ export function SplitClient() {
     setPeople(startPeople());
     setUnit(100);
     setOrganizer(0);
-    setWeighted(false);
+    setWeighted(true);
     setCollection(null);
   }
 
   const weights = WEIGHTS[audience];
   const normal = weights.find((w) => w.key === "normal")!;
-  /** ふつうの割り勘のとき。全員同じ倍率で、区分の印は出さない */
+  /** 割り勘のとき。全員同じ倍率で、区分の印は出さない */
   const even: Weight = { key: "even", label: "", note: "", tenths: 10, mark: "", tone: "yellow" };
   const weightOf = (p: Person): Weight => {
     if (!weighted) return even;
@@ -230,9 +230,9 @@ export function SplitClient() {
         </span>
       </label>
 
-      {/* ふつうの割り勘か、傾斜をつけるか */}
+      {/* 傾斜で割るか(左・最初の選択)、全員同じ額の割り勘か(右) */}
       <div className="mx-4 mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-surface-2 p-1" role="group" aria-label="割り方">
-        {([false, true] as const).map((v) => (
+        {([true, false] as const).map((v) => (
           <button
             key={String(v)}
             type="button"
@@ -242,7 +242,7 @@ export function SplitClient() {
               weighted === v ? "bg-surface text-text shadow" : "text-muted hover:text-text"
             }`}
           >
-            {v ? "傾斜をつける" : "ふつうの割り勘"}
+            {v ? "傾斜で割る" : "割り勘"}
           </button>
         ))}
       </div>

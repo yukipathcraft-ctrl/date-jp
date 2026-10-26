@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { setCollectionPayment } from "@/app/actions";
 import { yen } from "@/lib/sendai";
+import { loadMyCollections, rememberCollection } from "@/lib/myCollections";
 import { MADE_WITH, reminderText } from "@/lib/share";
 import type { Collection } from "@/lib/store/types";
 import { SendButtons, useCanShare } from "./SendButtons";
@@ -53,11 +54,15 @@ export function CollectionView({
     /* eslint-disable react-hooks/set-state-in-effect */
     setOrigin(location.origin);
     try {
-      if (hostToken) localStorage.setItem(hostKey(c.id), hostToken);
-      else setToken(localStorage.getItem(hostKey(c.id)));
+      if (hostToken) {
+        localStorage.setItem(hostKey(c.id), hostToken);
+        // 「集金のチェック」の一覧に出す(作った日は最初に開いた日のまま)
+        const prev = loadMyCollections().find((x) => x.id === c.id);
+        rememberCollection({ id: c.id, token: hostToken, title: c.title, total: c.total, createdAt: prev?.createdAt ?? Date.now() });
+      } else setToken(localStorage.getItem(hostKey(c.id)));
     } catch {}
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, [c.id, hostToken]);
+  }, [c.id, c.title, c.total, hostToken]);
 
   // ほかの人が押した「払った」を、画面に戻ってきたときに読み直す
   useEffect(() => {

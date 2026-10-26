@@ -12,7 +12,7 @@ export default function SplitPage() {
       <div className="mx-auto max-w-xl pt-6 pb-16">
         <div className="px-4 pb-5">
           <h1 className="text-2xl font-extrabold tracking-tight">会計</h1>
-          <p className="mt-1 text-sm text-muted">合計を入れると割り勘の金額がすぐに出ます。先輩は多めなどの傾斜や、集金のチェックもできます</p>
+          <p className="mt-1 text-sm text-muted">合計を入れて一人ずつ傾斜を選ぶと、払う金額がすぐに出ます。全員同じ額の割り勘や、集金のチェックもできます</p>
         </div>
         <SplitClient />
       </div>

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Sans_JP } from "next/font/google";
+import { TapOrigin } from "@/components/TapOrigin";
 import "./globals.css";
 
 const latin = Inter({ subsets: ["latin"], display: "swap", variable: "--font-latin" });
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ja" className={`${latin.variable} ${jp.variable} h-full antialiased`}>
       <body className="min-h-full">
+        <TapOrigin />
         <main>{children}</main>
       </body>
     </html>

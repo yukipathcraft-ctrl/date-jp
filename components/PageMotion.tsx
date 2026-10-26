@@ -11,7 +11,8 @@ export function PageMotion({ children }: { children: React.ReactNode }) {
       exit={{ "nav-forward": "nav-forward", "nav-back": "nav-back", default: "page-fade" }}
       default="none"
     >
-      <div>{children}</div>
+      {/* 地の色を付けておく(広がる丸の中に、沈んでいく前の画面が透けないように) */}
+      <div className="min-h-dvh bg-bg">{children}</div>
     </ViewTransition>
   );
 }

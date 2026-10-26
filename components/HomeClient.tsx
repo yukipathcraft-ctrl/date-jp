@@ -63,7 +63,13 @@ function NameStory() {
   );
 }
 
-/** 起動画面 → 学生か社会人か → ホーム。起動画面は毎回出す(タップで飛ばせる) */
+/**
+ * 乾杯の演出を、アプリを開いたこの回にもう出したか。ページを読み込み直すと false に戻るので、
+ * 起動したときだけ出て、アプリの中でトップに戻ってきたときは出ない
+ */
+let introPlayed = false;
+
+/** 起動画面 → 学生か社会人か → ホーム。起動画面はアプリを開いたときだけ出す(タップで飛ばせる) */
 export function HomeClient() {
   const [phase, setPhase] = useState<Phase>("loading");
   const [audience, setAudience] = useState<Audience | null>(null);
@@ -75,16 +81,20 @@ export function HomeClient() {
     /* eslint-disable react-hooks/set-state-in-effect */
     setAudience(saved);
     setParties(loadMyParties());
-    // 起動の演出は、トップを開くたびに毎回出す
+    // 起動の演出は、アプリを開いたときだけ出す(戻ってきたときはすぐにホーム)
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const next: Phase = saved ? "home" : "choose";
-    if (reduce) {
+    if (reduce || introPlayed) {
       setPhase(next);
       return;
     }
     setPhase("splash");
     /* eslint-enable react-hooks/set-state-in-effect */
-    const t = setTimeout(() => setPhase(next), 3200);
+    // 出し終えてから「出した」にする(開発中に効果が2回走っても、演出は1回きちんと出る)
+    const t = setTimeout(() => {
+      introPlayed = true;
+      setPhase(next);
+    }, 3200);
     return () => clearTimeout(t);
   }, []);
 
@@ -100,6 +110,7 @@ export function HomeClient() {
     return (
       <SplashIntro
         onSkip={() => {
+          introPlayed = true;
           setPhase(audience ? "home" : "choose");
         }}
       />
@@ -208,12 +219,12 @@ export function HomeClient() {
             title="会計"
             sub={
               audience === "student"
-                ? "ふつうの割り勘も、先輩は多め・飲まない人は少なめの傾斜もできます"
-                : "ふつうの割り勘も、上司は多め・新人は少なめの傾斜もできます"
+                ? "先輩は多め・飲まない人は少なめの傾斜も、ふつうの割り勘もできます"
+                : "上司は多め・新人は少なめの傾斜も、ふつうの割り勘もできます"
             }
           />
           <HomeRow
-            href="/split#collect"
+            href="/collect"
             icon={<ListChecks className="size-6" aria-hidden />}
             title="集金のチェック"
             sub="払った人が自分で「払った」を押すので、誰が払ったか一目で分かります"
