@@ -42,10 +42,10 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
           <h1 className="mt-1 text-[22px] font-black tracking-tight">{party.title}</h1>
         </div>
         {party.decision && <DecisionCard decision={party.decision} />}
-        <div className={party.decision ? "mt-4" : ""}>
+        <div>
           <AnswerPanel partyId={party.id} dates={party.dates} audience={party.audience} start={party.start} occasion={occasion} />
         </div>
-        <div className="mt-4">
+        <div>
           <SummaryView summary={summary} />
         </div>
         <ShopList
@@ -68,7 +68,7 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
           </>
         )}
         {/* 答えた人を、次の会の幹事にする */}
-        <div className="mx-4 mt-4">
+        <div>
           <NextHost occasion={occasion} />
         </div>
       </div>

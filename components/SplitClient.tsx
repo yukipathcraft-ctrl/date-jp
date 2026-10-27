@@ -263,7 +263,7 @@ export function SplitClient() {
       )}
 
       {/* 何の会計かのメモ。催促の文にも入る */}
-      <label className="mx-4 mb-3 flex items-center gap-3 rounded-3xl border panel px-5 py-3">
+      <label className="band mb-3 flex items-center gap-3 px-5 py-3">
         <NotebookPen className="size-5 shrink-0 text-accent" aria-hidden />
         <input
           className="min-h-11 w-full min-w-0 bg-transparent font-bold outline-none placeholder:font-normal placeholder:text-muted"
@@ -275,7 +275,7 @@ export function SplitClient() {
       </label>
 
       {/* 合計 */}
-      <label className="mx-4 block rounded-3xl border panel px-5 py-5">
+      <label className="band block px-5 py-5">
         <span className="text-sm font-bold text-muted">お会計の合計</span>
         <span className="mt-2 flex items-baseline gap-2">
           <span className="text-2xl font-black text-muted">¥</span>
@@ -513,7 +513,7 @@ export function SplitClient() {
 
       {/* 集金。払った人が自分で「払った」を押せるページを作り、幹事はそこで受け取りの記録と催促をする */}
       {/* トップの「集金のチェック」からはここへ来る(#collect) */}
-      <section id="collect" className="mx-4 mt-4 scroll-mt-20 rounded-3xl border panel px-5 py-5">
+      <section id="collect" className="band scroll-mt-20 px-5 py-5">
           <h2 className="flex items-center gap-2 text-lg font-black">
             <Wallet className="size-5" aria-hidden />
             集金のチェック
