@@ -188,7 +188,7 @@ export function CollectionView({
                     type="button"
                     disabled={pending}
                     onClick={() => setPaid(p.id, p.name, true)}
-                    className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-border-strong bg-surface-2 text-xs font-bold text-text hover:border-white/30 disabled:opacity-50"
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-white/15 bg-surface-2 text-xs font-bold text-text hover:border-white/30 disabled:opacity-50"
                   >
                     {isHost ? "受け取った" : "払った"}
                   </button>

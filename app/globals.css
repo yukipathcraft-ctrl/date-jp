@@ -5,43 +5,34 @@
   色は意味のある所だけに使う(決まった=琥珀、行ける=緑)。色だけに頼らず、必ず記号か文字を添える
 */
 :root {
-  /* 案B「生成り × 墨 × 金」(2026-10-27)。明るい生成りの地に白いカード。主ボタンと選んだものは墨の地に金の文字。
-     「決まった」「いちばん多い」は伊達の金。昼の職場や外でも読めるよう、地を明るくした */
-  --bg: #f6f3ec;
-  --surface: #ffffff;
-  --surface-2: #efeae0;
-  --text: #17140f;
-  --muted: #665f53;
-  --border: #e2dbcd;
-  /* 選択肢や入力欄の枠。押せるものは、カードの枠より少し濃い線で囲む */
-  --border-strong: #cdc4b3;
-  --accent: #17140f;
-  --accent-text: #f7c75a;
-  --accent-strong: #2e2a22;
-  /* 金。塗りに使う。文字にするときは読める濃さの --match-text を使う */
+  /* 黒い地に、少し明るい黒のカード。主な色はビールの金色(主ボタン・選んだもの)で、文字は黒 */
+  --bg: #000000;
+  --surface: #1d1d1d;
+  --surface-2: #2a2a2a;
+  --text: #ffffff;
+  --muted: rgb(255 255 255 / 0.5);
+  --border: rgb(255 255 255 / 0.08);
+  --accent: #f5b83d;
+  --accent-text: #000000;
+  --accent-strong: #ffc85c;
   --match: #f5b83d;
-  --match-soft: #fbf0d6;
-  --match-text: #8a5a00;
+  --match-soft: #2a2112;
+  --match-text: #ffd47e;
   --ok: #f5b83d;
-  --ok-soft: #fbf0d6;
+  --ok-soft: #2a2112;
   --line: #06c755;
-  --line-strong: #05863a;
-  --danger: #c2341c;
-  color-scheme: light;
+  --line-strong: #4fe08a;
+  --danger: #ff7a6b;
+  color-scheme: dark;
 }
 
 @theme inline {
-  /* 黒い地のころに書いた white(白の文字・白の薄い面)を、墨の文字・墨の薄い面として使う */
-  --color-white: var(--text);
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-text: var(--text);
   --color-muted: var(--muted);
   --color-border: var(--border);
-  --color-border-strong: var(--border-strong);
-  /* 白いカードを生成りの地から浮かせる、ごく薄い影 */
-  --shadow-card: 0 1px 2px rgb(23 20 15 / 0.05), 0 6px 18px -10px rgb(23 20 15 / 0.12);
   --color-accent: var(--accent);
   --color-accent-text: var(--accent-text);
   --color-accent-strong: var(--accent-strong);
@@ -130,25 +121,24 @@ body {
 .page-bg { background: var(--bg); }
 @layer components {
   .panel {
-    border-color: var(--border);
+    border-color: rgb(255 255 255 / 0.08);
     background: var(--surface);
-    box-shadow: var(--shadow-card);
   }
   .hero {
-    background: var(--surface);
-    border: 1px solid color-mix(in srgb, var(--match) 55%, transparent);
-    box-shadow: 0 24px 60px -24px color-mix(in srgb, var(--match) 45%, transparent);
+    background: #0d0c0a;
+    border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+    box-shadow: 0 24px 60px -20px color-mix(in srgb, var(--accent) 20%, transparent);
   }
 }
 
 .glow {
-  box-shadow: 0 30px 90px -30px color-mix(in srgb, var(--match) 45%, transparent);
+  box-shadow: 0 30px 90px -30px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
 /* 起動の演出(components/SplashIntro.tsx)。グラスで乾杯した衝撃から三日月が一閃で走り、名前がせり上がる。約3.2秒で消える */
 .intro-root { animation: intro-out 0.45s ease-in 2.75s forwards; }
 .intro-flash {
-  background: radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--match) 55%, transparent) 0%, transparent 55%);
+  background: radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--accent) 55%, transparent) 0%, transparent 55%);
   opacity: 0;
   animation: intro-flash 0.5s ease-out 0.62s forwards;
 }
@@ -212,13 +202,13 @@ body {
 @keyframes intro-out { to { opacity: 0; visibility: hidden; } }
 
 /*
- * 傾斜の区分の色(hasuru と同じ考え方。明るい地に合わせて、薄い塗り・濃い文字にした)。
+ * 傾斜の区分の色(hasuru と同じ考え方を、黒い地に合わせて暗い地・明るい文字にした)。
  * --ts は塗り、--tc は文字と記号。色だけで区別しないよう、必ず記号(★ ▲ ● ▼ ◇)と区分名を添える
  */
-.tier-red { --ts: #fde4e4; --tc: #a3242c; --tb: #e5484d; }
-.tier-blue { --ts: #e3ecff; --tc: #1e4bb8; --tb: #5b8cff; }
-.tier-yellow { --ts: #fbf0d6; --tc: #8a5a00; --tb: #f5b83d; }
-.tier-green { --ts: #dcf3e6; --tc: #1f7a4a; --tb: #3fbf78; }
-.tier-purple { --ts: #ece6ff; --tc: #5b3fc4; --tb: #9d7bff; }
+.tier-red { --ts: #3d1c1f; --tc: #ff9da3; --tb: #ff6b74; }
+.tier-blue { --ts: #1b2a48; --tc: #a9c4ff; --tb: #6f9bff; }
+.tier-yellow { --ts: #3a2d10; --tc: #ffd47e; --tb: #f5b83d; }
+.tier-green { --ts: #143425; --tc: #93e3b2; --tb: #4cc982; }
+.tier-purple { --ts: #2b2148; --tc: #cbb8ff; --tb: #9d7bff; }
 /* 自分で倍率を書いた人 */
-.tier-gray { --ts: #ece8e1; --tc: #4d473e; --tb: #b9b0a2; }
+.tier-gray { --ts: #2c2925; --tc: #ece6dc; --tb: #b9b0a2; }

@@ -62,7 +62,7 @@ export function ShopList({
         </ul>
       )}
       {notice && (
-        <p className="mt-3 rounded-xl border border-danger/40 px-3 py-2 text-xs font-bold text-danger">
+        <p className="mt-3 rounded-xl border border-[#ff9da3]/40 px-3 py-2 text-xs font-bold text-[#ffb3b8]">
           予約のときに伝えること: {notice}
         </p>
       )}
@@ -128,7 +128,7 @@ export function ShopList({
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="mt-3 flex min-h-11 w-full items-center justify-center gap-1 rounded-xl border border-border-strong text-sm font-bold transition-transform active:scale-[0.98]"
+          className="mt-3 flex min-h-11 w-full items-center justify-center gap-1 rounded-xl border border-white/15 text-sm font-bold transition-transform active:scale-[0.98]"
         >
           もっと見る(あと{shops.length - initial}軒)
           <ChevronDown className="size-4" aria-hidden />

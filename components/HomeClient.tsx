@@ -20,14 +20,14 @@ function HomeRow({ href, icon, title, sub }: { href: string; icon: React.ReactNo
   return (
     <Link
       href={href}
-      className="flex w-full items-center gap-3 rounded-2xl bg-surface px-4 py-3.5 ring-1 ring-border shadow-card transition hover:bg-surface-2 active:scale-[0.99]"
+      className="flex w-full items-center gap-3 rounded-2xl bg-surface px-4 py-3.5 ring-1 ring-white/8 transition hover:bg-stone-800 active:scale-[0.99]"
     >
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/6 text-accent">{icon}</span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-black tracking-tight text-white/85">{title}</span>
-        <span className="mt-0.5 block truncate text-[10px] text-muted">{sub}</span>
+        <span className="mt-0.5 block truncate text-[10px] text-white/35">{sub}</span>
       </span>
-      <ChevronRight className="size-4 shrink-0 text-muted" aria-hidden />
+      <ChevronRight className="size-4 shrink-0 text-white/30" aria-hidden />
     </Link>
   );
 }
@@ -37,12 +37,12 @@ function ToolTile({ href, icon, title, sub }: { href: string; icon: React.ReactN
   return (
     <Link
       href={href}
-      className="flex flex-col items-center gap-3 rounded-2xl bg-surface px-3 py-5 text-center ring-1 ring-border shadow-card transition hover:bg-surface-2 active:scale-95"
+      className="flex flex-col items-center gap-3 rounded-2xl bg-surface px-3 py-5 text-center ring-1 ring-white/8 transition hover:bg-stone-800 active:scale-95"
     >
       <span className="grid size-12 place-items-center rounded-xl border border-accent/40 text-accent">{icon}</span>
       <span>
         <span className="block text-[13px] font-black tracking-tight text-white/85">{title}</span>
-        <span className="mt-0.5 block text-[10px] text-muted">{sub}</span>
+        <span className="mt-0.5 block text-[10px] text-white/35">{sub}</span>
       </span>
     </Link>
   );
@@ -51,7 +51,7 @@ function ToolTile({ href, icon, title, sub }: { href: string; icon: React.ReactN
 function SectionTitle({ children, icon }: { children: React.ReactNode; icon: React.ReactNode }) {
   return (
     <h2 className={`${SECTION_LABEL} mb-3`}>
-      <span className="text-muted">{icon}</span>
+      <span className="text-stone-500">{icon}</span>
       {children}
     </h2>
   );
@@ -73,7 +73,7 @@ function PartyGroup({
   return (
     <section>
       <SectionTitle icon={icon}>
-        {title} <span className="tracking-normal text-muted">{items.length}</span>
+        {title} <span className="tracking-normal text-stone-500">{items.length}</span>
       </SectionTitle>
       <div className="space-y-2">
         {(all ? items : items.slice(0, 3)).map(({ party: p, icon: rowIcon, sub }) => (
@@ -84,7 +84,7 @@ function PartyGroup({
         <button
           type="button"
           onClick={() => setAll(true)}
-          className="mt-2 min-h-11 w-full text-xs font-bold text-muted underline underline-offset-2 hover:text-muted"
+          className="mt-2 min-h-11 w-full text-xs font-bold text-white/40 underline underline-offset-2 hover:text-white/60"
         >
           ほかの{items.length - 3}件も見る
         </button>
@@ -96,18 +96,18 @@ function PartyGroup({
 /** 名前の由来。Date は、仙台の「伊達」と、英語の date(日にち)をかけている */
 function NameStory() {
   return (
-    <details className="group rounded-2xl bg-surface px-4 ring-1 ring-border shadow-card">
+    <details className="group rounded-2xl bg-surface px-4 ring-1 ring-white/8">
       <summary className="flex cursor-pointer list-none items-center gap-3 py-3.5">
         <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/6 text-sm font-black text-accent">
           伊
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-[13px] font-black tracking-tight text-white/85">「Date」という名前について</span>
-          <span className="mt-0.5 block text-[10px] text-muted">伊達(だて)と英語の date をかけています</span>
+          <span className="mt-0.5 block text-[10px] text-white/35">伊達(だて)と英語の date をかけています</span>
         </span>
-        <ChevronRight className="size-4 shrink-0 text-muted transition-transform group-open:rotate-90" aria-hidden />
+        <ChevronRight className="size-4 shrink-0 text-white/30 transition-transform group-open:rotate-90" aria-hidden />
       </summary>
-      <div className="pb-4 pl-12 text-[13px] leading-relaxed text-muted">
+      <div className="pb-4 pl-12 text-[13px] leading-relaxed text-white/50">
         <p>
           「Date(デート)」は、仙台の街を築いた<span className="font-bold text-white">伊達</span>政宗の「伊達(だて)」と、英語の
           <span className="font-bold text-white">date</span>をかけた名前です
@@ -218,7 +218,7 @@ export function HomeClient() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-xl font-black tracking-tight">{AUDIENCES[a].label}</span>
-                    <span className="block text-[11px] text-muted">{AUDIENCES[a].note}</span>
+                    <span className="block text-[11px] text-white/40">{AUDIENCES[a].note}</span>
                   </span>
                   <ChevronRight className="size-5 text-muted" aria-hidden />
                 </button>
@@ -280,17 +280,17 @@ export function HomeClient() {
               <li key={label} className="flex items-center">
                 {i > 0 && <span aria-hidden className="mx-1.5 mb-5 h-px w-3 bg-white/10" />}
                 <span className="anim-stagger flex flex-col items-center gap-1.5" style={{ "--i": i + 2 } as React.CSSProperties}>
-                  <span className="grid size-11 place-items-center rounded-xl border border-border bg-white/4 text-accent/80">
+                  <span className="grid size-11 place-items-center rounded-xl border border-white/8 bg-white/4 text-accent/80">
                     <Icon className="size-5" aria-hidden />
                   </span>
-                  <span className="text-[9px] font-bold text-muted">{label}</span>
+                  <span className="text-[9px] font-bold text-white/40">{label}</span>
                 </span>
               </li>
             ))}
           </ul>
           <p className="mt-5 text-[22px] font-black tracking-tight text-white">飲み会をつくる</p>
-          <p className="mt-1 text-[11px] font-semibold text-muted">URLを貼るだけで飲み会が決まります</p>
-          <span className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 text-[14px] font-black tracking-tight text-accent-text">
+          <p className="mt-1 text-[11px] font-semibold text-white/40">URLを貼るだけで飲み会が決まります</p>
+          <span className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 text-[14px] font-black tracking-tight text-black">
             会をつくる
             <ArrowRight className="size-4" aria-hidden />
           </span>
@@ -342,7 +342,7 @@ export function HomeClient() {
       <section>
         <SectionTitle icon={<Info className="size-3.5" aria-hidden />}>このアプリについて</SectionTitle>
         <NameStory />
-        <p className="mt-6 text-center text-[10px] font-bold tracking-[0.2em] text-muted">仙台限定</p>
+        <p className="mt-6 text-center text-[10px] font-bold tracking-[0.2em] text-white/25">仙台限定</p>
       </section>
     </div>
   );

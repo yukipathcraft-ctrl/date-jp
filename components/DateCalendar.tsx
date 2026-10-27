@@ -22,7 +22,7 @@ function addDays(day: string, n: number): string {
 }
 
 function weekdayColor(w: number): string {
-  return w === 0 ? "text-danger" : w === 6 ? "text-[#1e4bb8]" : w === 5 ? "text-match-text" : "text-text";
+  return w === 0 ? "text-danger" : w === 6 ? "text-[#7fb2ff]" : w === 5 ? "text-[#ffd47e]" : "text-text";
 }
 
 export function DateCalendar({

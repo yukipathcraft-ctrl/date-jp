@@ -6,7 +6,7 @@ import { Wordmark } from "./Logo";
 // 上のバー。もとにした KANJI と同じく、名前を真ん中に置き、左に戻る・右にホーム。
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
   return (
-    <header className="sticky top-0 z-10 border-b border-border bg-bg/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-10 border-b border-white/8 bg-black/95 backdrop-blur-sm">
       <div className="mx-auto max-w-xl px-4 pt-2 pb-2">
         <div className="grid h-11 grid-cols-[2.75rem_1fr_2.75rem] items-center">
           <BackButton />
@@ -16,7 +16,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           <Link
             href="/"
             aria-label="ホーム"
-            className="-mr-2 grid size-11 place-items-center justify-self-end rounded-xl text-muted transition hover:text-white active:scale-95"
+            className="-mr-2 grid size-11 place-items-center justify-self-end rounded-xl text-stone-400 transition hover:text-white active:scale-95"
           >
             <House className="size-5" aria-hidden />
           </Link>

@@ -23,11 +23,11 @@ export function saveAdminToken(partyId: string, token: string) {
 function FieldHead({ title, sub }: { title: string; sub: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <p className="flex items-center gap-1.5 text-sm font-bold text-muted">
+      <p className="flex items-center gap-1.5 text-sm font-bold text-white/50">
         {title}
         <Required />
       </p>
-      <p className="text-[11px] font-semibold text-muted">{sub}</p>
+      <p className="text-[11px] font-semibold text-white/35">{sub}</p>
     </div>
   );
 }
@@ -74,7 +74,7 @@ export function CreateForm() {
 
   return (
     <>
-      <section className="rounded-3xl bg-surface px-5 py-5 ring-1 ring-border shadow-card">
+      <section className="rounded-3xl bg-surface px-5 py-5 ring-1 ring-white/8">
         <div>
           <FieldHead title="飲み会の名前" sub="みんなに送る画面の見出しになります" />
           <input
@@ -87,7 +87,7 @@ export function CreateForm() {
           />
         </div>
 
-        <div className="mt-5 border-t border-border pt-5">
+        <div className="mt-5 border-t border-white/8 pt-5">
           <FieldHead title="何時から始める?" sub="みんなには聞きません" />
           <div className="mt-3 grid grid-cols-3 gap-1.5" role="group" aria-label="何時から始めるか">
             {AUDIENCES[audience].arrivals.map((m) => (
@@ -97,7 +97,7 @@ export function CreateForm() {
                 aria-pressed={startAt === m}
                 onClick={() => setStartAt(m)}
                 className={`flex min-h-12 items-center justify-center gap-1 rounded-xl text-sm font-black tabular-nums transition active:scale-95 ${
-                  startAt === m ? "bg-accent text-accent-text" : "bg-white/6 text-white ring-1 ring-border-strong hover:bg-white/10"
+                  startAt === m ? "bg-accent text-accent-text" : "bg-white/6 text-white ring-1 ring-white/10 hover:bg-white/10"
                 }`}
               >
                 {startAt === m && <Check className="size-3.5" aria-hidden />}
@@ -107,7 +107,7 @@ export function CreateForm() {
           </div>
         </div>
 
-        <div className="mt-5 border-t border-border pt-5">
+        <div className="mt-5 border-t border-white/8 pt-5">
           <FieldHead title="候補の日" sub={dates.length > 0 ? `${dates.length}日選んでいます` : "いくつでも選べます"} />
           {/* 候補の日はカレンダーで選ぶ */}
           {today && (
@@ -117,11 +117,11 @@ export function CreateForm() {
           )}
           {dates.length > 0 && (
             <div className="mt-3 flex items-center justify-between gap-3">
-              <p className="min-w-0 text-xs text-muted">選んだ日: {[...dates].sort().map(dateLabel).join("・")}</p>
+              <p className="min-w-0 text-xs text-white/50">選んだ日: {[...dates].sort().map(dateLabel).join("・")}</p>
               <button
                 type="button"
                 onClick={() => setDates([])}
-                className="shrink-0 text-xs font-bold text-muted underline underline-offset-2 hover:text-muted"
+                className="shrink-0 text-xs font-bold text-white/35 underline underline-offset-2 hover:text-white/55"
               >
                 すべて外す
               </button>
@@ -131,13 +131,13 @@ export function CreateForm() {
       </section>
 
       {/* 決めるボタンは画面の下に固定する(もとにした KANJI と同じ) */}
-      <div className="sticky bottom-0 -mx-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pt-4 pb-6">
+      <div className="sticky bottom-0 -mx-4 bg-gradient-to-t from-black via-black/95 to-transparent px-4 pt-4 pb-6">
         {error ? (
           <p role="alert" className="mb-2 text-center text-[11px] font-bold text-danger">
             {error}
           </p>
         ) : (
-          <p className="mb-2 text-center text-[11px] text-muted">
+          <p className="mb-2 text-center text-[11px] text-white/40">
             {missing ?? `登録はいらず、${AUDIENCES[audience].label}向けの予算と時間でみんなに聞きます`}
           </p>
         )}
