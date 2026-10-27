@@ -89,7 +89,7 @@ export function CollectionView({
     });
   }
 
-  const askText = collectText(c.title, url);
+  const askText = collectText(c.title, url, c.audience);
   const remind = `${reminderText(c.audience, c.title, unpaid.map((p) => ({ name: p.name, amount: p.amount })))}\n${url}`;
 
   return (

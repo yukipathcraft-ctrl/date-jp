@@ -36,12 +36,20 @@ export function reminderText(
   const list = unpaid.map((u) => `・${u.name}さん ${yen(u.amount)}`);
   return audience === "student"
     ? [`${what}のお会計、まだの人お願いします`, ...list, "払ってたらごめん"].join("\n")
-    : ["お疲れさまです。", `${what}のお会計がまだの方はお願いします。`, ...list, "行き違いでしたらすみません。"].join("\n");
+    : [
+        "お疲れさまです。",
+        `${what}のお会計につきまして、お済みでない方はお支払いをお願いいたします。`,
+        ...list,
+        "行き違いでお支払い済みの場合は、ご容赦ください。",
+      ].join("\n");
 }
 
-/** 集金のページを送る文 */
-export function collectText(title: string, url: string): string {
-  return [`${title ? `「${title}」の` : ""}お会計です`, "払ったら自分の名前の「払った」を押してください", url].join("\n");
+/** 集金のページを送る文。社会人の会は敬語にする */
+export function collectText(title: string, url: string, audience: Audience = "student"): string {
+  const what = title ? `「${title}」の` : "";
+  return audience === "worker"
+    ? [`${what}お会計のご案内です。`, "お支払い後、ご自身のお名前の「払った」を押してください。", url].join("\n")
+    : [`${what}お会計です`, "払ったら自分の名前の「払った」を押してください", url].join("\n");
 }
 
 export function decidedText(title: string, date: string, start: number, shopName: string | null, url: string): string {

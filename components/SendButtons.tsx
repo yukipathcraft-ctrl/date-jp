@@ -86,39 +86,27 @@ export function SendButtons({ mainLabel, line, share, copy, copyLabel = "URLを�
 }
 
 /**
- * 社会人の会の送り方。仕事の連絡は Slack・Teams・Chatwork が多く、パソコンで送ることも多い。
- * Slack には外から文を入れて開く仕組みがないので、送る文をまるごとコピーして貼ってもらうのを大きくし、
- * Teams は「Teams で共有」を開く。LINE は同期どうしの会のために、小さく残す
+ * 社会人の会の送り方。仕事の連絡は Teams が多いので、どこでも「Teamsで送る」をいちばん大きくし、LINE は出さない。
+ * Slack・Chatwork には外から文を入れて開く仕組みがないので、送る文をまるごとコピーして貼ってもらう
  */
 function WorkSendButtons({ mainLabel, text, share, canShare }: { mainLabel: string; text: string; share: ShareData; canShare: boolean }) {
-  const teams = (
-    <a href={teamsShareUrl(text)} target="_blank" rel="noopener" className={canShare ? BUTTON_HALF : `${BUTTON_SUB} w-full gap-2 text-sm`}>
-      <MessagesSquare className="size-4 shrink-0" aria-hidden />
-      {canShare ? "Teams" : "Teamsで送る"}
-    </a>
-  );
   return (
     <div className="mt-4 space-y-2">
-      {canShare ? (
-        <>
-          <button type="button" className={`${BUTTON_PRIMARY} w-full gap-2`} onClick={() => navigator.share(share).catch(() => {})}>
-            <Share className="size-5" aria-hidden />
-            {mainLabel}
-          </button>
-          <div className="grid grid-cols-2 gap-2">
-            <CopyButton text={text} label="文をコピー" className={BUTTON_HALF} />
-            {teams}
-          </div>
-        </>
-      ) : (
-        <>
-          <CopyButton text={text} label="コピーしてSlackに貼る" className={`${BUTTON_PRIMARY} w-full gap-2 text-sm`} />
-          {teams}
-        </>
-      )}
-      <a href={lineShareUrl(text)} className="block py-1 text-center text-xs font-bold text-white/40 underline underline-offset-2 hover:text-white/60">
-        LINEで送る
+      <a href={teamsShareUrl(text)} target="_blank" rel="noopener" className={`${BUTTON_PRIMARY} w-full gap-2`}>
+        <MessagesSquare className="size-5 shrink-0" aria-hidden />
+        Teamsで送る
       </a>
+      {canShare ? (
+        <div className="grid grid-cols-2 gap-2">
+          <button type="button" className={BUTTON_HALF} onClick={() => navigator.share(share).catch(() => {})}>
+            <Share className="size-4 shrink-0" aria-hidden />
+            {mainLabel.startsWith("共有") ? "共有" : mainLabel}
+          </button>
+          <CopyButton text={text} label="文をコピー" className={BUTTON_HALF} />
+        </div>
+      ) : (
+        <CopyButton text={text} label="文をコピー(Slackなどに貼る)" className={`${BUTTON_SUB} w-full gap-2 text-sm`} />
+      )}
     </div>
   );
 }

@@ -13,8 +13,8 @@ describe("reminderText", () => {
   });
   it("社会人向けは丁寧な言い方にし、名前がなければ「先日の会」にする", () => {
     const text = reminderText("worker", "  ", [{ name: "鈴木", amount: 5000 }]);
-    expect(text.startsWith("お疲れさまです。\n先日の会のお会計がまだの方はお願いします。")).toBe(true);
-    expect(text).toContain("行き違いでしたらすみません。");
+    expect(text.startsWith("お疲れさまです。\n先日の会のお会計につきまして、お済みでない方はお支払いをお願いいたします。")).toBe(true);
+    expect(text).toContain("行き違いでお支払い済みの場合は、ご容赦ください。");
   });
 });
 
