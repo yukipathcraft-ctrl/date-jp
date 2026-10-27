@@ -11,13 +11,13 @@ export function LogoMark({ size = 28 }: { size?: number }) {
   );
 }
 
-/** ロゴの横に並べる名前。もとにした KANJI のロゴと同じく、大文字の細めの字を、字の間を大きく広げて並べる */
+/** ロゴの横に並べる名前。もとにした KANJI のロゴと同じく、細めの字を、字の間を大きく広げて並べる(表記はほかと同じ「Date」) */
 export function Wordmark({ size = 28 }: { size?: number }) {
   return (
     <span className="flex items-center gap-2">
       <LogoMark size={size} />
-      <span className="pl-0.5 font-medium tracking-[0.32em] text-white" style={{ fontSize: Math.round(size * 0.68) }}>
-        DATE
+      <span className="pl-0.5 font-medium tracking-[0.24em] text-white" style={{ fontSize: Math.round(size * 0.72) }}>
+        Date
       </span>
     </span>
   );
