@@ -5,6 +5,7 @@ import { canSetPayment, parseCollection, type CollectionInput } from "@/lib/coll
 import { AREAS, isAreaKey, isBudget, isGenreKey, isSecondGenreKey } from "@/lib/sendai";
 import { findShop, mergeShops, searchSecondShops, searchShops, type Shop } from "@/lib/shops";
 import { getStore } from "@/lib/store";
+import type { Decision } from "@/lib/store/types";
 import { findSponsor } from "@/lib/sponsors";
 import { loadParty } from "@/lib/view";
 import { summarize } from "@/lib/summary";
@@ -241,4 +242,24 @@ export async function logAdView(sponsorId: string): Promise<void> {
   await getStore()
     .logAdEvent(sponsor.id, "view")
     .catch((e) => console.error("[ad] 数えられませんでした", e));
+}
+
+export type PartyStatus = { decision: Decision | null; answered: number };
+
+/**
+ * ホームの「あなたの会」を、決まった会と調整中の会に分けるのに使う。
+ * 参加者の URL でも見られる内容(決まった日とお店、答えた人数)だけを返す。なくなった会は返さない
+ */
+export async function partyStatuses(ids: string[]): Promise<Record<string, PartyStatus>> {
+  const list = (Array.isArray(ids) ? ids : []).filter((id): id is string => typeof id === "string").slice(0, 30);
+  const store = getStore();
+  const rows = await Promise.all(
+    list.map(async (id) => {
+      const party = await store.getParty(id);
+      if (!party) return null;
+      const answers = await store.listAnswers(id);
+      return [id, { decision: party.decision, answered: answers.length }] as const;
+    }),
+  );
+  return Object.fromEntries(rows.filter((r) => r !== null));
 }

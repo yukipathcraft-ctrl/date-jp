@@ -1,10 +1,12 @@
 "use client";
 
-import { ArrowRight, Briefcase, CalendarDays, ChevronDown, ChevronRight, Clock, GraduationCap, Info, ListChecks, MapPin, Shuffle, Store, Wallet, Wrench } from "lucide-react";
+import { ArrowRight, Briefcase, CalendarDays, ChevronDown, ChevronRight, CircleCheck, Clock, GraduationCap, Hourglass, Info, ListChecks, MapPin, Shuffle, Store, Wallet, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { partyStatuses, type PartyStatus } from "@/app/actions";
 import { AUDIENCES, loadAudience, saveAudience, type Audience } from "@/lib/audience";
 import { loadMyParties, type MyParty } from "@/lib/myParties";
+import { clock, dateLabel } from "@/lib/sendai";
 import { WEIGHTS } from "@/lib/split";
 import { Wordmark } from "./Logo";
 import { SplashIntro } from "./SplashIntro";
@@ -55,6 +57,42 @@ function SectionTitle({ children, icon }: { children: React.ReactNode; icon: Rea
   );
 }
 
+const madeOn = (p: MyParty) => new Date(p.createdAt).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" });
+
+/** 「調整中の会」「決まった会」の1かたまり。多いときは3件だけ出し、残りは押すと開く */
+function PartyGroup({
+  title,
+  icon,
+  items,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  items: { party: MyParty; icon: React.ReactNode; sub: string }[];
+}) {
+  const [all, setAll] = useState(false);
+  return (
+    <section>
+      <SectionTitle icon={icon}>
+        {title} <span className="tracking-normal text-stone-500">{items.length}</span>
+      </SectionTitle>
+      <div className="space-y-2">
+        {(all ? items : items.slice(0, 3)).map(({ party: p, icon: rowIcon, sub }) => (
+          <HomeRow key={p.id} href={`/p/${p.id}/admin?token=${p.token}`} icon={rowIcon} title={p.title} sub={sub} />
+        ))}
+      </div>
+      {!all && items.length > 3 && (
+        <button
+          type="button"
+          onClick={() => setAll(true)}
+          className="mt-2 min-h-11 w-full text-xs font-bold text-white/40 underline underline-offset-2 hover:text-white/60"
+        >
+          ほかの{items.length - 3}件も見る
+        </button>
+      )}
+    </section>
+  );
+}
+
 /** 名前の由来。Date は、仙台の「伊達」と、英語の date(日にち)をかけている */
 function NameStory() {
   return (
@@ -100,15 +138,24 @@ export function HomeClient() {
   const [phase, setPhase] = useState<Phase>("loading");
   const [audience, setAudience] = useState<Audience | null>(null);
   const [parties, setParties] = useState<MyParty[]>([]);
-  // 作った会が多いとツールが下に押し出されるので、最初は新しい3件だけ出す
-  const [allParties, setAllParties] = useState(false);
+  // 会ごとの、決まったかどうかと答えた人数。読み終えるまでは「あなたの会」を出さない
+  const [statuses, setStatuses] = useState<Record<string, PartyStatus> | null>(null);
+  // 日本時間の今日(終わった会かどうかに使う)。描画のたびに時計を読まないよう、開いたときに決める
+  const [today, setToday] = useState("");
 
   useEffect(() => {
     // localStorage はブラウザでしか読めないので、描画のあとで読む
     const saved = loadAudience();
     /* eslint-disable react-hooks/set-state-in-effect */
     setAudience(saved);
-    setParties(loadMyParties());
+    setToday(new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10));
+    const mine = loadMyParties();
+    setParties(mine);
+    if (mine.length > 0) {
+      partyStatuses(mine.map((p) => p.id))
+        .then(setStatuses)
+        .catch(() => setStatuses({}));
+    }
     // 起動の演出は、アプリを開いたときだけ出す(戻ってきたときはすぐにホーム)
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const next: Phase = saved ? "home" : "choose";
@@ -184,6 +231,18 @@ export function HomeClient() {
   }
 
   const tiers = WEIGHTS[audience];
+  const known = statuses ? parties.filter((p) => statuses[p.id]) : [];
+  const pending = known.filter((p) => !statuses![p.id].decision);
+  // 決まった会は、これからの会を日が近い順に出し、終わった会はそのあとに新しい順で出す
+  const decided = known
+    .filter((p) => statuses![p.id].decision)
+    .sort((x, y) => {
+      const a = statuses![x.id].decision!.date;
+      const b = statuses![y.id].decision!.date;
+      const af = a >= today;
+      const bf = b >= today;
+      return af !== bf ? (af ? -1 : 1) : af ? a.localeCompare(b) : b.localeCompare(a);
+    });
   const tierIcon = (
     // 傾斜の区分の色を、高さの違う棒で並べる(多めの人ほど高い)
     <span aria-hidden className="flex h-6 items-end gap-[3px]">
@@ -238,30 +297,31 @@ export function HomeClient() {
         </div>
       </Link>
 
-      {parties.length > 0 && (
-        <section>
-          <SectionTitle icon={<CalendarDays className="size-3.5" aria-hidden />}>あなたの会</SectionTitle>
-          <div className="space-y-2">
-            {(allParties ? parties : parties.slice(0, 3)).map((p) => (
-              <HomeRow
-                key={p.id}
-                href={`/p/${p.id}/admin?token=${p.token}`}
-                icon={<CalendarDays className="size-4" aria-hidden />}
-                title={p.title}
-                sub={`${new Date(p.createdAt).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}につくった会`}
-              />
-            ))}
-          </div>
-          {!allParties && parties.length > 3 && (
-            <button
-              type="button"
-              onClick={() => setAllParties(true)}
-              className="mt-2 min-h-11 w-full text-xs font-bold text-white/40 underline underline-offset-2 hover:text-white/60"
-            >
-              ほかの{parties.length - 3}件も見る
-            </button>
-          )}
-        </section>
+      {/* 決まった会と、まだ答えを集めている会を分けて出す */}
+      {pending.length > 0 && (
+        <PartyGroup
+          title="調整中の会"
+          icon={<Hourglass className="size-3.5" aria-hidden />}
+          items={pending.map((p) => ({
+            party: p,
+            icon: <Hourglass className="size-4" aria-hidden />,
+            sub: `${statuses![p.id].answered}人が回答 ・ ${madeOn(p)}につくった会`,
+          }))}
+        />
+      )}
+      {decided.length > 0 && (
+        <PartyGroup
+          title="決まった会"
+          icon={<CircleCheck className="size-3.5" aria-hidden />}
+          items={decided.map((p) => {
+            const d = statuses![p.id].decision!;
+            return {
+              party: p,
+              icon: <CircleCheck className="size-4" aria-hidden />,
+              sub: `${dateLabel(d.date)} ${clock(d.start)}〜${d.shopName ? ` ・ ${d.shopName}` : ""}${d.date < today ? " ・ 終わった会" : ""}`,
+            };
+          })}
+        />
       )}
 
       <section>
