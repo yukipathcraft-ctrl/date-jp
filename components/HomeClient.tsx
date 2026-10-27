@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Briefcase, CalendarDays, Check, ChevronRight, Clock, GraduationCap, Info, ListChecks, MapPin, Store, Wallet, Wrench } from "lucide-react";
+import { ArrowRight, Briefcase, CalendarDays, ChevronDown, ChevronRight, Clock, GraduationCap, Info, ListChecks, MapPin, Store, Wallet, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AUDIENCES, loadAudience, saveAudience, type Audience } from "@/lib/audience";
@@ -199,31 +199,18 @@ export function HomeClient() {
 
   return (
     <div className="anim-rise mx-auto max-w-xl space-y-5 px-4 pt-6 pb-16">
-      {/* いちばん上: 名前と、学生・社会人の切り替え。押せることが分かるよう、2つ並べて選んでいる方を塗る */}
-      <div className="pt-2">
-        <div className="flex items-center justify-between">
-          <Wordmark size={26} />
-          <div role="group" aria-label="学生か社会人か" className="flex gap-1 rounded-2xl bg-white/8 p-1 ring-1 ring-white/15">
-            {(["student", "worker"] as const).map((a) => {
-              const on = audience === a;
-              return (
-                <button
-                  key={a}
-                  type="button"
-                  onClick={() => choose(a)}
-                  aria-pressed={on}
-                  className={`flex h-9 items-center gap-1 rounded-xl px-3 text-[13px] font-black transition active:scale-95 ${
-                    on ? "bg-accent text-accent-text" : "text-white/60 hover:text-white"
-                  }`}
-                >
-                  {on && <Check className="size-3.5" aria-hidden />}
-                  {AUDIENCES[a].label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        <p className="mt-2 text-right text-[10px] font-semibold text-white/40">予算の幅・お店の並び・会計の傾斜が変わります</p>
+      {/* いちばん上: 名前と、学生・社会人。隅に小さく置き、押すと選び直す画面を開く */}
+      <div className="flex items-center justify-between pt-2">
+        <Wordmark size={26} />
+        <button
+          type="button"
+          onClick={() => setPhase("choose")}
+          aria-label={`学生と社会人を選び直す(いまは${AUDIENCES[audience].label})`}
+          className="-mr-1 flex h-9 items-center gap-1 rounded-full px-3 text-[12px] font-bold text-white/70 ring-1 ring-white/20 transition hover:text-white hover:ring-white/40 active:scale-95"
+        >
+          {AUDIENCES[audience].label}
+          <ChevronDown className="size-3.5" aria-hidden />
+        </button>
       </div>
 
       {/* 会をつくる。ここだけ金の光をまとわせ、日にち・時間・予算・お店が決まる流れを見せる */}
