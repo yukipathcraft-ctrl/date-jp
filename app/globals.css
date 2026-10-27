@@ -5,30 +5,28 @@
   色は意味のある所だけに使う(決まった=琥珀、行ける=緑)。色だけに頼らず、必ず記号か文字を添える
 */
 :root {
-  /* フリマアプリのような白い画面(2026-10-27)。白い地に、項目ごとの白い帯を太めの薄い灰色の線で区切る。
-     色は案Bのまま: 主ボタンと選んだものは墨、「決まった」「いちばん多い」とロゴは伊達の金 */
-  --bg: #ffffff;
+  /* 案B「生成り × 墨 × 金」(2026-10-27)。明るい生成りの地に白いカード。主ボタンと選んだものは墨の地に金の文字。
+     「決まった」「いちばん多い」は伊達の金。昼の職場や外でも読めるよう、地を明るくした */
+  --bg: #f6f3ec;
   --surface: #ffffff;
-  --surface-2: #f5f5f5;
-  /* 帯と帯のあいだの、太めの区切り線 */
-  --band: #f2f2f2;
+  --surface-2: #efeae0;
   --text: #17140f;
-  --muted: #666666;
-  --border: #e6e6e6;
-  /* 選択肢や入力欄の枠。押せるものは、区切り線より濃い線で囲む */
-  --border-strong: #c8c8c8;
+  --muted: #665f53;
+  --border: #e2dbcd;
+  /* 選択肢や入力欄の枠。押せるものは、カードの枠より少し濃い線で囲む */
+  --border-strong: #cdc4b3;
   --accent: #17140f;
   --accent-text: #f7c75a;
   --accent-strong: #2e2a22;
   /* 金。塗りに使う。文字にするときは読める濃さの --match-text を使う */
   --match: #f5b83d;
-  --match-soft: #fdf3dc;
+  --match-soft: #fbf0d6;
   --match-text: #8a5a00;
   --ok: #f5b83d;
-  --ok-soft: #fdf3dc;
+  --ok-soft: #fbf0d6;
   --line: #06c755;
   --line-strong: #05863a;
-  --danger: #d0301a;
+  --danger: #c2341c;
   color-scheme: light;
 }
 
@@ -41,7 +39,6 @@
   --color-text: var(--text);
   --color-muted: var(--muted);
   --color-border: var(--border);
-  --color-band: var(--band);
   --color-border-strong: var(--border-strong);
   /* 白いカードを生成りの地から浮かせる、ごく薄い影 */
   --shadow-card: 0 1px 2px rgb(23 20 15 / 0.05), 0 6px 18px -10px rgb(23 20 15 / 0.12);
@@ -136,11 +133,6 @@ body {
     border-color: var(--border);
     background: var(--surface);
     box-shadow: var(--shadow-card);
-  }
-  /* 項目ごとの帯。画面の端から端まで白く、上を太めの灰色の線で区切る(角は丸めず、影も付けない) */
-  .band {
-    background: var(--surface);
-    border-top: 8px solid var(--band);
   }
   .hero {
     background: var(--surface);

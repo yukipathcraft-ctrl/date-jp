@@ -65,7 +65,7 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
           audience={party.audience}
           start={party.start}
         />
-        <div>
+        <div className="mt-4">
           <SummaryView summary={summary} />
         </div>
         <ShopList

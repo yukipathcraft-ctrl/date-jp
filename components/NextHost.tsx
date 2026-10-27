@@ -6,7 +6,7 @@ import { LogoMark } from "./Logo";
 // occasion = その時期の次の会の呼び方(忘年会・新歓など。lib/invite.ts の nextOccasion)
 export function NextHost({ occasion = "次の飲み会" }: { occasion?: string }) {
   return (
-    <section className="band px-5 py-5">
+    <section className="rounded-3xl border panel px-5 py-5">
       <div className="flex items-center gap-4">
         <LogoMark size={48} />
         <p className="min-w-0 flex-1">

@@ -74,7 +74,7 @@ export function CreateForm() {
 
   return (
     <>
-      <section className="band -mx-4 px-5 py-5">
+      <section className="rounded-3xl bg-surface px-5 py-5 ring-1 ring-border shadow-card">
         <div>
           <FieldHead title="飲み会の名前" sub="みんなに送る画面の見出しになります" />
           <input

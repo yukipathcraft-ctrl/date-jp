@@ -15,17 +15,17 @@ import { SECTION_LABEL } from "./ui";
 
 type Phase = "loading" | "splash" | "choose" | "home";
 
-/** ホームの行。フリマアプリの一覧と同じく、端から端までの行を細い線で区切る */
+/** ホームの行。もとにした KANJI の「完了済みの会を見る」と同じ、白8%の縁の横長の行 */
 function HomeRow({ href, icon, title, sub }: { href: string; icon: React.ReactNode; title: string; sub: string }) {
   return (
     <Link
       href={href}
-      className="flex min-h-16 w-full items-center gap-3 bg-surface px-4 py-3 transition hover:bg-surface-2"
+      className="flex w-full items-center gap-3 rounded-2xl bg-surface px-4 py-3.5 ring-1 ring-border shadow-card transition hover:bg-surface-2 active:scale-[0.99]"
     >
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/6 text-accent">{icon}</span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[15px] font-bold tracking-tight">{title}</span>
-        <span className="mt-0.5 block truncate text-xs text-muted">{sub}</span>
+        <span className="block truncate text-[13px] font-black tracking-tight text-white/85">{title}</span>
+        <span className="mt-0.5 block truncate text-[10px] text-muted">{sub}</span>
       </span>
       <ChevronRight className="size-4 shrink-0 text-muted" aria-hidden />
     </Link>
@@ -50,7 +50,7 @@ function ToolTile({ href, icon, title, sub }: { href: string; icon: React.ReactN
 
 function SectionTitle({ children, icon }: { children: React.ReactNode; icon: React.ReactNode }) {
   return (
-    <h2 className={`${SECTION_LABEL} -mx-4 mb-0 bg-band px-4 py-2.5`}>
+    <h2 className={`${SECTION_LABEL} mb-3`}>
       <span className="text-muted">{icon}</span>
       {children}
     </h2>
@@ -75,7 +75,7 @@ function PartyGroup({
       <SectionTitle icon={icon}>
         {title} <span className="tracking-normal text-muted">{items.length}</span>
       </SectionTitle>
-      <div className="-mx-4 divide-y divide-border border-y border-border">
+      <div className="space-y-2">
         {(all ? items : items.slice(0, 3)).map(({ party: p, icon: rowIcon, sub }) => (
           <HomeRow key={p.id} href={`/p/${p.id}/admin?token=${p.token}`} icon={rowIcon} title={p.title} sub={sub} />
         ))}
@@ -96,7 +96,7 @@ function PartyGroup({
 /** 名前の由来。Date は、仙台の「伊達」と、英語の date(日にち)をかけている */
 function NameStory() {
   return (
-    <details className="group mt-3 rounded-2xl bg-surface px-4 ring-1 ring-border">
+    <details className="group rounded-2xl bg-surface px-4 ring-1 ring-border shadow-card">
       <summary className="flex cursor-pointer list-none items-center gap-3 py-3.5">
         <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/6 text-sm font-black text-accent">
           伊
@@ -326,7 +326,7 @@ export function HomeClient() {
 
       <section>
         <SectionTitle icon={<Wrench className="size-3.5" aria-hidden />}>ツール</SectionTitle>
-        <div className="mt-3 grid grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-2 gap-2.5">
           <ToolTile href="/shops" icon={<Store className="size-6" aria-hidden />} title="お店を探す" sub="場所と予算ですぐに出す" />
           <ToolTile
             href="/split"

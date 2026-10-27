@@ -45,7 +45,7 @@ export function CollectList() {
       {items && items.length > 0 && (
         <>
           <h2 className="mt-8 mb-3 px-5 text-sm font-bold text-muted">あなたの集金</h2>
-          <ul className="band overflow-hidden">
+          <ul className="mx-4 overflow-hidden rounded-3xl border panel">
             {items.map((c, i) => {
               const p = progress[c.id];
               const done = p && p.paid === p.payers;
@@ -89,7 +89,7 @@ export function CollectList() {
         <ListChecks className="size-4" aria-hidden />
         集金のしかた
       </h2>
-      <ol className="band overflow-hidden">
+      <ol className="mx-4 overflow-hidden rounded-3xl border panel">
         {STEPS.map((s, i) => (
           <li key={s.title} className="flex gap-4 border-t border-border px-5 py-4 first:border-t-0">
             <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-sm font-black text-accent-text" aria-hidden>
