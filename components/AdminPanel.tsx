@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarClock, Calculator, Check, KeyRound, PartyPopper, Users } from "lucide-react";
+import { CalendarClock, Calculator, Check, ChevronRight, KeyRound, PartyPopper, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { decide } from "@/app/actions";
@@ -156,10 +156,17 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
               } catch {}
               router.push(`/split?from=${partyId}`);
             }}
-            className={`${BUTTON_SUB} w-full gap-2`}
+            // 会が決まったあとの次の一歩なので、ほかのボタンより目立つ金色の枠のカードにする
+            className="flex w-full items-center gap-3 rounded-2xl border border-accent/60 bg-accent/10 px-4 py-3.5 text-left transition-colors hover:bg-accent/15 active:scale-[0.99]"
           >
-            <Calculator className="size-4" aria-hidden />
-            この会の会計({attendees.length}人)
+            <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-accent text-accent-text">
+              <Calculator className="size-6" aria-hidden />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-base font-black">この会の会計をする</span>
+              <span className="mt-0.5 block text-xs text-muted">{attendees.length}人の名前が入った状態で始められます</span>
+            </span>
+            <ChevronRight className="size-5 shrink-0 text-accent" aria-hidden />
           </button>
           <button type="button" onClick={() => submit(null)} disabled={pending} className={`${BUTTON_SUB} mt-2 w-full`}>
             決定を取り消す
