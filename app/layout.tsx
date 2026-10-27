@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans_JP, Playfair_Display } from "next/font/google";
+import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 
 const jp = Noto_Sans_JP({
@@ -8,14 +8,6 @@ const jp = Noto_Sans_JP({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-jp",
-});
-
-// ロゴの「Date」だけに使う、細い線と太い線の差がある欧文の字体(高級感を出す)
-const logo = Playfair_Display({
-  weight: ["700"],
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-logo-face",
 });
 
 export const metadata: Metadata = {
@@ -34,7 +26,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ja" className={`${jp.variable} ${logo.variable} h-full antialiased`}>
+    <html lang="ja" className={`${jp.variable} h-full antialiased`}>
       <body className="min-h-full">
         <main>{children}</main>
       </body>

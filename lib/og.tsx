@@ -14,10 +14,10 @@ const INK = "#f4f1ec";
 const MUTED = "#9a948b";
 const HAIR = "rgba(245,184,61,0.28)";
 
-async function loadFont(text: string, weight: 400 | 700, family = "Noto+Sans+JP"): Promise<ArrayBuffer | null> {
+async function loadFont(text: string, weight: 400 | 700): Promise<ArrayBuffer | null> {
   try {
     const css = await (
-      await fetch(`https://fonts.googleapis.com/css2?family=${family}:wght@${weight}&text=${encodeURIComponent(text)}`, {
+      await fetch(`https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@${weight}&text=${encodeURIComponent(text)}`, {
         cache: "force-cache",
       })
     ).text();
@@ -54,18 +54,12 @@ export async function ogImage({
   const heads = title.split("\n").map((t) => clip(t, 18));
   const longest = Math.max(...heads.map((h) => [...h].length));
   const big = longest > 13 ? 56 : longest > 10 ? 62 : 72;
-  const bold = heads.join("");
+  const bold = ["Date", ...heads].join("");
   const regular = ["SENDAI", "仙台限定", eyebrow, ...lines, ...chips, "◆"].join("");
-  // ロゴの「Date」は画面と同じ Playfair Display で書く
-  const [fontBold, fontRegular, fontLogo] = await Promise.all([
-    loadFont(bold, 700),
-    loadFont(regular, 400),
-    loadFont("Date", 700, "Playfair+Display"),
-  ]);
+  const [fontBold, fontRegular] = await Promise.all([loadFont(bold, 700), loadFont(regular, 400)]);
   const fonts = [
     ...(fontBold ? [{ name: "NotoJP", data: fontBold, weight: 700 as const, style: "normal" as const }] : []),
     ...(fontRegular ? [{ name: "NotoJP", data: fontRegular, weight: 400 as const, style: "normal" as const }] : []),
-    ...(fontLogo ? [{ name: "Logo", data: fontLogo, weight: 700 as const, style: "normal" as const }] : []),
   ];
 
   return new ImageResponse(
@@ -115,7 +109,7 @@ export async function ogImage({
         >
           {/* 上: 名前 */}
           <div style={{ display: "flex", alignItems: "baseline", gap: 22 }}>
-            <span style={{ fontFamily: "Logo, NotoJP", fontSize: 44, fontWeight: 700, letterSpacing: 1, color: INK }}>Date</span>
+            <span style={{ fontSize: 40, fontWeight: 700, letterSpacing: 2, color: INK }}>Date</span>
             <span style={{ fontSize: 20, fontWeight: 400, letterSpacing: 8, color: GOLD_SOFT }}>SENDAI</span>
           </div>
 

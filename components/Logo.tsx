@@ -11,12 +11,12 @@ export function LogoMark({ size = 28 }: { size?: number }) {
   );
 }
 
-/** ロゴの横に並べる名前。表記はほかの場所と同じ「Date」にし、欧文の字体(Playfair Display)で書く */
+/** ロゴの横に並べる名前。表記はほかの場所と同じ「Date」にし、字の間を少し広げる */
 export function Wordmark({ size = 28 }: { size?: number }) {
   return (
     <span className="flex items-center gap-2">
       <LogoMark size={size} />
-      <span className="font-logo leading-none font-bold tracking-[0.02em] text-white" style={{ fontSize: Math.round(size * 0.9) }}>
+      <span className="font-black tracking-[0.06em] text-white" style={{ fontSize: Math.round(size * 0.78) }}>
         Date
       </span>
     </span>
