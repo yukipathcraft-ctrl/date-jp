@@ -6,6 +6,16 @@ export function lineShareUrl(text: string): string {
   return `https://line.me/R/share?text=${encodeURIComponent(text)}`;
 }
 
+/**
+ * Microsoft Teams の「Teams で共有」を開く URL。文の中の最初の URL をリンクにし、残りを添える文にする。
+ * Slack には外から文を入れて開く仕組みがないので、Slack はコピーして貼ってもらう
+ */
+export function teamsShareUrl(text: string): string {
+  const href = text.match(/https?:\/\/\S+/)?.[0] ?? "";
+  const msg = text.replace(href, "").trim();
+  return `https://teams.microsoft.com/share?href=${encodeURIComponent(href)}&msgText=${encodeURIComponent(msg)}&preview=true`;
+}
+
 // LINE で送る文。友だちに自分で打つような短い文にする。
 // アプリの宣伝の一言は付けない(URL を貼ると Date のカードが出るので、それで伝わる)
 

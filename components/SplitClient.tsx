@@ -502,6 +502,7 @@ export function SplitClient() {
                 copy={shareText}
                 copyLabel="金額をコピー"
                 canShare={canShare}
+                audience={audience}
               />
             </div>
           </>

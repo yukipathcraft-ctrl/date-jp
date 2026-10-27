@@ -4,6 +4,7 @@ import { Calculator, Check, KeyRound, PartyPopper, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { decide } from "@/app/actions";
+import type { Audience } from "@/lib/audience";
 import { dateLabel } from "@/lib/sendai";
 import { decidedText, inviteText } from "@/lib/share";
 import type { Shop } from "@/lib/shops";
@@ -25,6 +26,8 @@ type Props = {
   decision: Decision | null;
   /** その日に行く人の名前と、お酒を飲まないか。会計に持っていく */
   attendees: { name: string; soft: boolean }[];
+  /** 社会人の会は、送るボタンを Slack・Teams 向けにする */
+  audience: Audience;
 };
 
 /** 枠の見出し。アイコンの丸と、何をする枠かの一言 */
@@ -47,7 +50,7 @@ function BoxHead({ icon, title, note, tone }: { icon: React.ReactNode; title: st
   );
 }
 
-export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees }: Props) {
+export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees, audience }: Props) {
   const router = useRouter();
   const [origin, setOrigin] = useState("");
   const canShare = useCanShare();
@@ -83,7 +86,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           tone="plain"
           icon={<Users className="size-5" />}
           title="みんなに送る"
-          note="グループに送れば、みんながそこから答えられます"
+          note={audience === "worker" ? "Slack や Teams のチャンネルに貼れば、みんながそこから答えられます" : "グループに送れば、みんながそこから答えられます"}
         />
         <SendButtons
           line={inviteText(title, guestUrl)}
@@ -91,6 +94,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           share={{ text: inviteText(title, guestUrl) }}
           copy={guestUrl}
           canShare={canShare}
+          audience={audience}
         />
 
         {/* スマホで作ってパソコンでも開く、といった使い方があるので、自分に送る枠は目立たせておく */}
@@ -113,6 +117,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             share={{ title: adminNote, text: adminNote, url: adminUrl }}
             copy={adminUrl}
             canShare={canShare}
+            audience={audience}
           />
         </div>
       </section>
@@ -137,6 +142,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             copy={decidedMessage}
             copyLabel="送る文をコピー"
             canShare={canShare}
+            audience={audience}
           />
           <div className="mt-5 border-t border-border pt-4" />
           <button

@@ -1,8 +1,9 @@
 "use client";
 
-import { Check, Copy, Send, Share } from "lucide-react";
+import { Check, Copy, MessagesSquare, Send, Share } from "lucide-react";
 import { useEffect, useState } from "react";
-import { lineShareUrl } from "@/lib/share";
+import type { Audience } from "@/lib/audience";
+import { lineShareUrl, teamsShareUrl } from "@/lib/share";
 import { BUTTON_LINE, BUTTON_PRIMARY, BUTTON_SUB } from "./ui";
 
 /** 大きなボタンの下に半分の幅で並べる、控えめなボタン */
@@ -43,7 +44,7 @@ function CopyButton({ text, label, className }: { text: string; label: string; c
  * その下に、1回で送り先を選べる LINE と、コピーを半分の幅で並べる。
  * 共有の画面がないパソコンでは、コピーを大きくし、下は LINE だけにする
  */
-export function SendButtons({ mainLabel, line, share, copy, copyLabel = "URLをコピー", canShare }: {
+export function SendButtons({ mainLabel, line, share, copy, copyLabel = "URLをコピー", canShare, audience = "student" }: {
   mainLabel: string;
   line: string;
   share: ShareData;
@@ -51,7 +52,10 @@ export function SendButtons({ mainLabel, line, share, copy, copyLabel = "URLを�
   /** 共有の画面がないときの、大きなコピーのボタンの文字 */
   copyLabel?: string;
   canShare: boolean;
+  /** 社会人の会は LINE ではなく Slack・Teams で送ることが多いので、送り方を変える */
+  audience?: Audience;
 }) {
+  if (audience === "worker") return <WorkSendButtons mainLabel={mainLabel} text={line} share={share} canShare={canShare} />;
   const lineButton = (
     <a href={lineShareUrl(line)} className={canShare ? `${BUTTON_LINE} min-w-0 gap-1.5 whitespace-nowrap px-2 text-sm` : `${BUTTON_LINE} w-full gap-2 text-sm`}>
       <Send className="size-4 shrink-0" aria-hidden />
@@ -77,6 +81,44 @@ export function SendButtons({ mainLabel, line, share, copy, copyLabel = "URLを�
           {lineButton}
         </>
       )}
+    </div>
+  );
+}
+
+/**
+ * 社会人の会の送り方。仕事の連絡は Slack・Teams・Chatwork が多く、パソコンで送ることも多い。
+ * Slack には外から文を入れて開く仕組みがないので、送る文をまるごとコピーして貼ってもらうのを大きくし、
+ * Teams は「Teams で共有」を開く。LINE は同期どうしの会のために、小さく残す
+ */
+function WorkSendButtons({ mainLabel, text, share, canShare }: { mainLabel: string; text: string; share: ShareData; canShare: boolean }) {
+  const teams = (
+    <a href={teamsShareUrl(text)} target="_blank" rel="noopener" className={canShare ? BUTTON_HALF : `${BUTTON_SUB} w-full gap-2 text-sm`}>
+      <MessagesSquare className="size-4 shrink-0" aria-hidden />
+      {canShare ? "Teams" : "Teamsで送る"}
+    </a>
+  );
+  return (
+    <div className="mt-4 space-y-2">
+      {canShare ? (
+        <>
+          <button type="button" className={`${BUTTON_PRIMARY} w-full gap-2`} onClick={() => navigator.share(share).catch(() => {})}>
+            <Share className="size-5" aria-hidden />
+            {mainLabel}
+          </button>
+          <div className="grid grid-cols-2 gap-2">
+            <CopyButton text={text} label="文をコピー" className={BUTTON_HALF} />
+            {teams}
+          </div>
+        </>
+      ) : (
+        <>
+          <CopyButton text={text} label="コピーしてSlackに貼る" className={`${BUTTON_PRIMARY} w-full gap-2 text-sm`} />
+          {teams}
+        </>
+      )}
+      <a href={lineShareUrl(text)} className="block py-1 text-center text-xs font-bold text-white/40 underline underline-offset-2 hover:text-white/60">
+        LINEで送る
+      </a>
     </div>
   );
 }

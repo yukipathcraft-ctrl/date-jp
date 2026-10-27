@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { reminderText } from "./share";
+import { reminderText, teamsShareUrl } from "./share";
 
 describe("reminderText", () => {
   it("まだの人の名前と金額だけを並べる", () => {
@@ -15,5 +15,14 @@ describe("reminderText", () => {
     const text = reminderText("worker", "  ", [{ name: "鈴木", amount: 5000 }]);
     expect(text.startsWith("お疲れさまです。\n先日の会のお会計がまだの方はお願いします。")).toBe(true);
     expect(text).toContain("行き違いでしたらすみません。");
+  });
+});
+
+describe("teamsShareUrl", () => {
+  it("文の中の URL をリンクにし、残りを添える文にする", () => {
+    const u = new URL(teamsShareUrl("「歓迎会」の日程調整です\nhttps://date-sendai.vercel.app/p/abc"));
+    expect(u.origin + u.pathname).toBe("https://teams.microsoft.com/share");
+    expect(u.searchParams.get("href")).toBe("https://date-sendai.vercel.app/p/abc");
+    expect(u.searchParams.get("msgText")).toBe("「歓迎会」の日程調整です");
   });
 });
