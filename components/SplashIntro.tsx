@@ -62,11 +62,12 @@ export function SplashIntro({ onSkip }: { onSkip: () => void }) {
 
         <span className="relative mt-2 flex flex-col items-center">
           <span aria-hidden className="intro-slash absolute top-0 h-px w-[min(80vw,26rem)] bg-accent" />
-          <span className="flex overflow-hidden pt-3" aria-hidden>
+          {/* 字の形は左上のロゴ(components/Logo.tsx)とそろえる: 太さは中くらい、字の間を広く。最後の字のあとの空きと釣り合うよう左にも空ける */}
+          <span className="flex overflow-hidden pt-3 pl-[0.24em] text-7xl" aria-hidden>
             {NAME.split("").map((c, i) => (
               <span
                 key={i}
-                className="intro-letter inline-block text-7xl font-black tracking-tight text-text"
+                className="intro-letter inline-block font-medium tracking-[0.24em] text-text"
                 style={{ animationDelay: `${1.45 + i * 0.06}s` }}
               >
                 {c}
