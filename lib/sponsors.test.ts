@@ -3,9 +3,13 @@ import { countAds } from "./store/stats";
 import { activeSponsors, findSponsor, sponsorFor } from "./sponsors";
 
 describe("sponsors", () => {
-  it("開発中は見本の広告が二次会と帰りに1つずつ出る", () => {
-    expect(sponsorFor("second")?.placement).toBe("second");
-    expect(sponsorFor("ride")?.placement).toBe("ride");
+  it("社会人の会には贈りものと帰りの足、学生の会には二次会と自動車学校を出す", () => {
+    expect(sponsorFor("gift", "worker")?.audience).toBe("worker");
+    expect(sponsorFor("ride", "worker")?.audience).toBe("worker");
+    expect(sponsorFor("second", "student")?.audience).toBe("student");
+    expect(sponsorFor("campus", "student")?.audience).toBe("student");
+    expect(sponsorFor("ride", "student")).toBeNull();
+    expect(sponsorFor("campus", "worker")).toBeNull();
   });
   it("載せていない id では見つからない(外の URL には飛ばさない)", () => {
     expect(findSponsor("https://evil.example.com")).toBeNull();

@@ -1,14 +1,15 @@
 "use client";
 
-import { Car, ChevronRight, Mic } from "lucide-react";
+import { Car, CarFront, ChevronRight, Gift, Mic } from "lucide-react";
 import { useEffect } from "react";
 import { logAdView } from "@/app/actions";
 import type { Sponsor } from "@/lib/sponsors";
 
-// 広告枠。飲み会の流れに合う場所(二次会・帰り)にだけ出す。
+// 広告枠。飲み会の流れに合う場所(贈りもの・二次会・帰り・学生のうちに)にだけ出す。
 // 広告だと分かるよう、必ず「広告」と書く(ステルスマーケティングにしない)
 
-const HEADING = { second: "二次会にどうぞ", ride: "帰りの足に" } as const;
+const HEADING = { gift: "送別会・歓迎会の贈りもの", second: "二次会にどうぞ", ride: "帰りの足に", campus: "学生のうちに" } as const;
+const ICON = { gift: Gift, second: Mic, ride: Car, campus: CarFront } as const;
 
 export function SponsorCard({ sponsor }: { sponsor: Sponsor }) {
   useEffect(() => {
@@ -21,7 +22,7 @@ export function SponsorCard({ sponsor }: { sponsor: Sponsor }) {
     void logAdView(sponsor.id);
   }, [sponsor.id]);
 
-  const Icon = sponsor.placement === "ride" ? Car : Mic;
+  const Icon = ICON[sponsor.placement];
   return (
     <section className="mx-4 mt-4" aria-label={`広告: ${sponsor.name}`}>
       <p className="mb-2 flex items-center gap-2 px-1 text-[10px] font-black tracking-[0.2em] text-stone-400">
