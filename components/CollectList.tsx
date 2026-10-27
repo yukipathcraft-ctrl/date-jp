@@ -36,7 +36,7 @@ export function CollectList() {
   return (
     <>
       <div className="px-4">
-        <Link href="/split#collect" transitionTypes={["nav-forward"]} className={`${BUTTON_PRIMARY} w-full gap-2`}>
+        <Link href="/split#collect" className={`${BUTTON_PRIMARY} w-full gap-2`}>
           <Wallet className="size-5" aria-hidden />
           会計から集金を始める
         </Link>
@@ -53,7 +53,6 @@ export function CollectList() {
                 <li key={c.id} className="anim-stagger border-t border-border first:border-t-0" style={{ "--i": i } as React.CSSProperties}>
                   <Link
                     href={`/c/${c.id}?token=${c.token}`}
-                    transitionTypes={["nav-forward"]}
                     className="flex min-h-20 items-center gap-4 px-5 py-3 transition-colors hover:bg-surface-2/60"
                   >
                     <span className="min-w-0 flex-1">

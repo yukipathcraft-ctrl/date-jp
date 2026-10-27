@@ -82,43 +82,6 @@ body {
   100% { opacity: 0; }
 }
 
-/* ===== 画面の切り替わり(components/PageMotion.tsx) =====
-   出ていく画面は速く(150ms)、入ってくる画面はゆっくり(出ていくのを待ってから)。
-   奥へ進むと左へ流れ、戻ると右へ流れる。上のバーは動かさない */
-::view-transition { pointer-events: none; }
-::view-transition-group(site-header) { animation: none; z-index: 100; }
-::view-transition-old(site-header) { display: none; }
-::view-transition-new(site-header) { animation: none; }
-
-/* 奥へ進む: 今の画面は少し縮んで暗く沈み、新しい画面が押した場所から丸く広がって現れる
-   (--tap-x / --tap-y は components/TapOrigin.tsx が入れる) */
-::view-transition-old(.nav-forward) { animation: 520ms cubic-bezier(0.4, 0, 0.2, 1) both vt-recede; }
-::view-transition-new(.nav-forward) { animation: 560ms cubic-bezier(0.65, 0, 0.35, 1) both vt-reveal; }
-::view-transition-old(.nav-back) { --slide: 48px; animation: 150ms ease-in both vt-fade reverse, 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both vt-slide reverse; }
-::view-transition-new(.nav-back) { --slide: -48px; animation: 220ms ease-out 120ms both vt-fade, 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both vt-slide; }
-::view-transition-old(.page-fade) { animation: 140ms ease-in both vt-fade reverse; }
-::view-transition-new(.page-rise) { animation: 260ms ease-out 100ms both vt-fade, 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both vt-rise; }
-
-@keyframes vt-fade { from { opacity: 0; filter: blur(3px); } to { opacity: 1; filter: blur(0); } }
-@keyframes vt-slide { from { translate: var(--slide); } to { translate: 0; } }
-@keyframes vt-rise { from { translate: 0 14px; } to { translate: 0 0; } }
-@keyframes vt-recede {
-  to { transform: scale(0.92); filter: brightness(0.35) blur(3px); border-radius: 28px; }
-}
-@keyframes vt-reveal {
-  from { clip-path: circle(0px at var(--tap-x, 50%) var(--tap-y, 50%)); }
-  to { clip-path: circle(150vmax at var(--tap-x, 50%) var(--tap-y, 50%)); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(*),
-  ::view-transition-new(*),
-  ::view-transition-group(*) {
-    animation-duration: 0s !important;
-    animation-delay: 0s !important;
-  }
-}
-
 /* ===== 押したときの手ごたえと、出てくるときの動き ===== */
 @media (prefers-reduced-motion: no-preference) {
   /* 一覧を上から順に浮かせる。style の --i に何番目かを入れる */

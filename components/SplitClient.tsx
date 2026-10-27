@@ -3,7 +3,7 @@
 import { Check, Crown, ExternalLink, NotebookPen, PencilLine, Plus, RotateCcw, Wallet, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { addTransitionType, startTransition, useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { startCollection } from "@/app/actions";
 import { loadAudience, type Audience } from "@/lib/audience";
 import { yen } from "@/lib/sendai";
@@ -197,10 +197,7 @@ export function SplitClient() {
         return;
       }
       setCollection({ id: r.id, token: r.adminToken });
-      startTransition(() => {
-        addTransitionType("nav-forward");
-        router.push(`/c/${r.id}?token=${r.adminToken}`);
-      });
+      router.push(`/c/${r.id}?token=${r.adminToken}`);
     });
   }
 
@@ -473,7 +470,7 @@ export function SplitClient() {
             <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm text-muted">上でお会計の合計を入れると、集金のページを作れます</p>
           ) : collection ? (
             <div className="mt-4 grid gap-2">
-              <Link href={`/c/${collection.id}?token=${collection.token}`} transitionTypes={["nav-forward"]} className={`${BUTTON_PRIMARY} w-full gap-2`}>
+              <Link href={`/c/${collection.id}?token=${collection.token}`} className={`${BUTTON_PRIMARY} w-full gap-2`}>
                 <ExternalLink className="size-5" aria-hidden />
                 集金のページを開く
               </Link>

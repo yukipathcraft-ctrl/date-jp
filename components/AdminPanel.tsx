@@ -2,7 +2,7 @@
 
 import { Calculator, Check, KeyRound, PartyPopper, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { addTransitionType, startTransition, useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { decide } from "@/app/actions";
 import { dateLabel } from "@/lib/sendai";
 import { decidedText, inviteText } from "@/lib/share";
@@ -146,10 +146,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
               try {
                 sessionStorage.setItem(SPLIT_NAMES_KEY, JSON.stringify(attendees));
               } catch {}
-              startTransition(() => {
-                addTransitionType("nav-forward");
-                router.push("/split");
-              });
+              router.push("/split");
             }}
             className={`${BUTTON_SUB} w-full gap-2`}
           >

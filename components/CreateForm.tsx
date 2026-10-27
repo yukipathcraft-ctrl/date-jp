@@ -2,7 +2,7 @@
 
 import { ArrowRight, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { addTransitionType, startTransition, useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { createParty } from "@/app/actions";
 import { AUDIENCES, loadAudience, type Audience } from "@/lib/audience";
 import { rememberParty } from "@/lib/myParties";
@@ -62,10 +62,7 @@ export function CreateForm() {
       }
       saveAdminToken(result.id, result.adminToken);
       rememberParty({ id: result.id, title: title.trim(), token: result.adminToken, createdAt: Date.now() });
-      startTransition(() => {
-        addTransitionType("nav-forward");
-        router.push(`/p/${result.id}/admin?token=${result.adminToken}&created=1`);
-      });
+      router.push(`/p/${result.id}/admin?token=${result.adminToken}&created=1`);
     });
   }
 

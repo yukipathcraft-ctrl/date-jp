@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans_JP } from "next/font/google";
-import { TapOrigin } from "@/components/TapOrigin";
 import "./globals.css";
 
 const jp = Noto_Sans_JP({
@@ -29,7 +28,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ja" className={`${jp.variable} h-full antialiased`}>
       <body className="min-h-full">
-        <TapOrigin />
         <main>{children}</main>
       </body>
     </html>

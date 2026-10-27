@@ -18,7 +18,6 @@ function HomeRow({ href, icon, title, sub }: { href: string; icon: React.ReactNo
   return (
     <Link
       href={href}
-      transitionTypes={["nav-forward"]}
       className="flex w-full items-center gap-3 rounded-2xl bg-surface px-4 py-3.5 ring-1 ring-white/8 transition hover:bg-stone-800 active:scale-[0.99]"
     >
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/6 text-accent">{icon}</span>
@@ -36,7 +35,6 @@ function ToolTile({ href, icon, title, sub }: { href: string; icon: React.ReactN
   return (
     <Link
       href={href}
-      transitionTypes={["nav-forward"]}
       className="flex flex-col items-center gap-3 rounded-2xl bg-surface px-3 py-5 text-center ring-1 ring-white/8 transition hover:bg-stone-800 active:scale-95"
     >
       <span className="grid size-12 place-items-center rounded-xl border border-accent/40 text-accent">{icon}</span>
@@ -229,7 +227,7 @@ export function HomeClient() {
       </div>
 
       {/* 会をつくる。ここだけ金の光をまとわせ、日にち・時間・予算・お店が決まる流れを見せる */}
-      <Link href="/new" transitionTypes={["nav-forward"]} className="hero block overflow-hidden rounded-3xl transition active:scale-[0.99]">
+      <Link href="/new" className="hero block overflow-hidden rounded-3xl transition active:scale-[0.99]">
         <div className="flex flex-col px-6 pt-7 pb-6">
           <ul className="flex items-end justify-center" aria-label="みんなの答えから決まること">
             {HERO_ITEMS.map(({ Icon, label }, i) => (
