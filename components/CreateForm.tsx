@@ -74,7 +74,7 @@ export function CreateForm() {
 
   return (
     <>
-      <section className="rounded-3xl bg-surface px-5 py-5 ring-1 ring-white/8">
+      <section className="rounded-3xl bg-surface px-5 py-5 ring-1 ring-border shadow-card">
         <div>
           <FieldHead title="飲み会の名前" sub="みんなに送る画面の見出しになります" />
           <input
@@ -87,7 +87,7 @@ export function CreateForm() {
           />
         </div>
 
-        <div className="mt-5 border-t border-white/8 pt-5">
+        <div className="mt-5 border-t border-border pt-5">
           <FieldHead title="何時から始める?" sub="みんなには聞きません" />
           <div className="mt-3 grid grid-cols-3 gap-1.5" role="group" aria-label="何時から始めるか">
             {AUDIENCES[audience].arrivals.map((m) => (
@@ -97,7 +97,7 @@ export function CreateForm() {
                 aria-pressed={startAt === m}
                 onClick={() => setStartAt(m)}
                 className={`flex min-h-12 items-center justify-center gap-1 rounded-xl text-sm font-black tabular-nums transition active:scale-95 ${
-                  startAt === m ? "bg-accent text-accent-text" : "bg-white/6 text-white ring-1 ring-white/10 hover:bg-white/10"
+                  startAt === m ? "bg-accent text-accent-text" : "bg-white/6 text-white ring-1 ring-border-strong hover:bg-white/10"
                 }`}
               >
                 {startAt === m && <Check className="size-3.5" aria-hidden />}
@@ -107,7 +107,7 @@ export function CreateForm() {
           </div>
         </div>
 
-        <div className="mt-5 border-t border-white/8 pt-5">
+        <div className="mt-5 border-t border-border pt-5">
           <FieldHead title="候補の日" sub={dates.length > 0 ? `${dates.length}日選んでいます` : "いくつでも選べます"} />
           {/* 候補の日はカレンダーで選ぶ */}
           {today && (

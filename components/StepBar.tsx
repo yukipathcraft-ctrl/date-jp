@@ -17,14 +17,14 @@ export function StepBar({ current }: { current: 0 | 1 | 2 }) {
             <div className="flex items-center gap-1.5">
               <span
                 className={`grid size-7 shrink-0 place-items-center rounded-lg transition-colors duration-300 ${
-                  done ? "bg-accent/20 text-accent" : "bg-white/6 text-white/20"
+                  done ? "bg-match-soft text-accent ring-1 ring-match" : "bg-surface-2 text-muted"
                 }`}
               >
                 <Icon className="size-4" aria-hidden />
               </span>
-              <span className={`h-[3px] flex-1 rounded-full transition-all duration-500 ${done ? "bg-accent/60" : "bg-white/12"}`} />
+              <span className={`h-[3px] flex-1 rounded-full transition-all duration-500 ${done ? "bg-match" : "bg-border-strong"}`} />
             </div>
-            <span className={`pl-0.5 text-[9px] font-black tracking-[0.14em] ${done ? "text-accent/80" : "text-white/25"}`}>{label}</span>
+            <span className={`pl-0.5 text-[10px] font-black tracking-[0.12em] ${done ? "text-accent" : "text-muted"}`}>{label}</span>
           </li>
         );
       })}

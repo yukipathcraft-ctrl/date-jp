@@ -25,7 +25,7 @@ export function SponsorCard({ sponsor }: { sponsor: Sponsor }) {
   const Icon = ICON[sponsor.placement];
   return (
     <section className="mx-4 mt-4" aria-label={`広告: ${sponsor.name}`}>
-      <p className="mb-2 flex items-center gap-2 px-1 text-[10px] font-black tracking-[0.2em] text-stone-400">
+      <p className="mb-2 flex items-center gap-2 px-1 text-[10px] font-black tracking-[0.2em] text-muted">
         {HEADING[sponsor.placement]}
         <span className="rounded border border-white/20 px-1 py-px text-[9px] tracking-normal text-muted">広告</span>
       </p>
@@ -33,7 +33,7 @@ export function SponsorCard({ sponsor }: { sponsor: Sponsor }) {
         href={`/ad/${encodeURIComponent(sponsor.id)}`}
         target={sponsor.url.startsWith("tel:") ? undefined : "_blank"}
         rel="sponsored noopener"
-        className="flex items-center gap-3 rounded-2xl bg-surface px-4 py-3.5 ring-1 ring-white/8 transition hover:bg-stone-800 active:scale-[0.99]"
+        className="flex items-center gap-3 rounded-2xl bg-surface px-4 py-3.5 ring-1 ring-border shadow-card transition hover:bg-surface-2 active:scale-[0.99]"
       >
         <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-accent/40 text-accent">
           <Icon className="size-5" aria-hidden />

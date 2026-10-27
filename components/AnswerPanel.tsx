@@ -198,7 +198,7 @@ export function AnswerPanel({
         </button>
         {/* 答えた直後がいちばん目に入るので、ここで次の幹事に誘う */}
         {saved && (
-          <Link href="/" className="mt-3 flex items-center gap-2 rounded-2xl bg-white/5 px-3 py-3 text-sm ring-1 ring-white/10 transition-colors hover:bg-white/10">
+          <Link href="/" className="mt-3 flex items-center gap-2 rounded-2xl bg-white/5 px-3 py-3 text-sm ring-1 ring-border-strong transition-colors hover:bg-white/10">
             <span className="min-w-0 flex-1">
               <span className="font-bold">{occasion}の幹事になったら</span>
               <span className="text-muted">、Dateなら3分で決まります</span>
@@ -282,7 +282,7 @@ export function AnswerPanel({
                         className={`tier-${c.tone} flex min-h-12 items-center justify-center gap-1.5 rounded-2xl border text-sm font-bold whitespace-nowrap transition-colors ${
                           on
                             ? "border-[var(--tb)] bg-[var(--tb)] text-black"
-                            : "border-white/15 bg-surface-2 text-text hover:border-white/30"
+                            : "border-border-strong bg-surface-2 text-text hover:border-white/30"
                         }`}
                       >
                         <span aria-hidden className={`text-xl leading-none font-black ${on ? "" : "text-[var(--tc)]"}`}>

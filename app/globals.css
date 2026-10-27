@@ -12,7 +12,9 @@
   --surface-2: #efeae0;
   --text: #17140f;
   --muted: #665f53;
-  --border: #e6e0d4;
+  --border: #e2dbcd;
+  /* 選択肢や入力欄の枠。押せるものは、カードの枠より少し濃い線で囲む */
+  --border-strong: #cdc4b3;
   --accent: #17140f;
   --accent-text: #f7c75a;
   --accent-strong: #2e2a22;
@@ -37,6 +39,9 @@
   --color-text: var(--text);
   --color-muted: var(--muted);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  /* 白いカードを生成りの地から浮かせる、ごく薄い影 */
+  --shadow-card: 0 1px 2px rgb(23 20 15 / 0.05), 0 6px 18px -10px rgb(23 20 15 / 0.12);
   --color-accent: var(--accent);
   --color-accent-text: var(--accent-text);
   --color-accent-strong: var(--accent-strong);
@@ -127,6 +132,7 @@ body {
   .panel {
     border-color: var(--border);
     background: var(--surface);
+    box-shadow: var(--shadow-card);
   }
   .hero {
     background: var(--surface);

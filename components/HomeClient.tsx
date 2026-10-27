@@ -20,7 +20,7 @@ function HomeRow({ href, icon, title, sub }: { href: string; icon: React.ReactNo
   return (
     <Link
       href={href}
-      className="flex w-full items-center gap-3 rounded-2xl bg-surface px-4 py-3.5 ring-1 ring-white/8 transition hover:bg-stone-800 active:scale-[0.99]"
+      className="flex w-full items-center gap-3 rounded-2xl bg-surface px-4 py-3.5 ring-1 ring-border shadow-card transition hover:bg-surface-2 active:scale-[0.99]"
     >
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/6 text-accent">{icon}</span>
       <span className="min-w-0 flex-1">
@@ -37,7 +37,7 @@ function ToolTile({ href, icon, title, sub }: { href: string; icon: React.ReactN
   return (
     <Link
       href={href}
-      className="flex flex-col items-center gap-3 rounded-2xl bg-surface px-3 py-5 text-center ring-1 ring-white/8 transition hover:bg-stone-800 active:scale-95"
+      className="flex flex-col items-center gap-3 rounded-2xl bg-surface px-3 py-5 text-center ring-1 ring-border shadow-card transition hover:bg-surface-2 active:scale-95"
     >
       <span className="grid size-12 place-items-center rounded-xl border border-accent/40 text-accent">{icon}</span>
       <span>
@@ -51,7 +51,7 @@ function ToolTile({ href, icon, title, sub }: { href: string; icon: React.ReactN
 function SectionTitle({ children, icon }: { children: React.ReactNode; icon: React.ReactNode }) {
   return (
     <h2 className={`${SECTION_LABEL} mb-3`}>
-      <span className="text-stone-500">{icon}</span>
+      <span className="text-muted">{icon}</span>
       {children}
     </h2>
   );
@@ -73,7 +73,7 @@ function PartyGroup({
   return (
     <section>
       <SectionTitle icon={icon}>
-        {title} <span className="tracking-normal text-stone-500">{items.length}</span>
+        {title} <span className="tracking-normal text-muted">{items.length}</span>
       </SectionTitle>
       <div className="space-y-2">
         {(all ? items : items.slice(0, 3)).map(({ party: p, icon: rowIcon, sub }) => (
@@ -96,7 +96,7 @@ function PartyGroup({
 /** 名前の由来。Date は、仙台の「伊達」と、英語の date(日にち)をかけている */
 function NameStory() {
   return (
-    <details className="group rounded-2xl bg-surface px-4 ring-1 ring-white/8">
+    <details className="group rounded-2xl bg-surface px-4 ring-1 ring-border shadow-card">
       <summary className="flex cursor-pointer list-none items-center gap-3 py-3.5">
         <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/6 text-sm font-black text-accent">
           伊
@@ -280,7 +280,7 @@ export function HomeClient() {
               <li key={label} className="flex items-center">
                 {i > 0 && <span aria-hidden className="mx-1.5 mb-5 h-px w-3 bg-white/10" />}
                 <span className="anim-stagger flex flex-col items-center gap-1.5" style={{ "--i": i + 2 } as React.CSSProperties}>
-                  <span className="grid size-11 place-items-center rounded-xl border border-white/8 bg-white/4 text-accent/80">
+                  <span className="grid size-11 place-items-center rounded-xl border border-border bg-white/4 text-accent/80">
                     <Icon className="size-5" aria-hidden />
                   </span>
                   <span className="text-[9px] font-bold text-muted">{label}</span>
@@ -342,7 +342,7 @@ export function HomeClient() {
       <section>
         <SectionTitle icon={<Info className="size-3.5" aria-hidden />}>このアプリについて</SectionTitle>
         <NameStory />
-        <p className="mt-6 text-center text-[10px] font-bold tracking-[0.2em] text-white/25">仙台限定</p>
+        <p className="mt-6 text-center text-[10px] font-bold tracking-[0.2em] text-muted">仙台限定</p>
       </section>
     </div>
   );

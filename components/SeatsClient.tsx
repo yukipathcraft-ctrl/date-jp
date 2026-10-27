@@ -50,7 +50,7 @@ function Seat({ p, index, fill, compact }: { p: Person; index: number; fill?: bo
 function RoundTable({ people, no }: { people: Person[]; no: number }) {
   return (
     <div className="relative mx-auto aspect-square w-full max-w-[19rem]">
-      <div className="absolute inset-[24%] grid place-items-center rounded-full bg-white/5 ring-1 ring-white/12">
+      <div className="absolute inset-[24%] grid place-items-center rounded-full bg-white/5 ring-1 ring-border-strong">
         <span className="text-center">
           <span className="block text-[22px] font-black">{no}卓</span>
           <span className="block text-[10px] font-bold text-muted">{people.length}人</span>
@@ -89,7 +89,7 @@ function LongTable({ people, no }: { people: Person[]; no: number }) {
   return (
     <div className="space-y-2">
       {row(top, 0)}
-      <div className="grid h-12 place-items-center rounded-xl bg-white/5 ring-1 ring-white/12">
+      <div className="grid h-12 place-items-center rounded-xl bg-white/5 ring-1 ring-border-strong">
         <span className="text-[13px] font-black">
           {no}卓 <span className="text-[10px] font-bold text-muted">{people.length}人</span>
         </span>
@@ -107,7 +107,7 @@ function Toggle({ on, onClick, icon, title, sub }: { on: boolean; onClick: () =>
       aria-pressed={on}
       onClick={onClick}
       className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left ring-1 transition active:scale-[0.99] ${
-        on ? "bg-accent/10 ring-accent/60" : "bg-white/5 ring-white/12 hover:bg-white/8"
+        on ? "bg-accent/10 ring-accent/60" : "bg-white/5 ring-border-strong hover:bg-white/8"
       }`}
     >
       <span className={`grid size-9 shrink-0 place-items-center rounded-xl ${on ? "bg-accent text-accent-text" : "bg-white/8 text-muted"}`}>{icon}</span>
@@ -260,7 +260,7 @@ export function SeatsClient() {
                               aria-pressed={on}
                               onClick={() => patch(name, { group: on ? undefined : g.key })}
                               className={`tier-${g.tone} grid size-10 place-items-center rounded-lg text-xs font-black transition ${
-                                on ? "bg-[var(--tb)] text-black" : "text-muted ring-1 ring-white/10 hover:text-muted"
+                                on ? "bg-[var(--tb)] text-black" : "text-muted ring-1 ring-border-strong hover:text-muted"
                               }`}
                             >
                               {g.key}
@@ -287,7 +287,7 @@ export function SeatsClient() {
       {result && (
         <section key={draw} className="space-y-3 px-4" aria-live="polite">
           {result.map((t, i) => (
-            <div key={i} className="rounded-3xl bg-surface px-3 py-5 ring-1 ring-white/8">
+            <div key={i} className="rounded-3xl bg-surface px-3 py-5 ring-1 ring-border shadow-card">
               {shape === "round" ? <RoundTable people={t} no={i + 1} /> : <LongTable people={t} no={i + 1} />}
             </div>
           ))}

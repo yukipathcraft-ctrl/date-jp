@@ -16,7 +16,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           <Link
             href="/"
             aria-label="ホーム"
-            className="-mr-2 grid size-11 place-items-center justify-self-end rounded-xl text-stone-400 transition hover:text-white active:scale-95"
+            className="-mr-2 grid size-11 place-items-center justify-self-end rounded-xl text-muted transition hover:text-white active:scale-95"
           >
             <House className="size-5" aria-hidden />
           </Link>
