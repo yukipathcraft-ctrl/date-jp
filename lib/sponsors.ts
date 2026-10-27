@@ -6,7 +6,7 @@ import type { Audience } from "./audience";
 
 /**
  * 出す場所。どれも会が決まったあとに出す。
- * gift = 送別会・歓迎会の贈りもの(花束・記念品)、second = 二次会(カラオケなど)、
+ * gift = 送別会・歓迎会の贈りもの(花束・記念品)、second = 二次会(ボウリングなど。カラオケ店は載せない)、
  * ride = 帰りの足(運転代行・タクシー)、campus = 学生のうちに(自動車学校など)
  */
 export type Placement = "gift" | "second" | "ride" | "campus";
@@ -50,11 +50,11 @@ const SAMPLES: Sponsor[] = [
     action: "電話する",
   },
   {
-    id: "sample-karaoke",
+    id: "sample-bowling",
     placement: "second",
     audience: "student",
-    name: "見本 カラオケ 国分町",
-    catch: "一次会のお店から歩いて3分・学割で 2時間1,500円〜",
+    name: "見本 ボウリング 仙台駅前",
+    catch: "一次会のあとに、みんなで1ゲーム。学生証で1ゲーム400円・靴代込み",
     url: "https://example.com/",
     action: "空きを見る",
   },
