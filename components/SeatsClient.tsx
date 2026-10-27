@@ -1,79 +1,297 @@
 "use client";
 
-import { Send, Shuffle, Users } from "lucide-react";
+import { Crown, RectangleHorizontal, Circle, Send, Shuffle, Users } from "lucide-react";
 import { useState } from "react";
-import { assignSeats, parseNames, seatsText } from "@/lib/seats";
+import { assignSeats, parseNames, seatsText, type Person } from "@/lib/seats";
 import { lineShareUrl } from "@/lib/share";
 import { BUTTON_LINE, BUTTON_PRIMARY, BUTTON_SUB, CARD, INPUT, LABEL, PILL, PILL_OFF, PILL_ON } from "./ui";
 
-const TABLE_CHOICES = [2, 3, 4, 5, 6];
+const TABLE_CHOICES = [1, 2, 3, 4, 5, 6];
+
+// 混ぜたいグループ。色は globals.css の .tier-*。色だけで区別しないよう、必ず A・B・C の字を添える
+const GROUPS = [
+  { key: "A", tone: "blue" },
+  { key: "B", tone: "green" },
+  { key: "C", tone: "purple" },
+] as const;
+const toneOf = (g?: string) => GROUPS.find((x) => x.key === g)?.tone;
+
+type Shape = "round" | "long";
+type Meta = { honored: boolean; group?: string };
+
+/**
+ * 席に座っている人。主役は金の地に冠、グループの人は色の縁と A・B・C の字。
+ * fill = 長テーブルの1マスいっぱいに広げる、compact = 丸テーブルに人が多いときに小さくする
+ */
+function Seat({ p, index, fill, compact }: { p: Person; index: number; fill?: boolean; compact?: boolean }) {
+  const tone = toneOf(p.group);
+  return (
+    <span
+      className={`anim-stagger inline-flex items-center justify-center gap-1 rounded-full py-1.5 leading-none font-bold ${
+        fill ? "w-full max-w-full px-1.5 text-[12px]" : compact ? "max-w-[4.25rem] px-2 text-[11px]" : "max-w-[5.5rem] px-2.5 text-[12px]"
+      } shadow-[0_4px_12px_-4px_rgb(0_0_0/0.6)] ${
+        p.honored
+          ? "bg-accent text-accent-text"
+          : tone
+            ? `tier-${tone} bg-[var(--ts)] text-[var(--tc)] ring-1 ring-[var(--tb)]`
+            : "bg-surface-2 text-white ring-1 ring-white/15"
+      }`}
+      style={{ "--i": index } as React.CSSProperties}
+    >
+      {p.honored && <Crown className="size-3 shrink-0" aria-label="主役" />}
+      <span className="truncate">{p.name}</span>
+      {p.group && !p.honored && <span className="shrink-0 text-[10px] font-black opacity-80">{p.group}</span>}
+    </span>
+  );
+}
+
+/** 丸テーブル。いちばん上の席が上座で、時計回りに座る */
+function RoundTable({ people, no }: { people: Person[]; no: number }) {
+  return (
+    <div className="relative mx-auto aspect-square w-full max-w-[19rem]">
+      <div className="absolute inset-[24%] grid place-items-center rounded-full bg-white/5 ring-1 ring-white/12">
+        <span className="text-center">
+          <span className="block text-[22px] font-black">{no}卓</span>
+          <span className="block text-[10px] font-bold text-white/40">{people.length}人</span>
+        </span>
+      </div>
+      {people.map((p, i) => {
+        const a = (i / people.length) * 2 * Math.PI - Math.PI / 2;
+        return (
+          <div
+            key={i}
+            className="absolute -translate-x-1/2 -translate-y-1/2"
+            style={{ left: `${50 + 40 * Math.cos(a)}%`, top: `${50 + 40 * Math.sin(a)}%` }}
+          >
+            <Seat p={p} index={i} compact={people.length > 8} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** 長テーブル。左の奥が上座で、上の列と下の列に交互に座る(向かい合わせ) */
+function LongTable({ people, no }: { people: Person[]; no: number }) {
+  const top = people.filter((_, i) => i % 2 === 0);
+  const bottom = people.filter((_, i) => i % 2 === 1);
+  const cols = Math.max(1, top.length);
+  const row = (list: Person[], offset: number) => (
+    <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+      {list.map((p, i) => (
+        <div key={i} className="flex min-w-0 justify-center">
+          <Seat p={p} index={i * 2 + offset} fill />
+        </div>
+      ))}
+    </div>
+  );
+  return (
+    <div className="space-y-2">
+      {row(top, 0)}
+      <div className="grid h-12 place-items-center rounded-xl bg-white/5 ring-1 ring-white/12">
+        <span className="text-[13px] font-black">
+          {no}卓 <span className="text-[10px] font-bold text-white/40">{people.length}人</span>
+        </span>
+      </div>
+      {row(bottom, 1)}
+    </div>
+  );
+}
+
+/** オプションの切り替え。押すと下に名前の一覧が開く */
+function Toggle({ on, onClick, icon, title, sub }: { on: boolean; onClick: () => void; icon: React.ReactNode; title: string; sub: string }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      onClick={onClick}
+      className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left ring-1 transition active:scale-[0.99] ${
+        on ? "bg-accent/10 ring-accent/60" : "bg-white/5 ring-white/12 hover:bg-white/8"
+      }`}
+    >
+      <span className={`grid size-9 shrink-0 place-items-center rounded-xl ${on ? "bg-accent text-accent-text" : "bg-white/8 text-white/60"}`}>{icon}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[13px] font-black">{title}</span>
+        <span className="block text-[11px] text-white/40">{sub}</span>
+      </span>
+      <span
+        aria-hidden
+        className={`flex h-6 w-10 shrink-0 items-center rounded-full p-0.5 transition ${on ? "justify-end bg-accent" : "justify-start bg-white/15"}`}
+      >
+        <span className="size-5 rounded-full bg-white" />
+      </span>
+    </button>
+  );
+}
 
 export function SeatsClient() {
   const [text, setText] = useState("");
   const [tables, setTables] = useState(2);
-  const [result, setResult] = useState<string[][] | null>(null);
+  const [shape, setShape] = useState<Shape>("round");
+  const [useHonored, setUseHonored] = useState(false);
+  const [useGroups, setUseGroups] = useState(false);
+  const [meta, setMeta] = useState<Record<string, Meta>>({});
+  const [result, setResult] = useState<Person[][] | null>(null);
+  // 引き直すたびに数を変え、席の出てくる動きをもう一度流す
+  const [draw, setDraw] = useState(0);
+
   const names = parseNames(text);
   const ready = names.length >= 2;
+  const people: Person[] = names.map((name) => ({
+    name,
+    honored: useHonored && meta[name]?.honored === true,
+    group: useGroups ? meta[name]?.group : undefined,
+  }));
+
+  const patch = (name: string, p: Partial<Meta>) =>
+    setMeta((m) => ({ ...m, [name]: { ...(m[name] ?? { honored: false }), ...p } }));
+
+  function run() {
+    setResult(assignSeats(people, tables));
+    setDraw((d) => d + 1);
+  }
 
   return (
     <div className="space-y-4">
-      <section className={`${CARD} px-5 py-5`}>
+      <section className={`${CARD} space-y-6 px-5 py-5`}>
         <label className="block">
           <span className={LABEL}>
             <Users className="size-4" aria-hidden />
             来る人の名前 <span className="font-normal">(1行に1人)</span>
           </span>
           <textarea
-            className={`${INPUT} min-h-40 resize-none py-3 leading-relaxed`}
+            className={`${INPUT} min-h-36 resize-none py-3 leading-relaxed`}
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={"山田\n佐藤\n鈴木"}
           />
+          <span className="mt-2 block text-xs text-muted">{names.length}人</span>
         </label>
-        <p className="mt-2 text-xs text-muted">{names.length}人</p>
 
-        <p className={`${LABEL} mt-5`}>テーブルの数</p>
-        <div className="flex flex-wrap gap-2" role="group" aria-label="テーブルの数">
-          {TABLE_CHOICES.map((n) => (
-            <button
-              key={n}
-              type="button"
-              aria-pressed={tables === n}
-              onClick={() => setTables(n)}
-              className={`${PILL} px-4 ${tables === n ? PILL_ON : PILL_OFF}`}
-            >
-              {n}卓
-            </button>
-          ))}
+        <div>
+          <p className={LABEL}>テーブルの形</p>
+          <div className="grid grid-cols-2 gap-2" role="group" aria-label="テーブルの形">
+            {(
+              [
+                { key: "round", label: "丸テーブル", Icon: Circle },
+                { key: "long", label: "長テーブル", Icon: RectangleHorizontal },
+              ] as const
+            ).map(({ key, label, Icon }) => (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={shape === key}
+                onClick={() => setShape(key)}
+                className={`${PILL} justify-center gap-2 ${shape === key ? PILL_ON : PILL_OFF}`}
+              >
+                <Icon className="size-4" aria-hidden />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className={LABEL}>テーブルの数</p>
+          <div className="grid grid-cols-6 gap-1.5" role="group" aria-label="テーブルの数">
+            {TABLE_CHOICES.map((n) => (
+              <button
+                key={n}
+                type="button"
+                aria-pressed={tables === n}
+                onClick={() => setTables(n)}
+                className={`${PILL} justify-center px-0 ${tables === n ? PILL_ON : PILL_OFF}`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Toggle
+            on={useHonored}
+            onClick={() => setUseHonored((v) => !v)}
+            icon={<Crown className="size-4" aria-hidden />}
+            title="主役を上座にする"
+            sub="送別会の主役や上司を、奥の席に"
+          />
+          <Toggle
+            on={useGroups}
+            onClick={() => setUseGroups((v) => !v)}
+            icon={<Shuffle className="size-4" aria-hidden />}
+            title="グループを混ぜる"
+            sub="学年や部署が同じ人を、別のテーブルに"
+          />
+          {(useHonored || useGroups) && names.length > 0 && (
+            <ul className="mt-3 space-y-1.5">
+              {names.map((name, i) => {
+                const m = meta[name];
+                return (
+                  <li key={i} className="flex items-center gap-2 rounded-xl bg-white/4 py-1 pr-1 pl-3">
+                    <span className="min-w-0 flex-1 truncate text-sm font-bold">{name}</span>
+                    {useHonored && (
+                      <button
+                        type="button"
+                        aria-pressed={m?.honored === true}
+                        aria-label={`${name}さんを主役にする`}
+                        onClick={() => patch(name, { honored: !m?.honored })}
+                        className={`grid size-10 place-items-center rounded-lg transition ${
+                          m?.honored ? "bg-accent text-accent-text" : "text-white/30 hover:text-white/60"
+                        }`}
+                      >
+                        <Crown className="size-4" aria-hidden />
+                      </button>
+                    )}
+                    {useGroups && (
+                      <span className="flex gap-1" role="group" aria-label={`${name}さんのグループ`}>
+                        {GROUPS.map((g) => {
+                          const on = m?.group === g.key;
+                          return (
+                            <button
+                              key={g.key}
+                              type="button"
+                              aria-pressed={on}
+                              onClick={() => patch(name, { group: on ? undefined : g.key })}
+                              className={`tier-${g.tone} grid size-10 place-items-center rounded-lg text-xs font-black transition ${
+                                on ? "bg-[var(--tb)] text-black" : "text-white/35 ring-1 ring-white/10 hover:text-white/60"
+                              }`}
+                            >
+                              {g.key}
+                            </button>
+                          );
+                        })}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       </section>
 
       <div className="px-4">
-        <button
-          type="button"
-          disabled={!ready}
-          onClick={() => setResult(assignSeats(names, tables))}
-          className={`${BUTTON_PRIMARY} w-full gap-2`}
-        >
+        <button type="button" disabled={!ready} onClick={run} className={`${BUTTON_PRIMARY} w-full gap-2`}>
           <Shuffle className="size-5" aria-hidden />
           {!ready ? "名前を2人以上入れてください" : result ? "もう一度くじを引く" : "くじで席を決める"}
         </button>
       </div>
 
       {result && (
-        <section className="anim-rise space-y-2.5 px-4" aria-live="polite">
-          <div className="grid grid-cols-2 gap-2.5">
-            {result.map((t, i) => (
-              <div key={i} className="rounded-2xl bg-surface px-4 py-4 ring-1 ring-white/8">
-                <p className="text-[11px] font-black tracking-[0.14em] text-accent">{i + 1}卓</p>
-                <ul className="mt-2 space-y-1 text-[15px] font-bold">
-                  {t.map((name, j) => (
-                    <li key={j}>{name}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+        <section key={draw} className="space-y-3 px-4" aria-live="polite">
+          {result.map((t, i) => (
+            <div key={i} className="rounded-3xl bg-surface px-3 py-5 ring-1 ring-white/8">
+              {shape === "round" ? <RoundTable people={t} no={i + 1} /> : <LongTable people={t} no={i + 1} />}
+            </div>
+          ))}
+          {(useHonored || useGroups) && (
+            <p className="text-center text-[11px] text-white/40">
+              {useHonored && "冠が主役の席(上座)"}
+              {useHonored && useGroups && "・"}
+              {useGroups && "A・B・C はグループ"}
+            </p>
+          )}
           <a href={lineShareUrl(seatsText(result))} target="_blank" rel="noreferrer" className={`${BUTTON_LINE} w-full gap-2`}>
             <Send className="size-4" aria-hidden />
             LINEで送る
