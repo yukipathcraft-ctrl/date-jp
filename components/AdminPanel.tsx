@@ -1,6 +1,6 @@
 "use client";
 
-import { Calculator, Check, KeyRound, PartyPopper, Users } from "lucide-react";
+import { CalendarClock, Calculator, Check, KeyRound, PartyPopper, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { decide } from "@/app/actions";
@@ -193,9 +193,26 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
               <>
                 <p className="mt-4 mb-2 text-sm font-bold">お店</p>
                 <div className="space-y-1.5">
-                  {[...shops.map((s) => ({ id: s.id as string | null, name: s.name })), { id: null, name: "お店はあとで決める" }].map((s) => (
+                  {/* 「お店はあとで決める」はいちばん前に、お店とは違う点線の枠で出す(日にちだけ先に決めたい幹事が多いため) */}
+                  <button
+                    type="button"
+                    aria-pressed={shopId === null}
+                    onClick={() => setShopId(null)}
+                    className={`flex min-h-14 w-full items-center gap-3 rounded-xl border-2 border-dashed px-4 text-left transition-colors ${
+                      shopId === null ? "border-accent bg-accent/10 text-accent" : "border-white/20 text-white/80 hover:border-white/40"
+                    }`}
+                  >
+                    <CalendarClock className="size-5 shrink-0" aria-hidden />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-black">
+                        {shopId === null && "✓ "}お店はあとで決める
+                      </span>
+                      <span className="mt-0.5 block text-xs font-normal text-muted">日にちだけ先に決めて、お店はあとで選びます</span>
+                    </span>
+                  </button>
+                  {shops.map((s) => (
                     <button
-                      key={s.id ?? "none"}
+                      key={s.id}
                       type="button"
                       aria-pressed={shopId === s.id}
                       onClick={() => setShopId(s.id)}
