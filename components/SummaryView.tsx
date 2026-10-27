@@ -94,8 +94,8 @@ export function SummaryView({ summary }: { summary: Summary }) {
     {
       icon: MapPin,
       label: "場所",
-      value: areaLabel(summary.area!),
-      sub: summary.areaVotes.map((v) => `${areaLabel(v.key)} ${v.votes}`).join(" / "),
+      value: summary.area ? areaLabel(summary.area) : "どこでもOK",
+      sub: summary.area ? summary.areaVotes.map((v) => `${areaLabel(v.key)} ${v.votes}`).join(" / ") : "全員どこでもいいと答えています",
     },
     {
       icon: Moon,

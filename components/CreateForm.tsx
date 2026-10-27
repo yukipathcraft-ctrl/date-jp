@@ -6,7 +6,7 @@ import { useEffect, useState, useTransition } from "react";
 import { createParty } from "@/app/actions";
 import { AUDIENCES, loadAudience, type Audience } from "@/lib/audience";
 import { rememberParty } from "@/lib/myParties";
-import { clock, dateLabel, upcomingDates, weekdayOf } from "@/lib/sendai";
+import { clock, dateLabel, upcomingDates } from "@/lib/sendai";
 import { MAX_DATES } from "@/lib/validation";
 import { DateCalendar } from "./DateCalendar";
 import { Required } from "./Required";
@@ -40,12 +40,11 @@ export function CreateForm() {
   const [startAt, setStartAt] = useState(1140);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
-  // 今日から24日ぶん(4列のタイルが6段ちょうど埋まる)。日付はブラウザで開いたときに作る
-  const [options, setOptions] = useState<string[]>([]);
-  const [view, setView] = useState<"tiles" | "calendar">("tiles");
+  // 今日。カレンダーで今日より前を選べないようにする。日付はブラウザで開いたときに作る
+  const [today, setToday] = useState<string | null>(null);
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect */
-    setOptions(upcomingDates(new Date(), 24));
+    setToday(upcomingDates(new Date(), 1)[0]);
     setAudience(loadAudience() ?? "student");
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
@@ -108,25 +107,10 @@ export function CreateForm() {
 
         <div className="mt-5 border-t border-white/8 pt-5">
           <FieldHead title="候補の日" sub={dates.length > 0 ? `${dates.length}日選んでいます` : "いくつでも選べます"} />
-          {/* 近い24日はタイルで、それより先はカレンダーで選ぶ。選んだ日はどちらにも出る */}
-          <div className="mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-white/6 p-1 ring-1 ring-white/8" role="group" aria-label="選び方">
-            {(["tiles", "calendar"] as const).map((v) => (
-              <button
-                key={v}
-                type="button"
-                aria-pressed={view === v}
-                onClick={() => setView(v)}
-                className={`min-h-10 rounded-xl text-sm font-bold transition-colors ${
-                  view === v ? "bg-white/12 text-white" : "text-white/40 hover:text-white/70"
-                }`}
-              >
-                {v === "tiles" ? "近い日から選ぶ" : "カレンダーで選ぶ"}
-              </button>
-            ))}
-          </div>
-          {view === "calendar" && options[0] && (
+          {/* 候補の日はカレンダーで選ぶ */}
+          {today && (
             <div className="mt-4">
-              <DateCalendar today={options[0]} selected={dates} onToggle={toggle} />
+              <DateCalendar today={today} selected={dates} onToggle={toggle} />
             </div>
           )}
           {dates.length > 0 && (
@@ -141,37 +125,6 @@ export function CreateForm() {
               </button>
             </div>
           )}
-          <div className={`mt-3 grid min-h-48 grid-cols-4 gap-1.5 ${view === "tiles" ? "" : "hidden"}`}>
-            {options.map((d) => {
-              const on = dates.includes(d);
-              const w = weekdayOf(d);
-              const [md, wd] = dateLabel(d).split("(");
-              return (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => toggle(d)}
-                  aria-pressed={on}
-                  aria-label={dateLabel(d)}
-                  className={`flex min-h-14 flex-col items-center justify-center rounded-xl transition-all duration-150 active:scale-95 ${
-                    on ? "bg-accent text-accent-text" : "bg-white/6 text-white ring-1 ring-white/10 hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-0.5 text-sm font-black tabular-nums">
-                    {on && <Check className="size-3.5" aria-hidden />}
-                    {md}
-                  </span>
-                  <span
-                    className={`text-[10px] font-bold ${
-                      on ? "opacity-75" : w === 0 ? "text-danger" : w === 6 ? "text-[#7fb2ff]" : w === 5 ? "text-[#ffd47e]" : "text-white/40"
-                    }`}
-                  >
-                    {wd.replace(")", "")}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
         </div>
       </section>
 

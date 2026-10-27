@@ -26,7 +26,7 @@ export const AUDIENCES: Record<
     note: "サークル・ゼミ・バイト先",
     budgets: [2000, 3000, 4000, 5000, 6000],
     arrivals: [1080, 1110, 1140, 1170, 1200, 1260],
-    areas: ["katahira", "station", "kokubuncho", "ichibancho", "nagamachi", "izumi"],
+    areas: ["ichibancho", "katahira", "station", "kokubuncho", "nagamachi", "izumi"],
     prefer: ["学割", "飲み放題"],
   },
   worker: {
@@ -34,7 +34,7 @@ export const AUDIENCES: Record<
     note: "職場・同期・取引先",
     budgets: [3000, 4000, 5000, 6000, 8000],
     arrivals: [1080, 1110, 1140, 1170, 1200, 1260],
-    areas: ["kokubuncho", "station", "ichibancho", "nagamachi", "izumi", "katahira"],
+    areas: ["ichibancho", "kokubuncho", "station", "nagamachi", "izumi", "katahira"],
     prefer: ["個室", "飲み放題"],
   },
 };

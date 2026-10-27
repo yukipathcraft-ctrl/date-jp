@@ -53,7 +53,6 @@ export function parseAnswer(input: Record<string, unknown>, partyDates: string[]
   if (!isStay(input.stay)) return { ok: false, error: "いつまで残れるかを選んでください" };
   if (!isAnswerBudget(input.budget)) return { ok: false, error: "予算を選んでください" };
   const areas = Array.isArray(input.areas) ? [...new Set(input.areas.filter(isAreaKey))] : [];
-  if (areas.length === 0) return { ok: false, error: "行きやすい場所を1つ以上選んでください" };
   const memo = typeof input.memo === "string" ? input.memo.trim() : "";
   const avoidNote = typeof input.avoidNote === "string" ? input.avoidNote.trim().slice(0, MAX_AVOID_NOTE) : "";
   if (memo.length > MAX_MEMO) return { ok: false, error: `ひとことは${MAX_MEMO}文字までにしてください` };

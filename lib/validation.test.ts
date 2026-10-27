@@ -24,3 +24,10 @@ describe("parseAnswer の開始時刻", () => {
     expect(r.ok && r.value.arrival).toBe(1170);
   });
 });
+
+describe("parseAnswer の場所", () => {
+  it("場所を選ばなくても(どこでもいい)答えられる", () => {
+    const r = parseAnswer({ ...answer, areas: [] }, ["2026-11-06"], 1140);
+    expect(r.ok && r.value.areas).toEqual([]);
+  });
+});

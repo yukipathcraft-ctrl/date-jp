@@ -1,4 +1,5 @@
 import "server-only";
+import { AUDIENCES } from "./audience";
 import { UNLIMITED_BUDGET, areaLabel } from "./sendai";
 import { searchShops, type Shop } from "./shops";
 import { getStore } from "./store";
@@ -21,13 +22,15 @@ export async function loadParty(id: string): Promise<(PartyView & { adminHash: s
   if (!party) return null;
   const answers = await store.listAnswers(id);
   const summary = summarize(party.dates, answers, party.decision?.date);
-  const ready = summary.budget !== null && summary.area !== null;
+  // 誰も場所を選んでいなければ(全員「どこでもいい」)、選択肢のいちばん上の場所で探す
+  const area = summary.area ?? AUDIENCES[party.audience].areas[0];
+  const ready = summary.budget !== null;
   // 食べたいものは、いちばん多いもの(同じ数なら2つまで)。合うお店がなければ料理を問わずに探す
   const top = summary.likes[0]?.votes ?? 0;
   const genres = summary.likes.filter((l) => l.votes === top).slice(0, 2).map((l) => l.key);
   const budget = summary.budget !== null && summary.budget >= UNLIMITED_BUDGET ? null : summary.budget;
   const query = {
-    area: summary.area!,
+    area,
     // 全員が「上限なし」なら、予算で絞らない
     budget,
     size: summary.attendees.length,
@@ -42,7 +45,7 @@ export async function loadParty(id: string): Promise<(PartyView & { adminHash: s
     ? [
         `${summary.attendees.length}人`,
         budget === null ? "予算は上限なし" : `1人${budget.toLocaleString("ja-JP")}円まで`,
-        areaLabel(summary.area!),
+        summary.area ? areaLabel(area) : `場所はどこでもOK(${areaLabel(area)})`,
         ...(byLikes ? [`${summary.likes.filter((l) => genres.includes(l.key)).map((l) => l.label).join("・")}が食べたい人が多い`] : []),
         ...(summary.diet.smokers > 0 ? ["タバコが吸えるお店を先に"] : []),
       ]

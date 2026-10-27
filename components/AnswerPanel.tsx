@@ -213,9 +213,7 @@ export function AnswerPanel({ partyId, dates, audience, start: partyStart }: { p
           ? "いつまで残れるかを選んでください"
           : form.budget === 0
             ? "1人いくらまで出せるかを選んでください"
-            : form.areas.length === 0
-              ? "行きやすい場所を1つ以上選んでください"
-              : null;
+            : null;
   const areas = opts.areas.map((k) => AREAS.find((a) => a.key === k)!);
 
   return (
@@ -336,9 +334,12 @@ export function AnswerPanel({ partyId, dates, audience, start: partyStart }: { p
           <p className={LABEL} aria-hidden>
             <MapPin className="size-4" />
             行きやすい場所 <span className="font-normal">(いくつでも)</span>
-            <Required />
           </p>
           <div className="flex flex-wrap gap-2">
+            {/* どこでもいい人は場所を選ばない(場所はほかの人の答えで決まる) */}
+            <Choice on={form.areas.length === 0} onClick={() => set({ areas: [] })}>
+              どこでもいい
+            </Choice>
             {areas.map((a) => (
               <Choice key={a.key} on={form.areas.includes(a.key)} onClick={() => toggleArea(a.key)}>
                 {a.label}
