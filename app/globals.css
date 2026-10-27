@@ -46,6 +46,7 @@
   --color-danger: var(--danger);
   --font-sans: "Hiragino Kaku Gothic ProN", "Hiragino Sans", var(--font-jp), "Noto Sans JP",
     "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --font-logo: var(--font-logo-face), Georgia, serif;
 }
 
 body {
