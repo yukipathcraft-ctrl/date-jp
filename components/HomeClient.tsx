@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Briefcase, CalendarDays, ChevronDown, ChevronRight, Clock, GraduationCap, Info, ListChecks, MapPin, Store, Wallet, Wrench } from "lucide-react";
+import { ArrowRight, Briefcase, CalendarDays, ChevronDown, ChevronRight, Clock, GraduationCap, Info, ListChecks, MapPin, Shuffle, Store, Wallet, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AUDIENCES, loadAudience, saveAudience, type Audience } from "@/lib/audience";
@@ -274,14 +274,8 @@ export function HomeClient() {
             title="会計をする"
             sub={audience === "student" ? "先輩多めの傾斜も割り勘も" : "上司多めの傾斜も割り勘も"}
           />
-        </div>
-        <div className="mt-2.5">
-          <HomeRow
-            href="/collect"
-            icon={<ListChecks className="size-4" aria-hidden />}
-            title="集金のチェック"
-            sub="誰が払ったか一目で分かります"
-          />
+          <ToolTile href="/collect" icon={<ListChecks className="size-6" aria-hidden />} title="集金のチェック" sub="誰が払ったか一目で" />
+          <ToolTile href="/seats" icon={<Shuffle className="size-6" aria-hidden />} title="席決め" sub="くじでテーブルを分ける" />
         </div>
       </section>
 
