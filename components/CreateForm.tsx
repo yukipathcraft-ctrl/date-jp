@@ -9,6 +9,7 @@ import { rememberParty } from "@/lib/myParties";
 import { dateLabel, upcomingDates, weekdayOf } from "@/lib/sendai";
 import { MAX_DATES } from "@/lib/validation";
 import { DateCalendar } from "./DateCalendar";
+import { Required } from "./Required";
 import { BUTTON_PRIMARY, INPUT } from "./ui";
 
 export function saveAdminToken(partyId: string, token: string) {
@@ -21,7 +22,10 @@ export function saveAdminToken(partyId: string, token: string) {
 function FieldHead({ title, sub }: { title: string; sub: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <p className="text-sm font-bold text-white/50">{title}</p>
+      <p className="flex items-center gap-1.5 text-sm font-bold text-white/50">
+        {title}
+        <Required />
+      </p>
       <p className="text-[11px] font-semibold text-white/35">{sub}</p>
     </div>
   );
@@ -34,12 +38,12 @@ export function CreateForm() {
   const [audience, setAudience] = useState<Audience>("student");
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
-  // 今日から3週間ぶん。日付はブラウザで開いたときに作る
+  // 今日から24日ぶん(4列のタイルが6段ちょうど埋まる)。日付はブラウザで開いたときに作る
   const [options, setOptions] = useState<string[]>([]);
   const [view, setView] = useState<"tiles" | "calendar">("tiles");
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect */
-    setOptions(upcomingDates(new Date(), 21));
+    setOptions(upcomingDates(new Date(), 24));
     setAudience(loadAudience() ?? "student");
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
@@ -85,7 +89,7 @@ export function CreateForm() {
 
         <div className="mt-5 border-t border-white/8 pt-5">
           <FieldHead title="候補の日" sub={dates.length > 0 ? `${dates.length}日選んでいます` : "いくつでも選べます"} />
-          {/* 近い3週間はタイルで、それより先はカレンダーで選ぶ。選んだ日はどちらにも出る */}
+          {/* 近い24日はタイルで、それより先はカレンダーで選ぶ。選んだ日はどちらにも出る */}
           <div className="mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-white/6 p-1 ring-1 ring-white/8" role="group" aria-label="選び方">
             {(["tiles", "calendar"] as const).map((v) => (
               <button

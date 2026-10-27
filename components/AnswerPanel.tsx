@@ -9,6 +9,7 @@ import { AVOIDS } from "@/lib/diet";
 import { AREAS, STAYS, UNLIMITED_BUDGET, clock, dateLabel, inputFromMinutes, minutesFromInput, yen, type AreaKey } from "@/lib/sendai";
 import type { DateAnswer } from "@/lib/summary";
 import { MAX_AVOID_NOTE, MAX_MEMO, type AnswerInput } from "@/lib/validation";
+import { Required } from "./Required";
 import { BUTTON_PRIMARY, BUTTON_SUB, INPUT, LABEL, PILL, PILL_OFF, PILL_ON } from "./ui";
 
 type Mine = { answerId: string; token: string; name: string };
@@ -196,6 +197,19 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
     });
 
   const opts = AUDIENCES[audience];
+  // 必須の項目のうち、まだのものをボタンの上に出す(サーバーでも同じ順に確かめる)
+  const missing =
+    form.name.trim() === ""
+      ? "名前を入れてください"
+      : form.arrival === 0
+        ? "何時から来られるかを選んでください"
+        : form.stay === 0
+          ? "いつまで残れるかを選んでください"
+          : form.budget === 0
+            ? "1人いくらまで出せるかを選んでください"
+            : form.areas.length === 0
+              ? "行きやすい場所を1つ以上選んでください"
+              : null;
   const areas = opts.areas.map((k) => AREAS.find((a) => a.key === k)!);
 
   return (
@@ -206,6 +220,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
           <span className={LABEL}>
             <UserRound className="size-4" aria-hidden />
             名前
+            <Required />
           </span>
           <input
             className={INPUT}
@@ -260,6 +275,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
           <p className={LABEL} aria-hidden>
             <Clock className="size-4" />
             何時から来られる?
+            <Required />
           </p>
           <TimeChoices
             presets={opts.arrivals.map((m) => ({ minutes: m, label: clock(m) }))}
@@ -275,6 +291,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
           <p className={LABEL} aria-hidden>
             <Moon className="size-4" />
             いつまで残れる?
+            <Required />
           </p>
           <TimeChoices
             presets={STAYS.map((st) => ({ minutes: st.minutes, label: st.label }))}
@@ -290,6 +307,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
           <p className={LABEL} aria-hidden>
             <Wallet className="size-4" />
             1人いくらまで出せる?
+            <Required />
           </p>
           <div className="flex flex-wrap gap-2">
             {opts.budgets.map((b) => (
@@ -309,6 +327,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
           <p className={LABEL} aria-hidden>
             <MapPin className="size-4" />
             行きやすい場所 <span className="font-normal">(いくつでも)</span>
+            <Required />
           </p>
           <div className="flex flex-wrap gap-2">
             {areas.map((a) => (
@@ -374,12 +393,22 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
       </div>
 
       <div className="px-4">
+        <p className={`mt-5 flex items-center justify-center gap-1.5 text-xs font-bold ${missing ? "text-white/60" : "text-white/35"}`}>
+          {missing ? (
+            <>
+              <Required />
+              {missing}
+            </>
+          ) : (
+            "赤い点の項目はすべて入っています"
+          )}
+        </p>
         {error && (
           <p role="alert" className="mt-4 text-sm font-bold text-danger">
             {error}
           </p>
         )}
-        <button type="button" onClick={submit} disabled={pending} className={`${BUTTON_PRIMARY} mt-5 w-full`}>
+        <button type="button" onClick={submit} disabled={pending || missing !== null} className={`${BUTTON_PRIMARY} mt-3 w-full`}>
           {pending ? "保存しています…" : "この内容で答える"}
         </button>
       </div>
