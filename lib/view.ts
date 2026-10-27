@@ -1,5 +1,5 @@
 import "server-only";
-import { UNLIMITED_BUDGET } from "./sendai";
+import { UNLIMITED_BUDGET, areaLabel } from "./sendai";
 import { searchShops, type Shop } from "./shops";
 import { getStore } from "./store";
 import type { Party } from "./store/types";
@@ -10,6 +10,8 @@ export type PartyView = {
   summary: Summary;
   shops: Shop[];
   otherArea: boolean;
+  /** おすすめのお店を、何に合わせて選んだか(人数・予算・場所・食べたいもの・タバコ) */
+  basis: string[];
 };
 
 /** 飲み会のページに出すもの。1人ずつの予算はここで落とし、ブラウザには渡さない */
@@ -20,17 +22,31 @@ export async function loadParty(id: string): Promise<(PartyView & { adminHash: s
   const answers = await store.listAnswers(id);
   const summary = summarize(party.dates, answers, party.decision?.date);
   const ready = summary.budget !== null && summary.area !== null;
-  const { shops, otherArea } = ready
-    ? await searchShops({
-        area: summary.area!,
-        // 全員が「上限なし」なら、予算で絞らない
-        budget: summary.budget! >= UNLIMITED_BUDGET ? null : summary.budget!,
-        size: summary.attendees.length,
-        audience: party.audience,
-        // タバコを吸う人がいれば、吸えるお店を先に出す
-        ...(summary.diet.smokers > 0 ? { smoking: "prefer" as const } : {}),
-      }, 10)
-    : { shops: [], otherArea: false };
+  // 食べたいものは、いちばん多いもの(同じ数なら2つまで)。合うお店がなければ料理を問わずに探す
+  const top = summary.likes[0]?.votes ?? 0;
+  const genres = summary.likes.filter((l) => l.votes === top).slice(0, 2).map((l) => l.key);
+  const budget = summary.budget !== null && summary.budget >= UNLIMITED_BUDGET ? null : summary.budget;
+  const query = {
+    area: summary.area!,
+    // 全員が「上限なし」なら、予算で絞らない
+    budget,
+    size: summary.attendees.length,
+    audience: party.audience,
+    // タバコを吸う人がいれば、吸えるお店を先に出す
+    ...(summary.diet.smokers > 0 ? { smoking: "prefer" as const } : {}),
+  };
+  let found = ready ? await searchShops({ ...query, genres }, 10) : { shops: [], otherArea: false };
+  const byLikes = genres.length > 0 && found.shops.length > 0;
+  if (ready && genres.length > 0 && found.shops.length === 0) found = await searchShops(query, 10);
+  const basis = ready
+    ? [
+        `${summary.attendees.length}人`,
+        budget === null ? "予算は上限なし" : `1人${budget.toLocaleString("ja-JP")}円まで`,
+        areaLabel(summary.area!),
+        ...(byLikes ? [`${summary.likes.filter((l) => genres.includes(l.key)).map((l) => l.label).join("・")}が食べたい人が多い`] : []),
+        ...(summary.diet.smokers > 0 ? ["タバコが吸えるお店を先に"] : []),
+      ]
+    : [];
   const { adminHash, ...rest } = party;
-  return { party: rest, adminHash, summary, shops, otherArea };
+  return { party: rest, adminHash, summary, shops: found.shops, otherArea: found.otherArea, basis };
 }

@@ -94,3 +94,21 @@ describe("みんなのひとこと", () => {
     ]);
   });
 });
+
+describe("summarize の食べたいもの", () => {
+  it("行く人の食べたいものを多い順に数える(行けない人は数えない)", () => {
+    const base = { arrival: 1140, stay: 1320, budget: 4000, areas: ["station" as const] };
+    const s = summarize(
+      ["2026-11-06"],
+      [
+        { ...base, id: "1", name: "A", dates: { "2026-11-06": "ok" }, likes: ["yakiniku", "izakaya"] },
+        { ...base, id: "2", name: "B", dates: { "2026-11-06": "ok" }, likes: ["yakiniku"] },
+        { ...base, id: "3", name: "C", dates: { "2026-11-06": "no" }, likes: ["chuka"] },
+      ],
+    );
+    expect(s.likes.map((l) => [l.key, l.votes])).toEqual([
+      ["yakiniku", 2],
+      ["izakaya", 1],
+    ]);
+  });
+});

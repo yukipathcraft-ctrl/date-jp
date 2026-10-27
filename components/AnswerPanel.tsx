@@ -1,12 +1,12 @@
 "use client";
 
-import { CalendarDays, Check, Cigarette, Clock, MapPin, MessageSquareText, Moon, Pencil, UserRound, UtensilsCrossed, Wallet, Wine } from "lucide-react";
+import { CalendarDays, Check, Cigarette, Clock, Heart, MapPin, MessageSquareText, Moon, Pencil, UserRound, UtensilsCrossed, Wallet, Wine } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { getMyAnswer, saveAnswer } from "@/app/actions";
 import { AUDIENCES, type Audience } from "@/lib/audience";
 import { AVOIDS } from "@/lib/diet";
-import { AREAS, STAYS, UNLIMITED_BUDGET, clock, dateLabel, inputFromMinutes, minutesFromInput, yen, type AreaKey } from "@/lib/sendai";
+import { AREAS, GENRES, STAYS, UNLIMITED_BUDGET, clock, dateLabel, inputFromMinutes, minutesFromInput, yen, type AreaKey } from "@/lib/sendai";
 import type { DateAnswer } from "@/lib/summary";
 import { MAX_AVOID_NOTE, MAX_MEMO, type AnswerInput } from "@/lib/validation";
 import { Required } from "./Required";
@@ -190,6 +190,11 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
   const setDate = (d: string, v: DateAnswer) => setForm((f) => ({ ...f, dates: { ...f.dates, [d]: v } }));
   const toggleArea = (k: AreaKey) =>
     setForm((f) => ({ ...f, areas: f.areas.includes(k) ? f.areas.filter((a) => a !== k) : [...f.areas, k] }));
+  const toggleLike = (k: string) =>
+    setForm((f) => {
+      const cur = f.likes ?? [];
+      return { ...f, likes: cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k] };
+    });
   const toggleAvoid = (k: string) =>
     setForm((f) => {
       const cur = f.avoids ?? [];
@@ -277,13 +282,14 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
             何時から来られる?
             <Required />
           </p>
-          <TimeChoices
-            presets={opts.arrivals.map((m) => ({ minutes: m, label: clock(m) }))}
-            value={form.arrival}
-            onChange={(m) => set({ arrival: m })}
-            overnight={false}
-            hint="15時から24時まで、5分きざみで書けます"
-          />
+          {/* 来られる時刻は決まった選択肢だけにする(細かい時刻は「ひとこと」に書いてもらう) */}
+          <div className="flex flex-wrap gap-2">
+            {opts.arrivals.map((m) => (
+              <Choice key={m} on={form.arrival === m} onClick={() => set({ arrival: m })}>
+                {clock(m)}
+              </Choice>
+            ))}
+          </div>
         </fieldset>
 
         <fieldset className="border-b border-border px-5 py-5">
@@ -394,6 +400,23 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
             aria-label="そのほかの苦手なもの"
           />
           <p className="mt-2 text-xs text-muted">誰が選んだか・書いたかは幹事にも見えず、「えび・かにが苦手な人が1人」のように人数と中身だけがお店選びに使われます</p>
+        </fieldset>
+
+        {/* 食べたいもの。多いものから、お店を自動でおすすめする */}
+        <fieldset className="border-t border-border px-5 py-5">
+          <legend className="sr-only">食べたいもの</legend>
+          <p className={LABEL} aria-hidden>
+            <Heart className="size-4" />
+            食べたいもの <span className="font-normal">(いくつでも・なくてもOK)</span>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {GENRES.map((g) => (
+              <Choice key={g.key} on={(form.likes ?? []).includes(g.key)} onClick={() => toggleLike(g.key)}>
+                {g.label}
+              </Choice>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-muted">多かったものから、お店を自動で選びます</p>
         </fieldset>
 
         <label className="block border-t border-border px-5 py-5">

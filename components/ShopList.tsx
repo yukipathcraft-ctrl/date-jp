@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Cigarette, CigaretteOff, ExternalLink, Store } from "lucide-react";
+import { Check, ChevronDown, Cigarette, CigaretteOff, ExternalLink, Store } from "lucide-react";
 import { useState } from "react";
 import type { Shop } from "@/lib/shops";
 import { areaLabel } from "@/lib/sendai";
@@ -17,6 +17,7 @@ export function ShopList({
   heading = "合いそうなお店",
   lead,
   notice,
+  basis,
   id = "shops",
   children,
   empty,
@@ -31,6 +32,8 @@ export function ShopList({
   lead?: string;
   /** 予約のときにお店に伝えること(苦手なもの・お酒を飲まない人の数) */
   notice?: string | null;
+  /** 何に合わせて選んだか(人数・予算・場所など)。チップで並べる */
+  basis?: string[];
   id?: string;
   /** 説明の下に置くもの(絞り込みのボタンなど) */
   children?: React.ReactNode;
@@ -46,8 +49,18 @@ export function ShopList({
     <section id={id} className="mt-4 mx-4 rounded-3xl border panel px-4 py-6">
       <h2 className="text-lg font-black">{heading}</h2>
       <p className="mt-1 text-sm text-muted">
-        {lead ?? (otherArea ? "その場所には合うお店がなかったので、近くのエリアから出しています" : "予算と場所と人数に合うお店を選びました")}
+        {lead ?? (otherArea ? "その場所には合うお店がなかったので、近くのエリアから出しています" : "みんなの答えから、自動で選びました")}
       </p>
+      {basis && basis.length > 0 && (
+        <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="おすすめの条件">
+          {basis.map((b) => (
+            <li key={b} className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-1 text-xs font-bold text-accent ring-1 ring-accent/30">
+              <Check className="size-3" aria-hidden />
+              {b}
+            </li>
+          ))}
+        </ul>
+      )}
       {notice && (
         <p className="mt-3 rounded-xl border border-[#ff9da3]/40 px-3 py-2 text-xs font-bold text-[#ffb3b8]">
           予約のときに伝えること: {notice}

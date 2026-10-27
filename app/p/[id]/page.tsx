@@ -50,6 +50,7 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
           otherArea={otherArea}
           chosenId={party.decision?.shopId}
           notice={dietNotice(summary.diet)}
+          basis={view.basis}
         />
         {/* お店まで決まったら、二次会のお店も出す */}
         {party.decision && (

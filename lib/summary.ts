@@ -1,5 +1,5 @@
 import { summarizeDiet, type DietSummary } from "./diet";
-import { AREAS, FIRST_PARTY_MINUTES, type AreaKey } from "./sendai";
+import { AREAS, FIRST_PARTY_MINUTES, GENRES, type AreaKey, type GenreKey } from "./sendai";
 
 // みんなの回答から、日・時刻・予算・場所・残れる人を決める。純粋関数
 
@@ -22,6 +22,8 @@ export type Answer = {
   avoids?: string[];
   /** お酒を飲むか。前の答えにはないので、ないときは飲むとみなす */
   drinks?: boolean;
+  /** 食べたいもの(lib/sendai.ts の GENRES の key)。お店のおすすめに使う */
+  likes?: string[];
   /** タバコを吸うか(社会人の会だけで聞く)。人数だけを出し、誰かは出さない */
   smokes?: boolean;
   /** 選択肢にない苦手なもの(自由に書く)。名前は付けずに出す */
@@ -53,6 +55,8 @@ export type Summary = {
   budget: number | null;
   area: AreaKey | null;
   areaVotes: { key: AreaKey; votes: number }[];
+  /** 行く人の食べたいもの(多い順) */
+  likes: { key: GenreKey; label: string; votes: number }[];
 };
 
 export function rankDates(dates: string[], answers: Answer[]): DateRank[] {
@@ -109,5 +113,8 @@ export function summarize(dates: string[], answers: Answer[], fixedDate?: string
     budget: going.length > 0 ? Math.min(...going.map((a) => a.budget)) : null,
     area: topArea?.key ?? null,
     areaVotes: areaVotes.sort((x, y) => y.votes - x.votes),
+    likes: GENRES.map((g) => ({ key: g.key, label: g.label, votes: going.filter((a) => a.likes?.includes(g.key)).length }))
+      .filter((g) => g.votes > 0)
+      .sort((x, y) => y.votes - x.votes),
   };
 }

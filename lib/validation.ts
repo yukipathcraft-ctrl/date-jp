@@ -1,6 +1,6 @@
 import { isAudience, type Audience } from "./audience";
 import { isAvoidKey } from "./diet";
-import { isAnswerBudget, isArrival, isAreaKey, isStay, type AreaKey } from "./sendai";
+import { isAnswerBudget, isArrival, isAreaKey, isGenreKey, isStay, type AreaKey } from "./sendai";
 import type { Answer, DateAnswer } from "./summary";
 
 type Result<T> = { ok: true; value: T } | { ok: false; error: string };
@@ -67,6 +67,7 @@ export function parseAnswer(input: Record<string, unknown>, partyDates: string[]
       avoids: Array.isArray(input.avoids) ? [...new Set(input.avoids.filter(isAvoidKey))] : [],
       drinks: input.drinks !== false,
       ...(input.smokes === true ? { smokes: true } : {}),
+      likes: Array.isArray(input.likes) ? [...new Set(input.likes.filter(isGenreKey))] : [],
       ...(avoidNote ? { avoidNote } : {}),
     },
   };
