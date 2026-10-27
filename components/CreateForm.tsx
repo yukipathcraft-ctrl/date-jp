@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { createParty } from "@/app/actions";
 import { AUDIENCES, loadAudience, type Audience } from "@/lib/audience";
+import { answeredBefore } from "@/lib/invite";
 import { rememberParty } from "@/lib/myParties";
 import { clock, dateLabel, upcomingDates } from "@/lib/sendai";
 import { MAX_DATES } from "@/lib/validation";
@@ -56,7 +57,8 @@ export function CreateForm() {
   function submit() {
     setError(null);
     start(async () => {
-      const result = await createParty({ title, audience, dates, start: startAt });
+      // ほかの会で答えたことがある人なら、招待から幹事になった会として数える
+      const result = await createParty({ title, audience, dates, start: startAt, via: answeredBefore() ? "guest" : undefined });
       if (!result.ok) {
         setError(result.error);
         return;

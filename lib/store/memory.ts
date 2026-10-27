@@ -1,9 +1,10 @@
 import { countAds, countShops } from "./stats";
 import type { AdEventKind, Collection, Party, Stats, StoredAnswer, Store } from "./types";
+import type { Via } from "../invite";
 
 // 開発用の仮DB。再起動で消える。本番では使わない
 type Db = {
-  parties: Map<string, Party & { createdAt: number }>;
+  parties: Map<string, Party & { createdAt: number; via?: Via }>;
   answers: Map<string, (StoredAnswer & { createdAt: number })[]>;
   clicks: { partyId: string | null; shopId: string; at: number }[];
   ads?: { sponsorId: string; kind: AdEventKind; at: number }[];
@@ -23,8 +24,9 @@ export const memoryStore: Store = {
   async getParty(id) {
     const p = db.parties.get(id);
     if (!p) return null;
-    const party: Party & { createdAt?: number } = { ...structuredClone(p), start: p.start ?? null };
+    const party: Party & { createdAt?: number; via?: Via } = { ...structuredClone(p), start: p.start ?? null };
     delete party.createdAt;
+    delete party.via;
     return party;
   },
   async listAnswers(partyId) {
@@ -62,6 +64,7 @@ export const memoryStore: Store = {
       topShops: countShops(clicks.map((c) => c.shopId)),
       totalParties: db.parties.size,
       totalClicks: db.clicks.length,
+      fromGuests: parties.filter((p) => p.via === "guest").length,
     } satisfies Stats;
   },
   async logAdEvent(sponsorId, kind) {

@@ -55,6 +55,13 @@ export default async function StatsPage(props: PageProps<"/stats">) {
     { label: "日にちまで決まった会", value: stats.decided, note: stats.parties > 0 ? `作られた会の${Math.round((stats.decided / stats.parties) * 100)}%` : "まだありません" },
     { label: "集まった回答", value: stats.answers, note: stats.parties > 0 ? `1回の会に平均${(stats.answers / stats.parties).toFixed(1)}人` : "まだありません" },
     { label: "お店が押された数", value: stats.clicks, note: `これまでに${stats.totalClicks}回` },
+    // 招待から幹事が生まれた数。これが増えていれば、使われるたびに広がっている
+    {
+      label: "答えた人が作った会",
+      value: stats.fromGuests,
+      note: stats.parties > 0 ? `作られた会の${Math.round((stats.fromGuests / stats.parties) * 100)}%` : "まだありません",
+      wide: true,
+    },
   ];
 
   return (
@@ -66,7 +73,7 @@ export default async function StatsPage(props: PageProps<"/stats">) {
 
         <div className="mt-5 grid grid-cols-2 gap-3">
           {tiles.map((t) => (
-            <div key={t.label} className="rounded-3xl border panel px-4 py-4">
+            <div key={t.label} className={`rounded-3xl border panel px-4 py-4 ${"wide" in t && t.wide ? "col-span-2" : ""}`}>
               <p className="text-xs font-bold text-muted">{t.label}</p>
               <p className="mt-1 text-3xl font-black tabular-nums">{t.value.toLocaleString("ja-JP")}</p>
               <p className="mt-0.5 text-[11px] text-muted">{t.note}</p>

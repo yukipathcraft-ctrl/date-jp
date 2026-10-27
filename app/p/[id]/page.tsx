@@ -11,6 +11,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SummaryView } from "@/components/SummaryView";
 import { getStore } from "@/lib/store";
 import { dietNotice } from "@/lib/diet";
+import { monthInJapan, nextOccasion } from "@/lib/invite";
 import { clock } from "@/lib/sendai";
 import { loadParty } from "@/lib/view";
 import { PageMotion } from "@/components/PageMotion";
@@ -19,7 +20,7 @@ export async function generateMetadata(props: PageProps<"/p/[id]">): Promise<Met
   const { id } = await props.params;
   const party = await getStore().getParty(id);
   if (!party) return { title: "飲み会が見つかりません" };
-  const description = "行ける日・予算・何時まで残れるかを30秒で答えてください";
+  const description = "行ける日と予算を30秒で答えてください";
   return { title: party.title, description, openGraph: { title: party.title, description } };
 }
 
@@ -29,6 +30,8 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
   const view = await loadParty(id);
   if (!view) notFound();
   const { party, summary, shops, otherArea } = view;
+  // 答えた人を次の幹事に誘うときの、その時期の会の呼び方(忘年会・新歓など)
+  const occasion = nextOccasion(monthInJapan(new Date()), party.audience);
 
   return (
     <PageMotion>
@@ -40,7 +43,7 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
         </div>
         {party.decision && <DecisionCard decision={party.decision} />}
         <div className={party.decision ? "mt-4" : ""}>
-          <AnswerPanel partyId={party.id} dates={party.dates} audience={party.audience} start={party.start} />
+          <AnswerPanel partyId={party.id} dates={party.dates} audience={party.audience} start={party.start} occasion={occasion} />
         </div>
         <div className="mt-4">
           <SummaryView summary={summary} />
@@ -66,7 +69,7 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
         )}
         {/* 答えた人を、次の会の幹事にする */}
         <div className="mx-4 mt-4">
-          <NextHost />
+          <NextHost occasion={occasion} />
         </div>
       </div>
     </PageMotion>

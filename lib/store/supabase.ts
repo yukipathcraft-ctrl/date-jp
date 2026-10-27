@@ -25,6 +25,7 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
           dates: party.dates,
           admin_hash: party.adminHash,
           start_minutes: party.start,
+          via: party.via,
         }),
       );
     },
@@ -74,16 +75,17 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
         return r.count ?? 0;
       };
       const head = { count: "exact" as const, head: true };
-      const [parties, decided, answers, totalParties, totalClicks, clickRows] = await Promise.all([
+      const [parties, decided, answers, totalParties, totalClicks, clickRows, fromGuests] = await Promise.all([
         count(db.from("nomi_parties").select("id", head).gte("created_at", at)),
         count(db.from("nomi_parties").select("id", head).gte("created_at", at).not("decision", "is", null)),
         count(db.from("nomi_answers").select("id", head).gte("created_at", at)),
         count(db.from("nomi_parties").select("id", head)),
         count(db.from("nomi_shop_clicks").select("id", head)),
         db.from("nomi_shop_clicks").select("shop_id").gte("created_at", at).limit(10000),
+        count(db.from("nomi_parties").select("id", head).gte("created_at", at).eq("via", "guest")),
       ]);
       const ids = check<{ shop_id: string }[]>(clickRows).map((r) => r.shop_id);
-      return { parties, decided, answers, clicks: ids.length, topShops: countShops(ids), totalParties, totalClicks };
+      return { parties, decided, answers, clicks: ids.length, topShops: countShops(ids), totalParties, totalClicks, fromGuests };
     },
     async logAdEvent(sponsorId, kind) {
       check(await db.from("nomi_ad_events").insert({ sponsor_id: sponsorId, kind }));

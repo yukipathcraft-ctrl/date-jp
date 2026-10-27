@@ -1,6 +1,7 @@
 "use client";
 
-import { CalendarDays, Check, Cigarette, Clock, Heart, MapPin, MessageSquareText, Moon, Pencil, UserRound, UtensilsCrossed, Wallet, Wine } from "lucide-react";
+import { ArrowRight, CalendarDays, Check, Cigarette, Clock, Heart, MapPin, MessageSquareText, Moon, Pencil, UserRound, UtensilsCrossed, Wallet, Wine } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { getMyAnswer, saveAnswer } from "@/app/actions";
@@ -113,7 +114,20 @@ function TimeChoices({
 }
 
 /** start = 幹事が決めた開始時刻(分)。あれば「何時から来られる?」は聞かない(前の会は null) */
-export function AnswerPanel({ partyId, dates, audience, start: partyStart }: { partyId: string; dates: string[]; audience: Audience; start: number | null }) {
+/** occasion = 答えたあとに次の幹事に誘うときの、その時期の会の呼び方(忘年会など) */
+export function AnswerPanel({
+  partyId,
+  dates,
+  audience,
+  start: partyStart,
+  occasion,
+}: {
+  partyId: string;
+  dates: string[];
+  audience: Audience;
+  start: number | null;
+  occasion: string;
+}) {
   const router = useRouter();
   const [mine, setMine] = useState<Mine | null>(null);
   const [editing, setEditing] = useState(false);
@@ -182,6 +196,16 @@ export function AnswerPanel({ partyId, dates, audience, start: partyStart }: { p
           <Pencil className="size-4" aria-hidden />
           {pending ? "読み込み中…" : "回答を直す"}
         </button>
+        {/* 答えた直後がいちばん目に入るので、ここで次の幹事に誘う */}
+        {saved && (
+          <Link href="/" className="mt-3 flex items-center gap-2 rounded-2xl bg-white/5 px-3 py-3 text-sm ring-1 ring-white/10 transition-colors hover:bg-white/10">
+            <span className="min-w-0 flex-1">
+              <span className="font-bold">{occasion}の幹事になったら</span>
+              <span className="text-muted">、Dateなら3分で決まります</span>
+            </span>
+            <ArrowRight className="size-4 shrink-0 text-accent" aria-hidden />
+          </Link>
+        )}
       </section>
     );
   }

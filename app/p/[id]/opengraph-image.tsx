@@ -23,13 +23,16 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       eyebrow: "決まりました",
       title: party.title,
       lines: [`${dateLabel(d.date)} ${clock(d.start)}から`, ...(d.shopName ? [d.shopName] : [])],
-      chips: ["詳しくはこちら"],
+      chips: ["詳しくはこちら", "Dateで決めました"],
     });
   }
   return ogImage({
     eyebrow: "日にちとお店を決めます",
     title: party.title,
-    lines: ["行ける日・予算・何時まで残れるかを、30秒で答えてください"],
+    lines: [
+      ...(party.start !== null ? [`${clock(party.start)}から始めます`] : []),
+      "行ける日と予算を、30秒で答えてください",
+    ],
     chips: [`候補の日 ${party.dates.length}日`, "答える"],
   });
 }

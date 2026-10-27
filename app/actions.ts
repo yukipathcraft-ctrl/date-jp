@@ -14,13 +14,14 @@ import { parseAnswer, parseParty, type AnswerInput } from "@/lib/validation";
 
 type Fail = { ok: false; error: string };
 
-export async function createParty(input: { title: string; audience: string; dates: string[]; start: number }): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
+/** via = "guest" なら、ほかの会で答えたことがある人が作った(招待から幹事が生まれた数を数える) */
+export async function createParty(input: { title: string; audience: string; dates: string[]; start: number; via?: string }): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
   const parsed = parseParty(input);
   if (!parsed.ok) return parsed;
   const id = generateGroupId();
   const adminToken = generateToken();
   try {
-    await getStore().createParty({ id, ...parsed.value, adminHash: hashToken(adminToken) });
+    await getStore().createParty({ id, ...parsed.value, adminHash: hashToken(adminToken), via: input.via === "guest" ? "guest" : null });
   } catch (e) {
     console.error(e);
     return { ok: false, error: "作れませんでした。時間をおいてもう一度お試しください" };

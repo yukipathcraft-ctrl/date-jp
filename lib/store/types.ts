@@ -1,4 +1,5 @@
 import type { Audience } from "../audience";
+import type { Via } from "../invite";
 import type { Answer } from "../summary";
 
 export type Decision = { date: string; start: number; shopId: string | null; shopName: string | null };
@@ -31,6 +32,8 @@ export type Stats = {
   /** これまでの合計 */
   totalParties: number;
   totalClicks: number;
+  /** since より後に作られた会のうち、ほかの会で答えたことがある人が作った会 */
+  fromGuests: number;
 };
 
 /** 集金のページに出す1人ぶん。金額はサーバーで計算し直したもの */
@@ -64,7 +67,8 @@ export type AdEventKind = "view" | "click";
 export type AdStat = { sponsorId: string; views: number; clicks: number };
 
 export interface Store {
-  createParty(party: Omit<Party, "decision">): Promise<void>;
+  /** via = どこから作られたか(答えたことがある人が作ったら guest) */
+  createParty(party: Omit<Party, "decision"> & { via: Via }): Promise<void>;
   getParty(id: string): Promise<Party | null>;
   listAnswers(partyId: string): Promise<StoredAnswer[]>;
   /** id が同じなら上書き。名前が同じ別の人がいれば false */
