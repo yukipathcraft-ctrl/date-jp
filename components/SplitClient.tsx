@@ -1,12 +1,13 @@
 "use client";
 
-import { Check, Crown, ExternalLink, NotebookPen, PencilLine, Plus, RotateCcw, Wallet, X } from "lucide-react";
+import { Check, Crown, ExternalLink, NotebookPen, PencilLine, Plus, RotateCcw, Users, Wallet, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { startCollection } from "@/app/actions";
+import { partyAttendees, partyStatuses, startCollection } from "@/app/actions";
 import { loadAudience, type Audience } from "@/lib/audience";
-import { yen } from "@/lib/sendai";
+import { loadMyParties, type MyParty } from "@/lib/myParties";
+import { dateLabel, yen } from "@/lib/sendai";
 import { NextHost } from "./NextHost";
 import { SendButtons, useCanShare } from "./SendButtons";
 import { ROUND_UNITS, WEIGHTS, splitBill, tenthsFromInput, type Weight } from "@/lib/split";
@@ -87,6 +88,40 @@ export function SplitClient() {
   const [collecting, startCollecting] = useTransition();
   const router = useRouter();
   const canShare = useCanShare();
+  // この端末で作った、決まった会。押すと行く人の名前をそのまま読み込む
+  const [decidedParties, setDecidedParties] = useState<{ party: MyParty; date: string }[]>([]);
+  const [importing, startImporting] = useTransition();
+
+  useEffect(() => {
+    const mine = loadMyParties();
+    if (mine.length === 0) return;
+    partyStatuses(mine.map((p) => p.id))
+      .then((st) =>
+        setDecidedParties(
+          mine
+            .filter((p) => st[p.id]?.decision)
+            .map((p) => ({ party: p, date: st[p.id].decision!.date }))
+            .sort((a, b) => b.date.localeCompare(a.date))
+            .slice(0, 5),
+        ),
+      )
+      .catch(() => {});
+  }, []);
+
+  function importParty(p: MyParty) {
+    if (people.some((x) => x.name.trim()) && !window.confirm(`いまの名前を消して、「${p.title}」の行く人を読み込みますか?`)) return;
+    startImporting(async () => {
+      const r = await partyAttendees(p.id, p.token);
+      if (!r || r.attendees.length === 0) {
+        window.alert("この会の行く人を読み込めませんでした");
+        return;
+      }
+      setTitle(`${r.title} ${dateLabel(r.date).split("(")[0]}`.slice(0, 30));
+      setPeople(r.attendees.slice(0, 30).map((a) => person(a.soft ? "soft" : "normal", a.name.slice(0, 20))));
+      setOrganizer(0);
+      setCollection(null);
+    });
+  }
 
   useEffect(() => {
     const a = loadAudience() ?? "student";
@@ -203,6 +238,30 @@ export function SplitClient() {
 
   return (
     <>
+      {/* 決まった会があれば、行く人の名前とお酒を飲まない人をそのまま読み込める */}
+      {decidedParties.length > 0 && (
+        <section className="mx-4 mb-3">
+          <p className="mb-2 px-1 text-[10px] font-black tracking-[0.2em] text-stone-400">決まった会から名前を読み込む</p>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {decidedParties.map(({ party: p, date }) => (
+              <button
+                key={p.id}
+                type="button"
+                disabled={importing}
+                onClick={() => importParty(p)}
+                className="flex min-h-11 shrink-0 items-center gap-2 rounded-2xl bg-surface px-3.5 py-2 text-left ring-1 ring-white/12 transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
+              >
+                <Users className="size-4 shrink-0 text-accent" aria-hidden />
+                <span>
+                  <span className="block max-w-[10rem] truncate text-[13px] font-black">{p.title}</span>
+                  <span className="block text-[10px] text-white/40">{dateLabel(date)}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* 何の会計かのメモ。催促の文にも入る */}
       <label className="mx-4 mb-3 flex items-center gap-3 rounded-3xl border panel px-5 py-3">
         <NotebookPen className="size-5 shrink-0 text-accent" aria-hidden />

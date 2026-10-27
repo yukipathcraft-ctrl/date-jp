@@ -146,7 +146,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
               try {
                 sessionStorage.setItem(SPLIT_NAMES_KEY, JSON.stringify(attendees));
               } catch {}
-              router.push("/split");
+              router.push(`/split?from=${partyId}`);
             }}
             className={`${BUTTON_SUB} w-full gap-2`}
           >

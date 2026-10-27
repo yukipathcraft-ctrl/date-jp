@@ -263,3 +263,18 @@ export async function partyStatuses(ids: string[]): Promise<Record<string, Party
   );
   return Object.fromEntries(rows.filter((r) => r !== null));
 }
+
+/**
+ * 会計に、決まった会の行く人を読み込む。幹事の鍵(この端末に残っているもの)で確かめる。
+ * 名前と、お酒を飲まないかだけを返す
+ */
+export async function partyAttendees(
+  partyId: string,
+  adminToken: string,
+): Promise<{ title: string; date: string; attendees: { name: string; soft: boolean }[] } | null> {
+  const store = getStore();
+  const party = typeof partyId === "string" ? await store.getParty(partyId) : null;
+  if (!party?.decision || !verifyToken(adminToken, party.adminHash)) return null;
+  const summary = summarize(party.dates, await store.listAnswers(party.id), party.decision.date);
+  return { title: party.title, date: party.decision.date, attendees: summary.attendees.map((a) => ({ name: a.name, soft: a.soft })) };
+}
