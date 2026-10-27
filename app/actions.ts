@@ -14,7 +14,7 @@ import { parseAnswer, parseParty, type AnswerInput } from "@/lib/validation";
 
 type Fail = { ok: false; error: string };
 
-export async function createParty(input: { title: string; audience: string; dates: string[] }): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
+export async function createParty(input: { title: string; audience: string; dates: string[]; start: number }): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
   const parsed = parseParty(input);
   if (!parsed.ok) return parsed;
   const id = generateGroupId();
@@ -36,7 +36,7 @@ export async function saveAnswer(
   const store = getStore();
   const party = await store.getParty(partyId);
   if (!party) return { ok: false, error: "飲み会が見つかりません" };
-  const parsed = parseAnswer(input, party.dates);
+  const parsed = parseAnswer(input, party.dates, party.start);
   if (!parsed.ok) return parsed;
 
   let answerId = crypto.randomUUID();

@@ -6,7 +6,7 @@ import { useEffect, useState, useTransition } from "react";
 import { createParty } from "@/app/actions";
 import { AUDIENCES, loadAudience, type Audience } from "@/lib/audience";
 import { rememberParty } from "@/lib/myParties";
-import { dateLabel, upcomingDates, weekdayOf } from "@/lib/sendai";
+import { clock, dateLabel, upcomingDates, weekdayOf } from "@/lib/sendai";
 import { MAX_DATES } from "@/lib/validation";
 import { DateCalendar } from "./DateCalendar";
 import { Required } from "./Required";
@@ -36,6 +36,8 @@ export function CreateForm() {
   const [title, setTitle] = useState("");
   const [dates, setDates] = useState<string[]>([]);
   const [audience, setAudience] = useState<Audience>("student");
+  // 何時から始めるか(分)。幹事が決め、参加者には聞かない
+  const [startAt, setStartAt] = useState(1140);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   // 今日から24日ぶん(4列のタイルが6段ちょうど埋まる)。日付はブラウザで開いたときに作る
@@ -55,7 +57,7 @@ export function CreateForm() {
   function submit() {
     setError(null);
     start(async () => {
-      const result = await createParty({ title, audience, dates });
+      const result = await createParty({ title, audience, dates, start: startAt });
       if (!result.ok) {
         setError(result.error);
         return;
@@ -82,6 +84,26 @@ export function CreateForm() {
             maxLength={40}
             aria-label="飲み会の名前"
           />
+        </div>
+
+        <div className="mt-5 border-t border-white/8 pt-5">
+          <FieldHead title="何時から始める?" sub="みんなには聞きません" />
+          <div className="mt-3 grid grid-cols-3 gap-1.5" role="group" aria-label="何時から始めるか">
+            {AUDIENCES[audience].arrivals.map((m) => (
+              <button
+                key={m}
+                type="button"
+                aria-pressed={startAt === m}
+                onClick={() => setStartAt(m)}
+                className={`flex min-h-12 items-center justify-center gap-1 rounded-xl text-sm font-black tabular-nums transition active:scale-95 ${
+                  startAt === m ? "bg-accent text-accent-text" : "bg-white/6 text-white ring-1 ring-white/10 hover:bg-white/10"
+                }`}
+              >
+                {startAt === m && <Check className="size-3.5" aria-hidden />}
+                {clock(m)}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="mt-5 border-t border-white/8 pt-5">

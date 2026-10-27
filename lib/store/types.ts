@@ -10,6 +10,8 @@ export type Party = {
   dates: string[];
   adminHash: string;
   decision: Decision | null;
+  /** 幹事が決めた開始時刻(分)。null は前の会で、参加者が何時から来られるかを答える */
+  start: number | null;
 };
 
 export type StoredAnswer = Answer & { tokenHash: string };

@@ -19,8 +19,9 @@ export function teamsShareUrl(text: string): string {
 // LINE で送る文。友だちに自分で打つような短い文にする。
 // アプリの宣伝の一言は付けない(URL を貼ると Date のカードが出るので、それで伝わる)
 
-export function inviteText(title: string, url: string): string {
-  return [`「${title}」の日程調整です`, "行ける日を入れてください", url].join("\n");
+/** start = 幹事が決めた開始時刻(分)。あれば「19:00〜」と添える */
+export function inviteText(title: string, url: string, start: number | null = null): string {
+  return [`「${title}」の日程調整です${start !== null ? `(${clock(start)}〜)` : ""}`, "行ける日を入れてください", url].join("\n");
 }
 
 /**

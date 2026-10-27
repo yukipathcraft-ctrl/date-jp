@@ -112,7 +112,8 @@ function TimeChoices({
   );
 }
 
-export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dates: string[]; audience: Audience }) {
+/** start = 幹事が決めた開始時刻(分)。あれば「何時から来られる?」は聞かない(前の会は null) */
+export function AnswerPanel({ partyId, dates, audience, start: partyStart }: { partyId: string; dates: string[]; audience: Audience; start: number | null }) {
   const router = useRouter();
   const [mine, setMine] = useState<Mine | null>(null);
   const [editing, setEditing] = useState(false);
@@ -120,7 +121,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
   const [form, setForm] = useState<AnswerInput>({
     name: "",
     dates: Object.fromEntries(dates.map((d) => [d, "ok"])),
-    arrival: 0,
+    arrival: partyStart ?? 0,
     stay: 0,
     budget: 0,
     areas: [],
@@ -206,7 +207,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
   const missing =
     form.name.trim() === ""
       ? "名前を入れてください"
-      : form.arrival === 0
+      : partyStart === null && form.arrival === 0
         ? "何時から来られるかを選んでください"
         : form.stay === 0
           ? "いつまで残れるかを選んでください"
@@ -275,6 +276,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
           </ul>
         </fieldset>
 
+        {partyStart === null && (
         <fieldset className="border-b border-border px-5 py-5">
           <legend className="sr-only">何時から来られる?</legend>
           <p className={LABEL} aria-hidden>
@@ -291,6 +293,7 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
             ))}
           </div>
         </fieldset>
+        )}
 
         <fieldset className="border-b border-border px-5 py-5">
           <legend className="sr-only">いつまで残れる?</legend>

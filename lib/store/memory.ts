@@ -23,7 +23,7 @@ export const memoryStore: Store = {
   async getParty(id) {
     const p = db.parties.get(id);
     if (!p) return null;
-    const party: Party & { createdAt?: number } = structuredClone(p);
+    const party: Party & { createdAt?: number } = { ...structuredClone(p), start: p.start ?? null };
     delete party.createdAt;
     return party;
   },

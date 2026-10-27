@@ -24,14 +24,15 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
           audience: party.audience,
           dates: party.dates,
           admin_hash: party.adminHash,
+          start_minutes: party.start,
         }),
       );
     },
     async getParty(id) {
       const row = check<
-        { id: string; title: string; audience: string; dates: string[]; admin_hash: string; decision: Decision | null } | null
+        { id: string; title: string; audience: string; dates: string[]; admin_hash: string; decision: Decision | null; start_minutes: number | null } | null
       >(
-        await db.from("nomi_parties").select("id, title, audience, dates, admin_hash, decision").eq("id", id).maybeSingle(),
+        await db.from("nomi_parties").select("id, title, audience, dates, admin_hash, decision, start_minutes").eq("id", id).maybeSingle(),
       );
       return row ? {
             id: row.id,
@@ -40,6 +41,7 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
             dates: row.dates,
             adminHash: row.admin_hash,
             decision: row.decision,
+            start: row.start_minutes ?? null,
           } : null;
     },
     async listAnswers(partyId) {

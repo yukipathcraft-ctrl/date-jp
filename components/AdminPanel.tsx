@@ -28,6 +28,8 @@ type Props = {
   attendees: { name: string; soft: boolean }[];
   /** 社会人の会は、送るボタンを Slack・Teams 向けにする */
   audience: Audience;
+  /** 幹事が決めた開始時刻(分)。招待の文に添える */
+  start: number | null;
 };
 
 /** 枠の見出し。アイコンの丸と、何をする枠かの一言 */
@@ -50,7 +52,7 @@ function BoxHead({ icon, title, note, tone }: { icon: React.ReactNode; title: st
   );
 }
 
-export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees, audience }: Props) {
+export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees, audience, start: partyStart }: Props) {
   const router = useRouter();
   const [origin, setOrigin] = useState("");
   const canShare = useCanShare();
@@ -89,9 +91,9 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           note={audience === "worker" ? "Slack や Teams のチャンネルに貼れば、みんながそこから答えられます" : "グループに送れば、みんながそこから答えられます"}
         />
         <SendButtons
-          line={inviteText(title, guestUrl)}
+          line={inviteText(title, guestUrl, partyStart)}
           mainLabel="共有してみんなに送る"
-          share={{ text: inviteText(title, guestUrl) }}
+          share={{ text: inviteText(title, guestUrl, partyStart) }}
           copy={guestUrl}
           canShare={canShare}
           audience={audience}

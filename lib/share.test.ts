@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { reminderText, teamsShareUrl } from "./share";
+import { inviteText, reminderText, teamsShareUrl } from "./share";
 
 describe("reminderText", () => {
   it("まだの人の名前と金額だけを並べる", () => {
@@ -24,5 +24,11 @@ describe("teamsShareUrl", () => {
     expect(u.origin + u.pathname).toBe("https://teams.microsoft.com/share");
     expect(u.searchParams.get("href")).toBe("https://date-sendai.vercel.app/p/abc");
     expect(u.searchParams.get("msgText")).toBe("「歓迎会」の日程調整です");
+  });
+});
+
+describe("inviteText", () => {
+  it("幹事が決めた開始時刻を添える", () => {
+    expect(inviteText("歓迎会", "https://x", 1140)).toBe("「歓迎会」の日程調整です(19:00〜)\n行ける日を入れてください\nhttps://x");
   });
 });
