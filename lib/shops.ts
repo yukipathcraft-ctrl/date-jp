@@ -18,6 +18,8 @@ export type Shop = {
   budgetLabel: string;
   capacity: number | null;
   features: string[];
+  /** タバコが吸えるか。ok = 吸える、partial = 分煙(吸える席がある)、no = 全面禁煙、null = 分からない */
+  smoking: Smoking;
   photo: string | null;
   /** お店のページ。見本のお店は null */
   url: string | null;
@@ -26,6 +28,11 @@ export type Shop = {
   lng: number | null;
   sample: boolean;
 };
+
+export type Smoking = "ok" | "partial" | "no" | null;
+
+/** タバコが吸えるお店か(分煙も含む) */
+export const smokeFriendly = (s: Shop) => s.smoking === "ok" || s.smoking === "partial";
 
 export type ShopQuery = {
   area: AreaKey;
@@ -37,25 +44,27 @@ export type ShopQuery = {
   genres?: GenreKey[];
   privateRoom?: boolean;
   audience?: Audience;
+  /** only = 吸えるお店だけ、prefer = 吸えるお店を先に出す(タバコを吸う人がいる会) */
+  smoking?: "only" | "prefer";
 };
 
 // 見本のお店。実在しない
 const SAMPLES: Shop[] = [
-  sample("s1", "見本 炉端 あおば", "izakaya", "station", "仙台駅 西口 徒歩3分", 3000, 40, ["飲み放題", "個室"]),
-  sample("s2", "見本 牛たん酒場 ひろせ", "washoku", "station", "仙台駅 徒歩5分", 3800, 30, ["飲み放題"]),
-  sample("s3", "見本 大衆酒場 こくぶん", "izakaya", "kokubuncho", "勾当台公園駅 徒歩4分", 2500, 60, ["飲み放題", "学割"]),
-  sample("s4", "見本 ダイニング 定禅寺", "yoshoku", "kokubuncho", "勾当台公園駅 徒歩6分", 4500, 25, ["個室"]),
-  sample("s5", "見本 串焼き いちばん", "izakaya", "ichibancho", "青葉通一番町駅 徒歩2分", 2800, 35, ["飲み放題"]),
-  sample("s6", "見本 チーズとワイン ひろせ通", "yoshoku", "ichibancho", "広瀬通駅 徒歩3分", 3500, 20, ["飲み放題"]),
-  sample("s7", "見本 学生酒場 かたひら", "izakaya", "katahira", "五橋駅 徒歩3分", 2000, 50, ["飲み放題", "学割", "個室"]),
-  sample("s8", "見本 韓国料理 いつつばし", "yakiniku", "katahira", "五橋駅 徒歩5分", 2800, 30, ["飲み放題", "学割"]),
-  sample("s9", "見本 海鮮居酒屋 ながまち", "izakaya", "nagamachi", "長町駅 徒歩2分", 3200, 45, ["飲み放題", "個室"]),
-  sample("s10", "見本 鉄板酒場 いずみ", "izakaya", "izumi", "泉中央駅 徒歩3分", 3000, 40, ["飲み放題"]),
-  sample("s11", "見本 割烹 一番町", "washoku", "ichibancho", "青葉通一番町駅 徒歩4分", 6500, 24, ["個室"]),
-  sample("s12", "見本 中華酒家 えきまえ", "chuka", "station", "仙台駅 徒歩4分", 4000, 40, ["飲み放題", "個室"]),
-  sample("s13", "見本 焼肉 こくぶん", "yakiniku", "kokubuncho", "勾当台公園駅 徒歩5分", 5500, 30, ["飲み放題", "個室"]),
-  sample("s14", "見本 和食ダイニング 定禅寺", "washoku", "kokubuncho", "勾当台公園駅 徒歩3分", 7500, 20, ["個室"]),
-  sample("s15", "見本 餃子酒場 かたひら", "chuka", "katahira", "五橋駅 徒歩4分", 2200, 30, ["飲み放題", "学割"]),
+  sample("s1", "見本 炉端 あおば", "izakaya", "station", "仙台駅 西口 徒歩3分", 3000, 40, ["飲み放題", "個室"], "partial"),
+  sample("s2", "見本 牛たん酒場 ひろせ", "washoku", "station", "仙台駅 徒歩5分", 3800, 30, ["飲み放題"], "no"),
+  sample("s3", "見本 大衆酒場 こくぶん", "izakaya", "kokubuncho", "勾当台公園駅 徒歩4分", 2500, 60, ["飲み放題", "学割"], "ok"),
+  sample("s4", "見本 ダイニング 定禅寺", "yoshoku", "kokubuncho", "勾当台公園駅 徒歩6分", 4500, 25, ["個室"], "no"),
+  sample("s5", "見本 串焼き いちばん", "izakaya", "ichibancho", "青葉通一番町駅 徒歩2分", 2800, 35, ["飲み放題"], "ok"),
+  sample("s6", "見本 チーズとワイン ひろせ通", "yoshoku", "ichibancho", "広瀬通駅 徒歩3分", 3500, 20, ["飲み放題"], "no"),
+  sample("s7", "見本 学生酒場 かたひら", "izakaya", "katahira", "五橋駅 徒歩3分", 2000, 50, ["飲み放題", "学割", "個室"], "partial"),
+  sample("s8", "見本 韓国料理 いつつばし", "yakiniku", "katahira", "五橋駅 徒歩5分", 2800, 30, ["飲み放題", "学割"], "no"),
+  sample("s9", "見本 海鮮居酒屋 ながまち", "izakaya", "nagamachi", "長町駅 徒歩2分", 3200, 45, ["飲み放題", "個室"], "partial"),
+  sample("s10", "見本 鉄板酒場 いずみ", "izakaya", "izumi", "泉中央駅 徒歩3分", 3000, 40, ["飲み放題"], "ok"),
+  sample("s11", "見本 割烹 一番町", "washoku", "ichibancho", "青葉通一番町駅 徒歩4分", 6500, 24, ["個室"], "no"),
+  sample("s12", "見本 中華酒家 えきまえ", "chuka", "station", "仙台駅 徒歩4分", 4000, 40, ["飲み放題", "個室"], "partial"),
+  sample("s13", "見本 焼肉 こくぶん", "yakiniku", "kokubuncho", "勾当台公園駅 徒歩5分", 5500, 30, ["飲み放題", "個室"], "ok"),
+  sample("s14", "見本 和食ダイニング 定禅寺", "washoku", "kokubuncho", "勾当台公園駅 徒歩3分", 7500, 20, ["個室"], "no"),
+  sample("s15", "見本 餃子酒場 かたひら", "chuka", "katahira", "五橋駅 徒歩4分", 2200, 30, ["飲み放題", "学割"], "ok"),
 ];
 
 function sample(
@@ -67,6 +76,7 @@ function sample(
   budget: number,
   capacity: number,
   features: string[],
+  smoking: Smoking,
 ): Shop {
   return {
     id,
@@ -79,6 +89,7 @@ function sample(
     budgetLabel: `${budget.toLocaleString("ja-JP")}円くらい`,
     capacity,
     features,
+    smoking,
     photo: null,
     url: null,
     lat: null,
@@ -97,6 +108,23 @@ function preferScore(s: Shop, audience: Audience | undefined): number {
   return AUDIENCES[audience].prefer.filter((f) => s.features.includes(f)).length;
 }
 
+/** タバコを吸う人がいる会では、吸えるお店を先に出す */
+function smokeScore(s: Shop, q: ShopQuery): number {
+  return q.smoking && smokeFriendly(s) ? 1 : 0;
+}
+
+/**
+ * ホットペッパーの「禁煙・喫煙」の欄(「全面禁煙」「一部禁煙」「禁煙席なし」)を読む。
+ * 一部禁煙は吸える席があるので分煙、禁煙席なしは全席で吸える
+ */
+export function smokingFromText(text: string | undefined): Smoking {
+  const t = (text ?? "").normalize("NFKC");
+  if (t.includes("全面禁煙")) return "no";
+  if (t.includes("一部禁煙") || t.includes("分煙")) return "partial";
+  if (t.includes("禁煙席なし") || t.includes("喫煙可")) return "ok";
+  return null;
+}
+
 /** 条件に合うお店。エリアに合うものがなければ、ほかのエリアから出す */
 export function pickSamples(q: ShopQuery, limit = 3): { shops: Shop[]; otherArea: boolean } {
   const fits = SAMPLES.filter(
@@ -104,8 +132,12 @@ export function pickSamples(q: ShopQuery, limit = 3): { shops: Shop[]; otherArea
       (q.budget === null || s.budget <= q.budget) &&
       (s.capacity ?? 0) >= q.size &&
       (genresOf(q).length === 0 || (s.genreKey !== null && genresOf(q).includes(s.genreKey))) &&
-      (!q.privateRoom || s.features.includes("個室")),
-  ).sort((a, b) => preferScore(b, q.audience) - preferScore(a, q.audience) || b.budget - a.budget);
+      (!q.privateRoom || s.features.includes("個室")) &&
+      (q.smoking !== "only" || smokeFriendly(s)),
+  ).sort(
+    (a, b) =>
+      smokeScore(b, q) - smokeScore(a, q) || preferScore(b, q.audience) - preferScore(a, q.audience) || b.budget - a.budget,
+  );
   const inArea = fits.filter((s) => s.area === q.area);
   if (inArea.length > 0) return { shops: inArea.slice(0, limit), otherArea: false };
   return { shops: fits.slice(0, limit), otherArea: fits.length > 0 };
@@ -134,6 +166,7 @@ type HotpepperShop = {
   capacity?: number | string;
   private_room?: string;
   free_drink?: string;
+  non_smoking?: string;
   lat?: number | string;
   lng?: number | string;
   photo?: { pc?: { l?: string } };
@@ -176,6 +209,7 @@ function fromHotpepper(s: HotpepperShop, area: AreaKey): Shop {
     budgetLabel: s.budget?.average || s.budget?.name || "",
     capacity: Number.isFinite(capacity) && capacity > 0 ? capacity : null,
     features,
+    smoking: smokingFromText(s.non_smoking),
     photo: s.photo?.pc?.l ?? null,
     url: s.urls?.pc ?? null,
     lat: Number.isFinite(Number(s.lat)) ? Number(s.lat) : null,
@@ -211,8 +245,11 @@ export async function searchShops(q: ShopQuery, limit = 3): Promise<{ shops: Sho
       count: "50",
       order: "4", // おすすめ順
     };
+    // タバコの条件は API で選べないので、ここで絞る(吸える人がいる会は、吸えるお店を先に並べ替える)
     const fits = (list: HotpepperShop[]) =>
-      list.map((s) => fromHotpepper(s, q.area)).filter((s) => q.budget === null || s.budget <= q.budget);
+      list
+        .map((s) => fromHotpepper(s, q.area))
+        .filter((s) => (q.budget === null || s.budget <= q.budget) && (q.smoking !== "only" || smokeFriendly(s)));
     // まずはそのエリアの中(500m)だけで探し、足りなければ1kmまで広げる。
     // 国分町と仙台駅前は1kmほどしか離れていないので、最初から広く探すと隣のエリアのお店が混ざる
     let shops = fits(await callHotpepper(key, { ...params, range: "2" }));
@@ -223,6 +260,7 @@ export async function searchShops(q: ShopQuery, limit = 3): Promise<{ shops: Sho
       otherArea = shops.length === 0 && extra.length > 0;
       shops = [...shops, ...extra];
     }
+    shops = shops.map((s, i) => ({ s, i })).sort((a, b) => smokeScore(b.s, q) - smokeScore(a.s, q) || a.i - b.i).map((x) => x.s);
     return { shops: shops.slice(0, limit), otherArea };
   } catch (e) {
     console.error("[shops] ホットペッパーから読めなかったため、見本を出します", e);

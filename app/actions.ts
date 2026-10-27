@@ -102,6 +102,8 @@ export async function findShops(input: {
   genres: string[];
   budget: number | null;
   privateRoom: boolean;
+  /** タバコが吸えるお店だけにする(社会人の画面だけで出す) */
+  smoking?: boolean;
   audience: string;
 }): Promise<{ shops: Shop[]; otherArea: boolean; raisedTo: number | null }> {
   const areas = [...new Set(Array.isArray(input.areas) ? input.areas : [])].filter(isAreaKey);
@@ -116,7 +118,18 @@ export async function findShops(input: {
     const perArea = areas.length === 1 ? 10 : 6;
     const results = await Promise.all(
       areas.map((area) =>
-        searchShops({ area, genres, budget, privateRoom: input.privateRoom === true, size: 2, audience }, perArea),
+        searchShops(
+          {
+            area,
+            genres,
+            budget,
+            privateRoom: input.privateRoom === true,
+            ...(input.smoking === true ? { smoking: "only" as const } : {}),
+            size: 2,
+            audience,
+          },
+          perArea,
+        ),
       ),
     );
     return {

@@ -27,6 +27,8 @@ export async function loadParty(id: string): Promise<(PartyView & { adminHash: s
         budget: summary.budget! >= UNLIMITED_BUDGET ? null : summary.budget!,
         size: summary.attendees.length,
         audience: party.audience,
+        // タバコを吸う人がいれば、吸えるお店を先に出す
+        ...(summary.diet.smokers > 0 ? { smoking: "prefer" as const } : {}),
       }, 10)
     : { shops: [], otherArea: false };
   const { adminHash, ...rest } = party;

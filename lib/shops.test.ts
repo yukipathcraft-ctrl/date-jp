@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { budgetFromRange, budgetFromText, mergeShops, type Shop } from "./shops";
+import { budgetFromRange, budgetFromText, mergeShops, pickSamples, smokeFriendly, smokingFromText, type Shop } from "./shops";
 
 describe("budgetFromRange", () => {
   it("予算の区分名から上限を読む", () => {
@@ -40,5 +40,24 @@ describe("mergeShops", () => {
   });
   it("上限で切る", () => {
     expect(mergeShops([[shop("a1"), shop("a2")], [shop("b1")]], 2).map((s) => s.id)).toEqual(["a1", "b1"]);
+  });
+});
+
+describe("smokingFromText", () => {
+  it("ホットペッパーの禁煙・喫煙の欄を読む", () => {
+    expect(smokingFromText("全面禁煙")).toBe("no");
+    expect(smokingFromText("一部禁煙")).toBe("partial");
+    expect(smokingFromText("禁煙席なし")).toBe("ok");
+    expect(smokingFromText(undefined)).toBeNull();
+  });
+});
+
+describe("pickSamples のタバコの条件", () => {
+  const q = { area: "station" as const, budget: null, size: 2 };
+  it("only なら吸えるお店だけ", () => {
+    expect(pickSamples({ ...q, smoking: "only" }, 10).shops.every(smokeFriendly)).toBe(true);
+  });
+  it("prefer なら吸えるお店を先に出す", () => {
+    expect(smokeFriendly(pickSamples({ ...q, smoking: "prefer" }, 10).shops[0])).toBe(true);
   });
 });

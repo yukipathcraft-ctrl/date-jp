@@ -1,9 +1,11 @@
 "use client";
 
-import { ChevronDown, ExternalLink, Store } from "lucide-react";
+import { ChevronDown, Cigarette, CigaretteOff, ExternalLink, Store } from "lucide-react";
 import { useState } from "react";
 import type { Shop } from "@/lib/shops";
 import { areaLabel } from "@/lib/sendai";
+
+const SMOKING_LABEL = { ok: "喫煙可", partial: "分煙", no: "全面禁煙" } as const;
 
 // 予算・場所・人数に合うお店。お店のページへは /go を通す(押された数を数える)
 
@@ -79,13 +81,19 @@ export function ShopList({
                   {s.sample ? `${s.genre} ・ ${areaLabel(s.area)} ・ ${s.access}` : `${s.genre} ・ ${s.access}`}
                 </p>
                 <p className="mt-1 text-sm font-bold">{s.budgetLabel}</p>
-                {s.features.length > 0 && (
+                {(s.features.length > 0 || s.smoking) && (
                   <ul className="mt-1 flex flex-wrap gap-1">
                     {s.features.map((f) => (
                       <li key={f} className="rounded-full bg-surface-2 px-2 py-0.5 text-xs">
                         {f}
                       </li>
                     ))}
+                    {s.smoking && (
+                      <li className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-0.5 text-xs">
+                        {s.smoking === "no" ? <CigaretteOff className="size-3" aria-hidden /> : <Cigarette className="size-3" aria-hidden />}
+                        {SMOKING_LABEL[s.smoking]}
+                      </li>
+                    )}
                   </ul>
                 )}
               </div>

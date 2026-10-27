@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, Check, Clock, MapPin, MessageSquareText, Moon, Pencil, UserRound, UtensilsCrossed, Wallet, Wine } from "lucide-react";
+import { CalendarDays, Check, Cigarette, Clock, MapPin, MessageSquareText, Moon, Pencil, UserRound, UtensilsCrossed, Wallet, Wine } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { getMyAnswer, saveAnswer } from "@/app/actions";
@@ -354,6 +354,25 @@ export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dat
             </Choice>
           </div>
           <p className="mt-2 text-xs text-muted">飲まないと答えると、会計で「飲まない」の区分に入ります</p>
+
+          {/* 社会人の会では、喫煙できるお店かどうかが大事なので聞く(人数だけを幹事に見せる) */}
+          {audience === "worker" && (
+            <>
+              <p className={`${LABEL} mt-5`} aria-hidden>
+                <Cigarette className="size-4" />
+                タバコは吸う?
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Choice on={form.smokes === true} onClick={() => set({ smokes: true })}>
+                  吸う
+                </Choice>
+                <Choice on={form.smokes !== true} onClick={() => set({ smokes: false })}>
+                  吸わない
+                </Choice>
+              </div>
+              <p className="mt-2 text-xs text-muted">吸う人がいれば、タバコが吸えるお店を先に出します。誰が吸うかは出しません</p>
+            </>
+          )}
 
           <p className={`${LABEL} mt-5`} aria-hidden>
             <UtensilsCrossed className="size-4" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, DoorClosed, MapPin, SlidersHorizontal, UtensilsCrossed, Wallet } from "lucide-react";
+import { Check, Cigarette, DoorClosed, MapPin, SlidersHorizontal, UtensilsCrossed, Wallet } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { findShops } from "@/app/actions";
 import { AUDIENCES, loadAudience, type Audience } from "@/lib/audience";
@@ -63,6 +63,8 @@ export function ShopSearch() {
   const [genres, setGenres] = useState<GenreKey[]>([]);
   const [budget, setBudget] = useState<number | null>(null);
   const [privateRoom, setPrivateRoom] = useState(false);
+  // 社会人の会は、上司がタバコを吸えるかどうかが大事なので、吸えるお店だけに絞れるようにする
+  const [smoking, setSmoking] = useState(false);
   const [result, setResult] = useState<{ shops: Shop[]; otherArea: boolean; raisedTo: number | null } | null>(null);
   const [pending, start] = useTransition();
 
@@ -78,9 +80,9 @@ export function ShopSearch() {
   useEffect(() => {
     if (!audience) return;
     start(async () => {
-      setResult(await findShops({ areas, genres, budget, privateRoom, audience }));
+      setResult(await findShops({ areas, genres, budget, privateRoom, smoking: audience === "worker" && smoking, audience }));
     });
-  }, [areas, genres, budget, privateRoom, audience]);
+  }, [areas, genres, budget, privateRoom, smoking, audience]);
 
   // 場所は最後の1つを外せない(どこかでは探す)
   const toggleArea = (k: AreaKey) =>
@@ -95,6 +97,7 @@ export function ShopSearch() {
     budget === null ? "予算は決めない" : `${yen(budget)}まで`,
     genres.length > 0 ? genres.map((k) => GENRES.find((g) => g.key === k)!.label).join("・") : null,
     privateRoom ? "個室あり" : null,
+    audience === "worker" && smoking ? "喫煙できる" : null,
   ]
     .filter(Boolean)
     .join(" / ");
@@ -145,7 +148,7 @@ export function ShopSearch() {
           </div>
         </fieldset>
 
-        <div className="px-4 py-4">
+        <div className="space-y-2 px-4 py-4">
           <Option
             on={privateRoom}
             onClick={() => setPrivateRoom(!privateRoom)}
@@ -156,6 +159,18 @@ export function ShopSearch() {
               </span>
             }
           />
+          {audience === "worker" && (
+            <Option
+              on={smoking}
+              onClick={() => setSmoking(!smoking)}
+              title={
+                <span className="inline-flex items-center gap-1.5">
+                  <Cigarette className="size-4" aria-hidden />
+                  タバコが吸えるお店だけにする(分煙も含む)
+                </span>
+              }
+            />
+          )}
         </div>
       </div>
 

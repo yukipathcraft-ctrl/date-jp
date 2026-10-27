@@ -1,4 +1,4 @@
-import { CalendarDays, Clock, MapPin, MessageSquareText, Moon, UtensilsCrossed, Users, Wallet, Wine } from "lucide-react";
+import { CalendarDays, Cigarette, Clock, MapPin, MessageSquareText, Moon, UtensilsCrossed, Users, Wallet, Wine } from "lucide-react";
 import { areaLabel, budgetLabel, clock, dateLabel, stayLabel } from "@/lib/sendai";
 import type { Summary } from "@/lib/summary";
 
@@ -27,7 +27,7 @@ function Notes({ notes }: { notes: Summary["notes"] }) {
 
 /** 行く人の苦手なものと、お酒を飲まない人の数。誰が選んだかは出さない */
 function Diet({ diet }: { diet: Summary["diet"] }) {
-  if (diet.avoids.length === 0 && diet.nonDrinkers === 0 && diet.others.length === 0) return null;
+  if (diet.avoids.length === 0 && diet.nonDrinkers === 0 && diet.smokers === 0 && diet.others.length === 0) return null;
   return (
     <div className="mt-4 rounded-2xl border border-border px-4 py-3">
       <p className="flex items-center gap-2 text-sm font-bold">
@@ -39,6 +39,12 @@ function Diet({ diet }: { diet: Summary["diet"] }) {
           <li className="tier-purple inline-flex items-center gap-1 rounded-full bg-[var(--ts)] px-2.5 py-1 text-xs font-bold text-[var(--tc)]">
             <Wine className="size-3.5" aria-hidden />
             お酒を飲まない人 {diet.nonDrinkers}人
+          </li>
+        )}
+        {diet.smokers > 0 && (
+          <li className="tier-gray inline-flex items-center gap-1 rounded-full bg-[var(--ts)] px-2.5 py-1 text-xs font-bold text-[var(--tc)]">
+            <Cigarette className="size-3.5" aria-hidden />
+            タバコを吸う人 {diet.smokers}人
           </li>
         )}
         {diet.avoids.map((a) => (

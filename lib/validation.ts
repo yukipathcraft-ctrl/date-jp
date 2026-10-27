@@ -66,6 +66,7 @@ export function parseAnswer(input: Record<string, unknown>, partyDates: string[]
       ...(memo ? { memo } : {}),
       avoids: Array.isArray(input.avoids) ? [...new Set(input.avoids.filter(isAvoidKey))] : [],
       drinks: input.drinks !== false,
+      ...(input.smokes === true ? { smokes: true } : {}),
       ...(avoidNote ? { avoidNote } : {}),
     },
   };
