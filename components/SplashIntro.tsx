@@ -19,7 +19,7 @@ function Glass({ side }: { side: "left" | "right" }) {
           <path d="M10 18h40l-4 60a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6z" />
         </clipPath>
       </defs>
-      <rect className="intro-pour" x="6" y="30" width="48" height="60" fill="var(--accent)" clipPath={`url(#intro-glass-${side})`} />
+      <rect className="intro-pour" x="6" y="30" width="48" height="60" fill="var(--match)" clipPath={`url(#intro-glass-${side})`} />
       <path
         d="M10 18h40l-4 60a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6z"
         fill="none"
@@ -56,12 +56,12 @@ export function SplashIntro({ onSkip }: { onSkip: () => void }) {
             <Glass side="right" />
           </span>
           <svg viewBox="0 0 240 120" className="intro-moon absolute w-72" aria-hidden>
-            <path className="intro-moon-path" pathLength="1" d={CRESCENT_PATH} fill="var(--accent)" stroke="var(--accent)" strokeWidth="2" strokeLinejoin="round" />
+            <path className="intro-moon-path" pathLength="1" d={CRESCENT_PATH} fill="var(--match)" stroke="var(--match)" strokeWidth="2" strokeLinejoin="round" />
           </svg>
         </span>
 
         <span className="relative mt-2 flex flex-col items-center">
-          <span aria-hidden className="intro-slash absolute top-0 h-px w-[min(80vw,26rem)] bg-accent" />
+          <span aria-hidden className="intro-slash absolute top-0 h-px w-[min(80vw,26rem)] bg-match" />
           <span className="flex overflow-hidden pt-3" aria-hidden>
             {NAME.split("").map((c, i) => (
               <span

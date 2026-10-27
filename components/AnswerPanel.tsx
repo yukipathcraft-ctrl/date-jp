@@ -463,7 +463,7 @@ export function AnswerPanel({
       </div>
 
       <div className="px-4">
-        <p className={`mt-5 flex items-center justify-center gap-1.5 text-xs font-bold ${missing ? "text-white/60" : "text-white/35"}`}>
+        <p className={`mt-5 flex items-center justify-center gap-1.5 text-xs font-bold ${missing ? "text-muted" : "text-muted"}`}>
           {missing ? (
             <>
               <Required />

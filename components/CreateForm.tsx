@@ -23,11 +23,11 @@ export function saveAdminToken(partyId: string, token: string) {
 function FieldHead({ title, sub }: { title: string; sub: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <p className="flex items-center gap-1.5 text-sm font-bold text-white/50">
+      <p className="flex items-center gap-1.5 text-sm font-bold text-muted">
         {title}
         <Required />
       </p>
-      <p className="text-[11px] font-semibold text-white/35">{sub}</p>
+      <p className="text-[11px] font-semibold text-muted">{sub}</p>
     </div>
   );
 }
@@ -117,11 +117,11 @@ export function CreateForm() {
           )}
           {dates.length > 0 && (
             <div className="mt-3 flex items-center justify-between gap-3">
-              <p className="min-w-0 text-xs text-white/50">選んだ日: {[...dates].sort().map(dateLabel).join("・")}</p>
+              <p className="min-w-0 text-xs text-muted">選んだ日: {[...dates].sort().map(dateLabel).join("・")}</p>
               <button
                 type="button"
                 onClick={() => setDates([])}
-                className="shrink-0 text-xs font-bold text-white/35 underline underline-offset-2 hover:text-white/55"
+                className="shrink-0 text-xs font-bold text-muted underline underline-offset-2 hover:text-muted"
               >
                 すべて外す
               </button>
@@ -131,13 +131,13 @@ export function CreateForm() {
       </section>
 
       {/* 決めるボタンは画面の下に固定する(もとにした KANJI と同じ) */}
-      <div className="sticky bottom-0 -mx-4 bg-gradient-to-t from-black via-black/95 to-transparent px-4 pt-4 pb-6">
+      <div className="sticky bottom-0 -mx-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pt-4 pb-6">
         {error ? (
           <p role="alert" className="mb-2 text-center text-[11px] font-bold text-danger">
             {error}
           </p>
         ) : (
-          <p className="mb-2 text-center text-[11px] text-white/40">
+          <p className="mb-2 text-center text-[11px] text-muted">
             {missing ?? `登録はいらず、${AUDIENCES[audience].label}向けの予算と時間でみんなに聞きます`}
           </p>
         )}

@@ -254,7 +254,7 @@ export function SplitClient() {
                 <Users className="size-4 shrink-0 text-accent" aria-hidden />
                 <span>
                   <span className="block max-w-[10rem] truncate text-[13px] font-black">{p.title}</span>
-                  <span className="block text-[10px] text-white/40">{dateLabel(date)}</span>
+                  <span className="block text-[10px] text-muted">{dateLabel(date)}</span>
                 </span>
               </button>
             ))}
@@ -485,7 +485,7 @@ export function SplitClient() {
             <div className="flex items-baseline justify-between border-t-2 border-text/80 px-5 py-3">
               <span className="text-sm font-bold">合計</span>
               <span className="flex items-center gap-2">
-                <span className="rounded-md px-1.5 py-0.5 text-[11px] font-bold text-[#93e3b2] ring-1 ring-[#93e3b2]/60">✓ 一致</span>
+                <span className="rounded-md px-1.5 py-0.5 text-[11px] font-bold text-[#1f7a4a] ring-1 ring-[#1f7a4a]/50">✓ 一致</span>
                 <span className="text-lg font-black tabular-nums">{yen(totalYen)}</span>
               </span>
             </div>

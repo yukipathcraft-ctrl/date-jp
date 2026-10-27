@@ -27,7 +27,7 @@ export function SponsorCard({ sponsor }: { sponsor: Sponsor }) {
     <section className="mx-4 mt-4" aria-label={`広告: ${sponsor.name}`}>
       <p className="mb-2 flex items-center gap-2 px-1 text-[10px] font-black tracking-[0.2em] text-stone-400">
         {HEADING[sponsor.placement]}
-        <span className="rounded border border-white/20 px-1 py-px text-[9px] tracking-normal text-white/50">広告</span>
+        <span className="rounded border border-white/20 px-1 py-px text-[9px] tracking-normal text-muted">広告</span>
       </p>
       <a
         href={`/ad/${encodeURIComponent(sponsor.id)}`}
@@ -40,7 +40,7 @@ export function SponsorCard({ sponsor }: { sponsor: Sponsor }) {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[14px] font-black tracking-tight">{sponsor.name}</span>
-          <span className="mt-0.5 block text-[11px] leading-snug text-white/50">{sponsor.catch}</span>
+          <span className="mt-0.5 block text-[11px] leading-snug text-muted">{sponsor.catch}</span>
         </span>
         <span className="flex shrink-0 items-center gap-0.5 text-[12px] font-bold text-accent">
           {sponsor.action}

@@ -25,9 +25,9 @@ function HomeRow({ href, icon, title, sub }: { href: string; icon: React.ReactNo
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/6 text-accent">{icon}</span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-black tracking-tight text-white/85">{title}</span>
-        <span className="mt-0.5 block truncate text-[10px] text-white/35">{sub}</span>
+        <span className="mt-0.5 block truncate text-[10px] text-muted">{sub}</span>
       </span>
-      <ChevronRight className="size-4 shrink-0 text-white/30" aria-hidden />
+      <ChevronRight className="size-4 shrink-0 text-muted" aria-hidden />
     </Link>
   );
 }
@@ -42,7 +42,7 @@ function ToolTile({ href, icon, title, sub }: { href: string; icon: React.ReactN
       <span className="grid size-12 place-items-center rounded-xl border border-accent/40 text-accent">{icon}</span>
       <span>
         <span className="block text-[13px] font-black tracking-tight text-white/85">{title}</span>
-        <span className="mt-0.5 block text-[10px] text-white/35">{sub}</span>
+        <span className="mt-0.5 block text-[10px] text-muted">{sub}</span>
       </span>
     </Link>
   );
@@ -84,7 +84,7 @@ function PartyGroup({
         <button
           type="button"
           onClick={() => setAll(true)}
-          className="mt-2 min-h-11 w-full text-xs font-bold text-white/40 underline underline-offset-2 hover:text-white/60"
+          className="mt-2 min-h-11 w-full text-xs font-bold text-muted underline underline-offset-2 hover:text-muted"
         >
           ほかの{items.length - 3}件も見る
         </button>
@@ -103,11 +103,11 @@ function NameStory() {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-[13px] font-black tracking-tight text-white/85">「Date」という名前について</span>
-          <span className="mt-0.5 block text-[10px] text-white/35">伊達(だて)と英語の date をかけています</span>
+          <span className="mt-0.5 block text-[10px] text-muted">伊達(だて)と英語の date をかけています</span>
         </span>
-        <ChevronRight className="size-4 shrink-0 text-white/30 transition-transform group-open:rotate-90" aria-hidden />
+        <ChevronRight className="size-4 shrink-0 text-muted transition-transform group-open:rotate-90" aria-hidden />
       </summary>
-      <div className="pb-4 pl-12 text-[13px] leading-relaxed text-white/50">
+      <div className="pb-4 pl-12 text-[13px] leading-relaxed text-muted">
         <p>
           「Date(デート)」は、仙台の街を築いた<span className="font-bold text-white">伊達</span>政宗の「伊達(だて)」と、英語の
           <span className="font-bold text-white">date</span>をかけた名前です
@@ -218,7 +218,7 @@ export function HomeClient() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-xl font-black tracking-tight">{AUDIENCES[a].label}</span>
-                    <span className="block text-[11px] text-white/40">{AUDIENCES[a].note}</span>
+                    <span className="block text-[11px] text-muted">{AUDIENCES[a].note}</span>
                   </span>
                   <ChevronRight className="size-5 text-muted" aria-hidden />
                 </button>
@@ -283,14 +283,14 @@ export function HomeClient() {
                   <span className="grid size-11 place-items-center rounded-xl border border-white/8 bg-white/4 text-accent/80">
                     <Icon className="size-5" aria-hidden />
                   </span>
-                  <span className="text-[9px] font-bold text-white/40">{label}</span>
+                  <span className="text-[9px] font-bold text-muted">{label}</span>
                 </span>
               </li>
             ))}
           </ul>
           <p className="mt-5 text-[22px] font-black tracking-tight text-white">飲み会をつくる</p>
-          <p className="mt-1 text-[11px] font-semibold text-white/40">URLを貼るだけで飲み会が決まります</p>
-          <span className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 text-[14px] font-black tracking-tight text-black">
+          <p className="mt-1 text-[11px] font-semibold text-muted">URLを貼るだけで飲み会が決まります</p>
+          <span className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 text-[14px] font-black tracking-tight text-accent-text">
             会をつくる
             <ArrowRight className="size-4" aria-hidden />
           </span>

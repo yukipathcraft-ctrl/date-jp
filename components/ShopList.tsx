@@ -62,7 +62,7 @@ export function ShopList({
         </ul>
       )}
       {notice && (
-        <p className="mt-3 rounded-xl border border-[#ff9da3]/40 px-3 py-2 text-xs font-bold text-[#ffb3b8]">
+        <p className="mt-3 rounded-xl border border-danger/40 px-3 py-2 text-xs font-bold text-danger">
           予約のときに伝えること: {notice}
         </p>
       )}

@@ -30,7 +30,7 @@ function Seat({ p, index, fill, compact }: { p: Person; index: number; fill?: bo
     <span
       className={`anim-stagger inline-flex items-center justify-center gap-1 rounded-full py-1.5 leading-none font-bold ${
         fill ? "w-full max-w-full px-1.5 text-[12px]" : compact ? "max-w-[4.25rem] px-2 text-[11px]" : "max-w-[5.5rem] px-2.5 text-[12px]"
-      } shadow-[0_4px_12px_-4px_rgb(0_0_0/0.6)] ${
+      } shadow-[0_4px_12px_-4px_rgb(0_0_0/0.25)] ${
         p.honored
           ? "bg-accent text-accent-text"
           : tone
@@ -53,7 +53,7 @@ function RoundTable({ people, no }: { people: Person[]; no: number }) {
       <div className="absolute inset-[24%] grid place-items-center rounded-full bg-white/5 ring-1 ring-white/12">
         <span className="text-center">
           <span className="block text-[22px] font-black">{no}卓</span>
-          <span className="block text-[10px] font-bold text-white/40">{people.length}人</span>
+          <span className="block text-[10px] font-bold text-muted">{people.length}人</span>
         </span>
       </div>
       {people.map((p, i) => {
@@ -91,7 +91,7 @@ function LongTable({ people, no }: { people: Person[]; no: number }) {
       {row(top, 0)}
       <div className="grid h-12 place-items-center rounded-xl bg-white/5 ring-1 ring-white/12">
         <span className="text-[13px] font-black">
-          {no}卓 <span className="text-[10px] font-bold text-white/40">{people.length}人</span>
+          {no}卓 <span className="text-[10px] font-bold text-muted">{people.length}人</span>
         </span>
       </div>
       {row(bottom, 1)}
@@ -110,16 +110,16 @@ function Toggle({ on, onClick, icon, title, sub }: { on: boolean; onClick: () =>
         on ? "bg-accent/10 ring-accent/60" : "bg-white/5 ring-white/12 hover:bg-white/8"
       }`}
     >
-      <span className={`grid size-9 shrink-0 place-items-center rounded-xl ${on ? "bg-accent text-accent-text" : "bg-white/8 text-white/60"}`}>{icon}</span>
+      <span className={`grid size-9 shrink-0 place-items-center rounded-xl ${on ? "bg-accent text-accent-text" : "bg-white/8 text-muted"}`}>{icon}</span>
       <span className="min-w-0 flex-1">
         <span className="block text-[13px] font-black">{title}</span>
-        <span className="block text-[11px] text-white/40">{sub}</span>
+        <span className="block text-[11px] text-muted">{sub}</span>
       </span>
       <span
         aria-hidden
         className={`flex h-6 w-10 shrink-0 items-center rounded-full p-0.5 transition ${on ? "justify-end bg-accent" : "justify-start bg-white/15"}`}
       >
-        <span className="size-5 rounded-full bg-white" />
+        <span className="size-5 rounded-full bg-surface shadow-sm" />
       </span>
     </button>
   );
@@ -243,7 +243,7 @@ export function SeatsClient() {
                         aria-label={`${name}さんを主役にする`}
                         onClick={() => patch(name, { honored: !m?.honored })}
                         className={`grid size-10 place-items-center rounded-lg transition ${
-                          m?.honored ? "bg-accent text-accent-text" : "text-white/30 hover:text-white/60"
+                          m?.honored ? "bg-accent text-accent-text" : "text-muted hover:text-muted"
                         }`}
                       >
                         <Crown className="size-4" aria-hidden />
@@ -260,7 +260,7 @@ export function SeatsClient() {
                               aria-pressed={on}
                               onClick={() => patch(name, { group: on ? undefined : g.key })}
                               className={`tier-${g.tone} grid size-10 place-items-center rounded-lg text-xs font-black transition ${
-                                on ? "bg-[var(--tb)] text-black" : "text-white/35 ring-1 ring-white/10 hover:text-white/60"
+                                on ? "bg-[var(--tb)] text-black" : "text-muted ring-1 ring-white/10 hover:text-muted"
                               }`}
                             >
                               {g.key}
@@ -292,7 +292,7 @@ export function SeatsClient() {
             </div>
           ))}
           {(useHonored || useGroups) && (
-            <p className="text-center text-[11px] text-white/40">
+            <p className="text-center text-[11px] text-muted">
               {useHonored && "冠が主役の席(上座)"}
               {useHonored && useGroups && "・"}
               {useGroups && "A・B・C はグループ"}
