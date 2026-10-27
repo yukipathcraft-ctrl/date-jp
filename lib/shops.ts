@@ -11,8 +11,7 @@ export type Shop = {
   name: string;
   genre: string;
   genreKey: GenreKey | null;
-  /** 仙台のエリアの key、またはホットペッパーの小エリアのコード */
-  area: string;
+  area: AreaKey;
   access: string;
   /** 1人あたりの目安(円) */
   budget: number;
@@ -36,8 +35,7 @@ export type Smoking = "ok" | "partial" | "no" | null;
 export const smokeFriendly = (s: Shop) => s.smoking === "ok" || s.smoking === "partial";
 
 export type ShopQuery = {
-  /** 仙台のエリアの key、またはホットペッパーの小エリアのコード(仙台以外の地域) */
-  area: string;
+  area: AreaKey;
   /** 予算の上限。null なら指定なし */
   budget: number | null;
   size: number;
@@ -108,11 +106,6 @@ function genresOf(q: ShopQuery): GenreKey[] {
 function preferScore(s: Shop, audience: Audience | undefined): number {
   if (!audience) return 0;
   return AUDIENCES[audience].prefer.filter((f) => s.features.includes(f)).length;
-}
-
-/** 吸えるお店を先に並べる(同じなら元の順) */
-function sortSmoke(shops: Shop[], q: ShopQuery): Shop[] {
-  return shops.map((s, i) => ({ s, i })).sort((a, b) => smokeScore(b.s, q) - smokeScore(a.s, q) || a.i - b.i).map((x) => x.s);
 }
 
 /** タバコを吸う人がいる会では、吸えるお店を先に出す */
@@ -197,7 +190,7 @@ export function budgetFromText(text: string | undefined): number {
   return Number.isFinite(n) ? n : 0;
 }
 
-function fromHotpepper(s: HotpepperShop, area: string): Shop {
+function fromHotpepper(s: HotpepperShop, area: AreaKey): Shop {
   const max = budgetFromRange(s.budget?.name) || budgetFromText(s.budget?.average);
   const features = [
     s.free_drink?.startsWith("あり") ? "飲み放題" : null,
@@ -237,12 +230,13 @@ async function callHotpepper(key: string, params: Record<string, string>): Promi
 
 export async function searchShops(q: ShopQuery, limit = 3): Promise<{ shops: Shop[]; otherArea: boolean }> {
   const key = cleanEnv(process.env.HOTPEPPER_API_KEY);
-  // 見本のお店は仙台だけ。ほかの地域はお店のデータがないと出せない
-  const area = AREAS.find((a) => a.key === q.area);
-  if (!key) return area ? pickSamples(q, limit) : { shops: [], otherArea: false };
+  if (!key) return pickSamples(q, limit);
+  const area = AREAS.find((a) => a.key === q.area)!;
   try {
     // 予算は API に渡すと2つの価格帯しか選べず、安いお店が抜けるので、多めに取ってからこちらで上限を切る
     const params = {
+      lat: String(area.lat),
+      lng: String(area.lng),
       party_capacity: String(q.size),
       ...(genresOf(q).length > 0
         ? { genre: genresOf(q).flatMap((k) => GENRES.find((g) => g.key === k)!.hotpepper).join(",") }
@@ -256,23 +250,18 @@ export async function searchShops(q: ShopQuery, limit = 3): Promise<{ shops: Sho
       list
         .map((s) => fromHotpepper(s, q.area))
         .filter((s) => (q.budget === null || s.budget <= q.budget) && (q.smoking !== "only" || smokeFriendly(s)));
-    // 仙台以外は、ホットペッパーの小エリアの中で探す
-    if (!area) {
-      const shops = fits(await callHotpepper(key, { ...params, small_area: q.area }));
-      return { shops: sortSmoke(shops, q).slice(0, limit), otherArea: false };
-    }
-    // 仙台は、まずはそのエリアの中(500m)だけで探し、足りなければ1kmまで広げる。
+    // まずはそのエリアの中(500m)だけで探し、足りなければ1kmまで広げる。
     // 国分町と仙台駅前は1kmほどしか離れていないので、最初から広く探すと隣のエリアのお店が混ざる
-    const near = { lat: String(area.lat), lng: String(area.lng) };
-    let shops = fits(await callHotpepper(key, { ...params, ...near, range: "2" }));
+    let shops = fits(await callHotpepper(key, { ...params, range: "2" }));
     let otherArea = false;
     if (shops.length < limit) {
       const seen = new Set(shops.map((s) => s.id));
-      const extra = fits(await callHotpepper(key, { ...params, ...near, range: "3" })).filter((s) => !seen.has(s.id));
+      const extra = fits(await callHotpepper(key, { ...params, range: "3" })).filter((s) => !seen.has(s.id));
       otherArea = shops.length === 0 && extra.length > 0;
       shops = [...shops, ...extra];
     }
-    return { shops: sortSmoke(shops, q).slice(0, limit), otherArea };
+    shops = shops.map((s, i) => ({ s, i })).sort((a, b) => smokeScore(b.s, q) - smokeScore(a.s, q) || a.i - b.i).map((x) => x.s);
+    return { shops: shops.slice(0, limit), otherArea };
   } catch (e) {
     console.error("[shops] ホットペッパーから読めなかったため、見本を出します", e);
     return pickSamples(q, limit);
@@ -284,7 +273,7 @@ export async function searchShops(q: ShopQuery, limit = 3): Promise<{ shops: Sho
  * 一次会のお店は除く。お店のデータがつながっていなければ空にする
  */
 export async function searchSecondShops(
-  q: { lat: number; lng: number; size: number; genre: SecondGenreKey | null; exclude: string | null; area: string },
+  q: { lat: number; lng: number; size: number; genre: SecondGenreKey | null; exclude: string | null; area: AreaKey },
   limit = 10,
 ): Promise<Shop[]> {
   const key = cleanEnv(process.env.HOTPEPPER_API_KEY);

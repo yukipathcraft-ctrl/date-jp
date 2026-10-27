@@ -78,11 +78,11 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
         {party.decision && (
           <>
             {/* 広告は会が決まったあとにだけ、会の種類に合うものを出す(lib/sponsors.ts に載せる会社がなければ出ない) */}
-            <SponsorSlot placement="gift" audience={party.audience} region={party.region} />
-            <SponsorSlot placement="second" audience={party.audience} region={party.region} />
+            <SponsorSlot placement="gift" audience={party.audience} />
+            <SponsorSlot placement="second" audience={party.audience} />
             <SecondPartyShops partyId={party.id} />
-            <SponsorSlot placement="ride" audience={party.audience} region={party.region} />
-            <SponsorSlot placement="campus" audience={party.audience} region={party.region} />
+            <SponsorSlot placement="ride" audience={party.audience} />
+            <SponsorSlot placement="campus" audience={party.audience} />
           </>
         )}
         <p className="px-4 pt-6 text-center text-sm">

@@ -6,8 +6,7 @@ import { useEffect, useState, useTransition } from "react";
 import { getMyAnswer, saveAnswer } from "@/app/actions";
 import { AUDIENCES, type Audience } from "@/lib/audience";
 import { AVOIDS } from "@/lib/diet";
-import type { AreaOption } from "@/lib/region";
-import { STAYS, UNLIMITED_BUDGET, clock, dateLabel, inputFromMinutes, minutesFromInput, yen } from "@/lib/sendai";
+import { AREAS, STAYS, UNLIMITED_BUDGET, clock, dateLabel, inputFromMinutes, minutesFromInput, yen, type AreaKey } from "@/lib/sendai";
 import type { DateAnswer } from "@/lib/summary";
 import { MAX_AVOID_NOTE, MAX_MEMO, type AnswerInput } from "@/lib/validation";
 import { Required } from "./Required";
@@ -113,8 +112,7 @@ function TimeChoices({
   );
 }
 
-/** areas = その会の地域の「行きやすい場所」の選択肢(仙台はエリア、ほかの地域はホットペッパーの小エリア) */
-export function AnswerPanel({ partyId, dates, audience, areas }: { partyId: string; dates: string[]; audience: Audience; areas: AreaOption[] }) {
+export function AnswerPanel({ partyId, dates, audience }: { partyId: string; dates: string[]; audience: Audience }) {
   const router = useRouter();
   const [mine, setMine] = useState<Mine | null>(null);
   const [editing, setEditing] = useState(false);
@@ -190,7 +188,7 @@ export function AnswerPanel({ partyId, dates, audience, areas }: { partyId: stri
   // 続けて押しても前の選択が消えないよう、いつも最新の値から作る
   const set = (patch: Partial<AnswerInput>) => setForm((f) => ({ ...f, ...patch }));
   const setDate = (d: string, v: DateAnswer) => setForm((f) => ({ ...f, dates: { ...f.dates, [d]: v } }));
-  const toggleArea = (k: string) =>
+  const toggleArea = (k: AreaKey) =>
     setForm((f) => ({ ...f, areas: f.areas.includes(k) ? f.areas.filter((a) => a !== k) : [...f.areas, k] }));
   const toggleAvoid = (k: string) =>
     setForm((f) => {
@@ -212,6 +210,7 @@ export function AnswerPanel({ partyId, dates, audience, areas }: { partyId: stri
             : form.areas.length === 0
               ? "行きやすい場所を1つ以上選んでください"
               : null;
+  const areas = opts.areas.map((k) => AREAS.find((a) => a.key === k)!);
 
   return (
     <section>

@@ -1,6 +1,6 @@
 import { isAudience, type Audience } from "./audience";
 import { isAvoidKey } from "./diet";
-import { isAnswerBudget, isArrival, isStay } from "./sendai";
+import { isAnswerBudget, isArrival, isAreaKey, isStay, type AreaKey } from "./sendai";
 import type { Answer, DateAnswer } from "./summary";
 
 type Result<T> = { ok: true; value: T } | { ok: false; error: string };
@@ -35,8 +35,7 @@ export function parseParty(input: {
 
 export type AnswerInput = Omit<Answer, "id">;
 
-/** areaKeys = その会で選べる「行きやすい場所」の key(仙台のエリア、またはその地域の小エリア) */
-export function parseAnswer(input: Record<string, unknown>, partyDates: string[], areaKeys: string[]): Result<AnswerInput> {
+export function parseAnswer(input: Record<string, unknown>, partyDates: string[]): Result<AnswerInput> {
   const name = text(input.name, "名前", 20);
   if (!name.ok) return name;
 
@@ -49,9 +48,7 @@ export function parseAnswer(input: Record<string, unknown>, partyDates: string[]
   if (!isArrival(input.arrival)) return { ok: false, error: "何時から来られるかを選んでください" };
   if (!isStay(input.stay)) return { ok: false, error: "いつまで残れるかを選んでください" };
   if (!isAnswerBudget(input.budget)) return { ok: false, error: "予算を選んでください" };
-  const areas = Array.isArray(input.areas)
-    ? [...new Set(input.areas.filter((a): a is string => typeof a === "string" && areaKeys.includes(a)))]
-    : [];
+  const areas = Array.isArray(input.areas) ? [...new Set(input.areas.filter(isAreaKey))] : [];
   if (areas.length === 0) return { ok: false, error: "行きやすい場所を1つ以上選んでください" };
   const memo = typeof input.memo === "string" ? input.memo.trim() : "";
   const avoidNote = typeof input.avoidNote === "string" ? input.avoidNote.trim().slice(0, MAX_AVOID_NOTE) : "";
@@ -65,7 +62,7 @@ export function parseAnswer(input: Record<string, unknown>, partyDates: string[]
       arrival: input.arrival,
       stay: input.stay,
       budget: input.budget,
-      areas,
+      areas: areas as AreaKey[],
       ...(memo ? { memo } : {}),
       avoids: Array.isArray(input.avoids) ? [...new Set(input.avoids.filter(isAvoidKey))] : [],
       drinks: input.drinks !== false,

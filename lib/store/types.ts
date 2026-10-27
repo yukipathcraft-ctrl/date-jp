@@ -1,5 +1,4 @@
 import type { Audience } from "../audience";
-import type { Region } from "../region";
 import type { Answer } from "../summary";
 
 export type Decision = { date: string; start: number; shopId: string | null; shopName: string | null };
@@ -11,8 +10,6 @@ export type Party = {
   dates: string[];
   adminHash: string;
   decision: Decision | null;
-  /** 地域。null は仙台 */
-  region: Region;
 };
 
 export type StoredAnswer = Answer & { tokenHash: string };

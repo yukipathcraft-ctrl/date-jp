@@ -2,12 +2,10 @@
 
 import { Check, Cigarette, DoorClosed, MapPin, SlidersHorizontal, UtensilsCrossed, Wallet } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
-import { findShops, regionAreas } from "@/app/actions";
+import { findShops } from "@/app/actions";
 import { AUDIENCES, loadAudience, type Audience } from "@/lib/audience";
-import { sendaiAreas, type AreaOption, type Region } from "@/lib/region";
-import { GENRES, yen, type GenreKey } from "@/lib/sendai";
+import { AREAS, GENRES, areaLabel, yen, type AreaKey, type GenreKey } from "@/lib/sendai";
 import type { Shop } from "@/lib/shops";
-import { RegionPicker } from "./RegionPicker";
 import { ShopList } from "./ShopList";
 import { LABEL } from "./ui";
 
@@ -61,10 +59,7 @@ function Option({
 
 export function ShopSearch() {
   const [audience, setAudience] = useState<Audience | null>(null);
-  // 地域(null は仙台)と、その地域の場所の選択肢。仙台以外はホットペッパーの小エリア
-  const [region, setRegion] = useState<Region>(null);
-  const [areaOptions, setAreaOptions] = useState<AreaOption[]>([]);
-  const [areas, setAreas] = useState<string[]>([]);
+  const [areas, setAreas] = useState<AreaKey[]>(["station"]);
   const [genres, setGenres] = useState<GenreKey[]>([]);
   const [budget, setBudget] = useState<number | null>(null);
   const [privateRoom, setPrivateRoom] = useState(false);
@@ -77,50 +72,28 @@ export function ShopSearch() {
     const a = loadAudience() ?? "student";
     /* eslint-disable react-hooks/set-state-in-effect */
     setAudience(a);
-    setAreaOptions(sendaiAreas(a));
     setAreas([AUDIENCES[a].areas[0]]);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
-  /** 地域を変えたら、その地域の場所を読み、最初の場所で探し直す */
-  function changeRegion(r: Region) {
-    setRegion(r);
-    setResult(null);
-    if (!r) {
-      const list = sendaiAreas(audience ?? "student");
-      setAreaOptions(list);
-      setAreas([list[0].key]);
-      return;
-    }
-    setAreaOptions([]);
-    setAreas([]);
-    start(async () => {
-      const list = await regionAreas(r.code);
-      setAreaOptions(list);
-      setAreas(list.length > 0 ? [list[0].key] : []);
-    });
-  }
-
   // 条件が変わるたびに探し直す
   useEffect(() => {
-    if (!audience || areas.length === 0) return;
+    if (!audience) return;
     start(async () => {
-      setResult(
-        await findShops({ areas, genres, budget, privateRoom, smoking: audience === "worker" && smoking, audience, region: region?.code ?? null }),
-      );
+      setResult(await findShops({ areas, genres, budget, privateRoom, smoking: audience === "worker" && smoking, audience }));
     });
-  }, [areas, genres, budget, privateRoom, smoking, audience, region]);
+  }, [areas, genres, budget, privateRoom, smoking, audience]);
 
   // 場所は最後の1つを外せない(どこかでは探す)
-  const toggleArea = (k: string) =>
+  const toggleArea = (k: AreaKey) =>
     setAreas((cur) => (cur.includes(k) ? (cur.length > 1 ? cur.filter((a) => a !== k) : cur) : [...cur, k]));
   const toggleGenre = (k: GenreKey) =>
     setGenres((cur) => (cur.includes(k) ? cur.filter((g) => g !== k) : [...cur, k]));
 
   const opts = AUDIENCES[audience ?? "student"];
-  const labelOf = (k: string) => areaOptions.find((a) => a.key === k)?.label ?? k;
+  const areaOptions = opts.areas.map((k) => AREAS.find((a) => a.key === k)!);
   const summary = [
-    `${region ? `${region.name}: ` : ""}${areas.map(labelOf).join("・")}`,
+    areas.map(areaLabel).join("・"),
     budget === null ? "予算は決めない" : `${yen(budget)}まで`,
     genres.length > 0 ? genres.map((k) => GENRES.find((g) => g.key === k)!.label).join("・") : null,
     privateRoom ? "個室あり" : null,
@@ -133,23 +106,12 @@ export function ShopSearch() {
     <>
       <div id="filters" className="mx-4 overflow-hidden rounded-3xl border panel">
         <fieldset className="border-b border-border px-4 py-5">
-          <legend className="sr-only">地域</legend>
-          <p className={LABEL} aria-hidden>
-            <MapPin className="size-4" />
-            どの地域?
-            <span className="ml-auto text-xs font-normal">仙台以外も選べます</span>
-          </p>
-          <RegionPicker value={region} onChange={changeRegion} />
-        </fieldset>
-
-        <fieldset className="border-b border-border px-4 py-5">
           <legend className="sr-only">場所</legend>
           <p className={LABEL} aria-hidden>
             <MapPin className="size-4" />
             どこで飲む?
             <span className="ml-auto text-xs font-normal">いくつでも選べます</span>
           </p>
-          {region && areaOptions.length === 0 && <p className="text-xs text-white/40">{pending ? "場所を読んでいます…" : "この地域の場所が見つかりませんでした"}</p>}
           <div className="grid grid-cols-2 gap-2">
             {areaOptions.map((a) => (
               <Option multi key={a.key} on={areas.includes(a.key)} onClick={() => toggleArea(a.key)} title={a.label} note={a.note} />

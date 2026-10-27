@@ -15,7 +15,7 @@ export function isAreaKey(v: unknown): v is AreaKey {
   return AREAS.some((a) => a.key === v);
 }
 
-export function areaLabel(key: string): string {
+export function areaLabel(key: AreaKey): string {
   return AREAS.find((a) => a.key === key)?.label ?? key;
 }
 

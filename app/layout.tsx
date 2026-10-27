@@ -11,9 +11,9 @@ const jp = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Date | 仙台生まれの飲み会セッティング", template: "%s | Date" },
+  title: { default: "Date | 仙台の飲み会セッティング", template: "%s | Date" },
   description:
-    "URLを貼ってみんなが30秒で答えるだけで、飲み会の日にちと予算とお店が決まります。仙台生まれ、全国のお店に対応",
+    "URLをLINEに貼ってみんなが30秒で答えるだけで、仙台での飲み会の日にちと予算とお店が決まります",
   applicationName: "Date",
   appleWebApp: { title: "Date", statusBarStyle: "black-translucent", capable: true },
 };

@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import { isAudience } from "../audience";
-import { isRegion } from "../region";
 import type { Answer } from "../summary";
 import { countAds, countShops } from "./stats";
 import type { AdEventKind, Collection, CollectionPerson, Decision, Payment, Store, StoredAnswer } from "./types";
@@ -25,15 +24,14 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
           audience: party.audience,
           dates: party.dates,
           admin_hash: party.adminHash,
-          region: party.region,
         }),
       );
     },
     async getParty(id) {
       const row = check<
-        { id: string; title: string; audience: string; dates: string[]; admin_hash: string; decision: Decision | null; region: unknown } | null
+        { id: string; title: string; audience: string; dates: string[]; admin_hash: string; decision: Decision | null } | null
       >(
-        await db.from("nomi_parties").select("id, title, audience, dates, admin_hash, decision, region").eq("id", id).maybeSingle(),
+        await db.from("nomi_parties").select("id, title, audience, dates, admin_hash, decision").eq("id", id).maybeSingle(),
       );
       return row ? {
             id: row.id,
@@ -42,7 +40,6 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
             dates: row.dates,
             adminHash: row.admin_hash,
             decision: row.decision,
-            region: isRegion(row.region) ? row.region : null,
           } : null;
     },
     async listAnswers(partyId) {
