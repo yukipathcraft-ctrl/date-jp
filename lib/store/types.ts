@@ -58,6 +58,9 @@ export type Collection = {
   payments: Record<number, Payment>;
 };
 
+export type AdEventKind = "view" | "click";
+export type AdStat = { sponsorId: string; views: number; clicks: number };
+
 export interface Store {
   createParty(party: Omit<Party, "decision">): Promise<void>;
   getParty(id: string): Promise<Party | null>;
@@ -68,6 +71,10 @@ export interface Store {
   /** お店のページへ飛んだ数(誰が押したかは残さない)。「お店を探す」から来たときは partyId が null */
   logShopClick(partyId: string | null, shopId: string): Promise<void>;
   getStats(since: Date): Promise<Stats>;
+  /** 広告が見られた・押された(誰かは残さない) */
+  logAdEvent(sponsorId: string, kind: AdEventKind): Promise<void>;
+  /** since より後の、広告ごとの見られた数と押された数 */
+  getAdStats(since: Date): Promise<AdStat[]>;
   createCollection(collection: Omit<Collection, "payments">): Promise<void>;
   getCollection(id: string): Promise<Collection | null>;
   /** null なら「まだ」に戻す */

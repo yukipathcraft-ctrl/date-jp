@@ -5,6 +5,7 @@ import { connection } from "next/server";
 import { SiteHeader } from "@/components/SiteHeader";
 import { cleanEnv } from "@/lib/env";
 import { findShop } from "@/lib/shops";
+import { activeSponsors } from "@/lib/sponsors";
 import { getStore } from "@/lib/store";
 
 // 使われ方の画面。作った本人だけが見る。STATS_TOKEN と同じ token を付けて開く。
@@ -38,7 +39,12 @@ export default async function StatsPage(props: PageProps<"/stats">) {
   if (!allowed(token)) notFound();
 
   const now = new Date();
-  const stats = await getStore().getStats(monthStart(now));
+  const [stats, ads] = await Promise.all([getStore().getStats(monthStart(now)), getStore().getAdStats(monthStart(now))]);
+  // 広告主に見せる実績。載せている広告は、まだ数がなくても0回で出す
+  const adRows = [
+    ...activeSponsors().map((s) => ({ ...(ads.find((a) => a.sponsorId === s.id) ?? { sponsorId: s.id, views: 0, clicks: 0 }), name: s.name })),
+    ...ads.filter((a) => !activeSponsors().some((s) => s.id === a.sponsorId)).map((a) => ({ ...a, name: `${a.sponsorId}(掲載終了)` })),
+  ];
   const shops = await Promise.all(
     stats.topShops.map(async (s) => ({ ...s, name: (await findShop(s.shopId))?.name ?? s.shopId })),
   );
@@ -83,6 +89,25 @@ export default async function StatsPage(props: PageProps<"/stats">) {
             今月の会が全部アフィリエイトのリンクを通っていたら、紹介料はおよそ
             {(stats.decided * YEN_PER_DECIDED_PARTY).toLocaleString("ja-JP")}円になっていた見込みです(決まった会 × {YEN_PER_DECIDED_PARTY}円で計算)
           </p>
+        </section>
+
+        <h2 className="mt-9 mb-3 px-1 text-sm font-bold text-muted">今月の広告の実績(広告主に見せる数)</h2>
+        <section className="overflow-hidden rounded-3xl border panel">
+          {adRows.length === 0 ? (
+            <p className="px-5 py-5 text-sm text-muted">載せている広告はありません(lib/sponsors.ts に書くと出ます)</p>
+          ) : (
+            <ul>
+              {adRows.map((a) => (
+                <li key={a.sponsorId} className="flex min-h-14 items-center gap-3 border-t border-border px-5 first:border-t-0">
+                  <span className="min-w-0 flex-1 truncate font-bold">{a.name}</span>
+                  <span className="shrink-0 text-right text-sm tabular-nums">
+                    <span className="font-black">{a.views.toLocaleString("ja-JP")}</span>回 見られた
+                    <span className="ml-3 font-black">{a.clicks.toLocaleString("ja-JP")}</span>回 押された
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <h2 className="mt-9 mb-3 px-1 text-sm font-bold text-muted">今月よく押されたお店</h2>

@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { isAudience } from "../audience";
 import type { Answer } from "../summary";
-import { countShops } from "./stats";
-import type { Collection, CollectionPerson, Decision, Payment, Store, StoredAnswer } from "./types";
+import { countAds, countShops } from "./stats";
+import type { AdEventKind, Collection, CollectionPerson, Decision, Payment, Store, StoredAnswer } from "./types";
 
 // スキーマから型を生成していないので、行の型は呼び出し側で指定する
 function check<T = unknown>(result: { data: unknown; error: { message: string; code?: string } | null }): T {
@@ -82,6 +82,15 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
       ]);
       const ids = check<{ shop_id: string }[]>(clickRows).map((r) => r.shop_id);
       return { parties, decided, answers, clicks: ids.length, topShops: countShops(ids), totalParties, totalClicks };
+    },
+    async logAdEvent(sponsorId, kind) {
+      check(await db.from("nomi_ad_events").insert({ sponsor_id: sponsorId, kind }));
+    },
+    async getAdStats(since) {
+      const rows = check<{ sponsor_id: string; kind: AdEventKind }[]>(
+        await db.from("nomi_ad_events").select("sponsor_id, kind").gte("created_at", since.toISOString()).limit(100000),
+      );
+      return countAds(rows.map((r) => ({ sponsorId: r.sponsor_id, kind: r.kind })));
     },
     async createCollection(collection) {
       const { id, adminHash, ...data } = collection;

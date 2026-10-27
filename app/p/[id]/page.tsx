@@ -5,9 +5,11 @@ import { AnswerPanel } from "@/components/AnswerPanel";
 import { DecisionCard } from "@/components/DecisionCard";
 import { NextHost } from "@/components/NextHost";
 import { SecondPartyShops } from "@/components/SecondPartyShops";
+import { SponsorCard } from "@/components/SponsorCard";
 import { ShopList } from "@/components/ShopList";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SummaryView } from "@/components/SummaryView";
+import { sponsorFor } from "@/lib/sponsors";
 import { getStore } from "@/lib/store";
 import { dietNotice } from "@/lib/diet";
 import { loadParty } from "@/lib/view";
@@ -51,7 +53,14 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
           notice={dietNotice(summary.diet)}
         />
         {/* お店まで決まったら、二次会のお店も出す */}
-        {party.decision && <SecondPartyShops partyId={party.id} />}
+        {party.decision && (
+          <>
+            {/* 広告は、二次会と帰りの場面にだけ出す(lib/sponsors.ts に載せる会社がなければ出ない) */}
+            {sponsorFor("second") && <SponsorCard sponsor={sponsorFor("second")!} />}
+            <SecondPartyShops partyId={party.id} />
+            {sponsorFor("ride") && <SponsorCard sponsor={sponsorFor("ride")!} />}
+          </>
+        )}
         {/* 答えた人を、次の会の幹事にする */}
         <div className="mx-4 mt-4">
           <NextHost />

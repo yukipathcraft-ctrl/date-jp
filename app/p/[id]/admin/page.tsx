@@ -4,12 +4,14 @@ import { connection } from "next/server";
 import { AdminPanel } from "@/components/AdminPanel";
 import { DecisionCard } from "@/components/DecisionCard";
 import { SecondPartyShops } from "@/components/SecondPartyShops";
+import { SponsorCard } from "@/components/SponsorCard";
 import { ShopList } from "@/components/ShopList";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StepBar } from "@/components/StepBar";
 import { SummaryView } from "@/components/SummaryView";
 import { verifyToken } from "@/lib/tokens";
 import { dietNotice } from "@/lib/diet";
+import { sponsorFor } from "@/lib/sponsors";
 import { loadParty } from "@/lib/view";
 import { PageMotion } from "@/components/PageMotion";
 
@@ -73,7 +75,14 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
           notice={dietNotice(summary.diet)}
         />
         {/* お店まで決まったら、二次会のお店も出す */}
-        {party.decision && <SecondPartyShops partyId={party.id} />}
+        {party.decision && (
+          <>
+            {/* 広告は、二次会と帰りの場面にだけ出す(lib/sponsors.ts に載せる会社がなければ出ない) */}
+            {sponsorFor("second") && <SponsorCard sponsor={sponsorFor("second")!} />}
+            <SecondPartyShops partyId={party.id} />
+            {sponsorFor("ride") && <SponsorCard sponsor={sponsorFor("ride")!} />}
+          </>
+        )}
         <p className="px-4 pt-6 text-center text-sm">
           <a href={`/p/${party.id}`} className="font-bold underline">
             自分も回答する(みんなの画面へ)

@@ -5,6 +5,7 @@ import { canSetPayment, parseCollection, type CollectionInput } from "@/lib/coll
 import { AREAS, isAreaKey, isBudget, isGenreKey, isSecondGenreKey } from "@/lib/sendai";
 import { findShop, mergeShops, searchSecondShops, searchShops, type Shop } from "@/lib/shops";
 import { getStore } from "@/lib/store";
+import { findSponsor } from "@/lib/sponsors";
 import { loadParty } from "@/lib/view";
 import { summarize } from "@/lib/summary";
 import { generateGroupId, generateToken, hashToken, verifyToken } from "@/lib/tokens";
@@ -231,4 +232,13 @@ export async function findSecondShops(
     area: area.key,
   });
   return { shops, size, near: first?.lat != null ? (decision.shopName ?? first.name) : area.label };
+}
+
+/** 広告が画面に出たことを数える。lib/sponsors.ts にある広告だけを数える */
+export async function logAdView(sponsorId: string): Promise<void> {
+  const sponsor = typeof sponsorId === "string" ? findSponsor(sponsorId) : null;
+  if (!sponsor) return;
+  await getStore()
+    .logAdEvent(sponsor.id, "view")
+    .catch((e) => console.error("[ad] 数えられませんでした", e));
 }

@@ -1,11 +1,12 @@
-import { countShops } from "./stats";
-import type { Collection, Party, Stats, StoredAnswer, Store } from "./types";
+import { countAds, countShops } from "./stats";
+import type { AdEventKind, Collection, Party, Stats, StoredAnswer, Store } from "./types";
 
 // 開発用の仮DB。再起動で消える。本番では使わない
 type Db = {
   parties: Map<string, Party & { createdAt: number }>;
   answers: Map<string, (StoredAnswer & { createdAt: number })[]>;
   clicks: { partyId: string | null; shopId: string; at: number }[];
+  ads?: { sponsorId: string; kind: AdEventKind; at: number }[];
   collections: Map<string, Collection>;
 };
 
@@ -62,6 +63,12 @@ export const memoryStore: Store = {
       totalParties: db.parties.size,
       totalClicks: db.clicks.length,
     } satisfies Stats;
+  },
+  async logAdEvent(sponsorId, kind) {
+    (db.ads ??= []).push({ sponsorId, kind, at: Date.now() });
+  },
+  async getAdStats(since) {
+    return countAds((db.ads ?? []).filter((e) => e.at >= since.getTime()));
   },
   async createCollection(collection) {
     db.collections.set(collection.id, { ...structuredClone(collection), payments: {} });
