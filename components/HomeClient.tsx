@@ -342,7 +342,7 @@ export function HomeClient() {
       <section>
         <SectionTitle icon={<Info className="size-3.5" aria-hidden />}>このアプリについて</SectionTitle>
         <NameStory />
-        <p className="mt-6 text-center text-[10px] font-bold tracking-[0.2em] text-white/25">仙台限定</p>
+        <p className="mt-6 text-center text-[10px] font-bold tracking-[0.2em] text-white/25">仙台生まれ ・ 全国のお店に対応</p>
       </section>
     </div>
   );

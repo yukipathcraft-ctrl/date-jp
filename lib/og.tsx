@@ -55,7 +55,7 @@ export async function ogImage({
   const longest = Math.max(...heads.map((h) => [...h].length));
   const big = longest > 13 ? 56 : longest > 10 ? 62 : 72;
   const bold = heads.join("");
-  const regular = ["Date", "SENDAI", "仙台限定", eyebrow, ...lines, ...chips, "◆"].join("");
+  const regular = ["Date", "SENDAI", "仙台生まれ", eyebrow, ...lines, ...chips, "◆"].join("");
   const [fontBold, fontRegular] = await Promise.all([loadFont(bold, 700), loadFont(regular, 400)]);
   const fonts = [
     ...(fontBold ? [{ name: "NotoJP", data: fontBold, weight: 700 as const, style: "normal" as const }] : []),
@@ -134,7 +134,7 @@ export async function ogImage({
             ))}
           </div>
 
-          {/* 下: 言葉を◆で区切って並べ、右に「仙台限定」 */}
+          {/* 下: 言葉を◆で区切って並べ、右に「仙台生まれ」 */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
               {chips.map((c, i) => (
@@ -144,7 +144,7 @@ export async function ogImage({
                 </div>
               ))}
             </div>
-            <span style={{ fontSize: 20, fontWeight: 400, letterSpacing: 6, color: MUTED }}>仙台限定</span>
+            <span style={{ fontSize: 20, fontWeight: 400, letterSpacing: 6, color: MUTED }}>仙台生まれ</span>
           </div>
         </div>
       </div>

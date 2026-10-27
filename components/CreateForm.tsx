@@ -8,7 +8,9 @@ import { AUDIENCES, loadAudience, type Audience } from "@/lib/audience";
 import { rememberParty } from "@/lib/myParties";
 import { dateLabel, upcomingDates, weekdayOf } from "@/lib/sendai";
 import { MAX_DATES } from "@/lib/validation";
+import type { Region } from "@/lib/region";
 import { DateCalendar } from "./DateCalendar";
+import { RegionPicker } from "./RegionPicker";
 import { Required } from "./Required";
 import { BUTTON_PRIMARY, INPUT } from "./ui";
 
@@ -36,6 +38,8 @@ export function CreateForm() {
   const [title, setTitle] = useState("");
   const [dates, setDates] = useState<string[]>([]);
   const [audience, setAudience] = useState<Audience>("student");
+  // 飲む地域。仙台(本拠地)なら null
+  const [region, setRegion] = useState<Region>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   // 今日から24日ぶん(4列のタイルが6段ちょうど埋まる)。日付はブラウザで開いたときに作る
@@ -55,7 +59,7 @@ export function CreateForm() {
   function submit() {
     setError(null);
     start(async () => {
-      const result = await createParty({ title, audience, dates });
+      const result = await createParty({ title, audience, dates, region });
       if (!result.ok) {
         setError(result.error);
         return;
@@ -82,6 +86,16 @@ export function CreateForm() {
             maxLength={40}
             aria-label="飲み会の名前"
           />
+        </div>
+
+        <div className="mt-5 border-t border-white/8 pt-5">
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="text-sm font-bold text-white/50">どこで飲む?</p>
+            <p className="text-[11px] font-semibold text-white/35">仙台以外も選べます</p>
+          </div>
+          <div className="mt-3">
+            <RegionPicker value={region} onChange={setRegion} />
+          </div>
         </div>
 
         <div className="mt-5 border-t border-white/8 pt-5">

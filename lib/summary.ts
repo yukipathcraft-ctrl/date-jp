@@ -1,5 +1,6 @@
 import { summarizeDiet, type DietSummary } from "./diet";
-import { AREAS, FIRST_PARTY_MINUTES, type AreaKey } from "./sendai";
+import type { AreaOption } from "./region";
+import { AREAS, FIRST_PARTY_MINUTES } from "./sendai";
 
 // みんなの回答から、日・時刻・予算・場所・残れる人を決める。純粋関数
 
@@ -15,7 +16,8 @@ export type Answer = {
   stay: number;
   /** 1人あたりの予算の上限(円) */
   budget: number;
-  areas: AreaKey[];
+  /** 行きやすい場所の key(仙台のエリア、またはその地域の小エリアのコード) */
+  areas: string[];
   /** ひとこと。みんなに見える(予定の事情や、2次会は無理など) */
   memo?: string;
   /** 苦手なもの・アレルギー(lib/diet.ts の key)。人数だけを出し、誰が選んだかは出さない */
@@ -51,8 +53,9 @@ export type Summary = {
   secondParty: string[];
   /** 行ける人全員が出せる額(誰の額かは出さない) */
   budget: number | null;
-  area: AreaKey | null;
-  areaVotes: { key: AreaKey; votes: number }[];
+  area: string | null;
+  areaName: string | null;
+  areaVotes: { key: string; label: string; votes: number }[];
 };
 
 export function rankDates(dates: string[], answers: Answer[]): DateRank[] {
@@ -77,19 +80,28 @@ export function startTime(arrivals: number[]): number | null {
   return last;
 }
 
-export function summarize(dates: string[], answers: Answer[], fixedDate?: string | null): Summary {
+/** areas = その会の「行きやすい場所」の選択肢(並び順は集まりやすい順)。省くと仙台のエリア */
+export function summarize(
+  dates: string[],
+  answers: Answer[],
+  fixedDate?: string | null,
+  areas: AreaOption[] = AREAS.map((a) => ({ key: a.key, label: a.label })),
+): Summary {
   const ranking = rankDates(dates, answers);
   const best = fixedDate ?? (ranking[0] && ranking[0].ok > 0 ? ranking[0].date : null);
   const going = best ? answers.filter((a) => a.dates[best] === "ok") : [];
   const start = startTime(going.map((a) => a.arrival));
   const firstEnd = start === null ? null : start + FIRST_PARTY_MINUTES;
 
-  const areaVotes = AREAS.map((a) => ({
-    key: a.key,
-    votes: going.filter((g) => g.areas.includes(a.key)).length,
-  })).filter((v) => v.votes > 0);
+  const areaVotes = areas
+    .map((a) => ({
+      key: a.key,
+      label: a.label,
+      votes: going.filter((g) => g.areas.includes(a.key)).length,
+    }))
+    .filter((v) => v.votes > 0);
   // 同じ票数なら、選択肢の並び順(集まりやすい順)で先のもの
-  const topArea = areaVotes.reduce<{ key: AreaKey; votes: number } | null>(
+  const topArea = areaVotes.reduce<{ key: string; label: string; votes: number } | null>(
     (top, v) => (top === null || v.votes > top.votes ? v : top),
     null,
   );
@@ -108,6 +120,7 @@ export function summarize(dates: string[], answers: Answer[], fixedDate?: string
     secondParty: firstEnd === null ? [] : going.filter((a) => a.stay > firstEnd).map((a) => a.name),
     budget: going.length > 0 ? Math.min(...going.map((a) => a.budget)) : null,
     area: topArea?.key ?? null,
+    areaName: topArea?.label ?? null,
     areaVotes: areaVotes.sort((x, y) => y.votes - x.votes),
   };
 }

@@ -3,9 +3,9 @@ import type { MetadataRoute } from "next";
 // ホーム画面に追加したときの名前とアイコン。アイコンは public/date-icon.svg から scripts/make-icons.mjs で書き出す
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Date 仙台の飲み会セッティング",
+    name: "Date 仙台生まれの飲み会セッティング",
     short_name: "Date",
-    description: "URLを貼るだけで、仙台での飲み会の日にちと予算とお店が決まります",
+    description: "URLを貼るだけで、飲み会の日にちと予算とお店が決まります。仙台生まれ、全国のお店に対応",
     lang: "ja",
     start_url: "/",
     scope: "/",

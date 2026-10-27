@@ -27,19 +27,19 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
   const { id } = await props.params;
   const view = await loadParty(id);
   if (!view) notFound();
-  const { party, summary, shops, otherArea } = view;
+  const { party, summary, shops, otherArea, areas } = view;
 
   return (
     <PageMotion>
       <SiteHeader />
       <div className="mx-auto max-w-xl pb-16">
         <div className="px-4 pt-6 pb-4">
-          <p className="text-sm font-bold text-muted">飲み会の日程とお店</p>
+          <p className="text-sm font-bold text-muted">飲み会の日程とお店{party.region ? ` ・ ${party.region.name}` : ""}</p>
           <h1 className="mt-1 text-[22px] font-black tracking-tight">{party.title}</h1>
         </div>
         {party.decision && <DecisionCard decision={party.decision} />}
         <div className={party.decision ? "mt-4" : ""}>
-          <AnswerPanel partyId={party.id} dates={party.dates} audience={party.audience} />
+          <AnswerPanel partyId={party.id} dates={party.dates} audience={party.audience} areas={areas} />
         </div>
         <div className="mt-4">
           <SummaryView summary={summary} />
@@ -55,11 +55,11 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
         {party.decision && (
           <>
             {/* 広告は会が決まったあとにだけ、会の種類に合うものを出す(lib/sponsors.ts に載せる会社がなければ出ない) */}
-            <SponsorSlot placement="gift" audience={party.audience} />
-            <SponsorSlot placement="second" audience={party.audience} />
+            <SponsorSlot placement="gift" audience={party.audience} region={party.region} />
+            <SponsorSlot placement="second" audience={party.audience} region={party.region} />
             <SecondPartyShops partyId={party.id} />
-            <SponsorSlot placement="ride" audience={party.audience} />
-            <SponsorSlot placement="campus" audience={party.audience} />
+            <SponsorSlot placement="ride" audience={party.audience} region={party.region} />
+            <SponsorSlot placement="campus" audience={party.audience} region={party.region} />
           </>
         )}
         {/* 答えた人を、次の会の幹事にする */}

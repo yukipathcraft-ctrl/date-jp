@@ -1,5 +1,5 @@
 import { CalendarDays, Cigarette, Clock, MapPin, MessageSquareText, Moon, UtensilsCrossed, Users, Wallet, Wine } from "lucide-react";
-import { areaLabel, budgetLabel, clock, dateLabel, stayLabel } from "@/lib/sendai";
+import { budgetLabel, clock, dateLabel, stayLabel } from "@/lib/sendai";
 import type { Summary } from "@/lib/summary";
 
 // みんなの回答から決まったこと。予算は「全員が出せる額」だけを出し、誰がいくらと答えたかは出さない
@@ -94,8 +94,8 @@ export function SummaryView({ summary }: { summary: Summary }) {
     {
       icon: MapPin,
       label: "場所",
-      value: areaLabel(summary.area!),
-      sub: summary.areaVotes.map((v) => `${areaLabel(v.key)} ${v.votes}`).join(" / "),
+      value: summary.areaName!,
+      sub: summary.areaVotes.map((v) => `${v.label} ${v.votes}`).join(" / "),
     },
     {
       icon: Moon,

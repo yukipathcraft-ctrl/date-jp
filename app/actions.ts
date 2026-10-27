@@ -2,6 +2,8 @@
 
 import { AUDIENCES, isAudience } from "@/lib/audience";
 import { canSetPayment, parseCollection, type CollectionInput } from "@/lib/collection";
+import { areaOptions, findRegion, searchRegions as searchHpRegions } from "@/lib/hpAreas";
+import { isRegion, type AreaOption } from "@/lib/region";
 import { AREAS, isAreaKey, isBudget, isGenreKey, isSecondGenreKey } from "@/lib/sendai";
 import { findShop, mergeShops, searchSecondShops, searchShops, type Shop } from "@/lib/shops";
 import { getStore } from "@/lib/store";
@@ -14,13 +16,22 @@ import { parseAnswer, parseParty, type AnswerInput } from "@/lib/validation";
 
 type Fail = { ok: false; error: string };
 
-export async function createParty(input: { title: string; audience: string; dates: string[] }): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
+export async function createParty(input: {
+  title: string;
+  audience: string;
+  dates: string[];
+  /** 仙台以外のときの地域(ホットペッパーの中エリア)。null なら仙台 */
+  region?: unknown;
+}): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
   const parsed = parseParty(input);
   if (!parsed.ok) return parsed;
+  // 地域の名前はブラウザから来たものを使わず、ホットペッパーで確かめた名前にする
+  const region = isRegion(input.region) ? await findRegion(input.region.code) : null;
+  if (isRegion(input.region) && !region) return { ok: false, error: "地域が見つかりませんでした。選び直してください" };
   const id = generateGroupId();
   const adminToken = generateToken();
   try {
-    await getStore().createParty({ id, ...parsed.value, adminHash: hashToken(adminToken) });
+    await getStore().createParty({ id, ...parsed.value, region, adminHash: hashToken(adminToken) });
   } catch (e) {
     console.error(e);
     return { ok: false, error: "作れませんでした。時間をおいてもう一度お試しください" };
@@ -36,7 +47,8 @@ export async function saveAnswer(
   const store = getStore();
   const party = await store.getParty(partyId);
   if (!party) return { ok: false, error: "飲み会が見つかりません" };
-  const parsed = parseAnswer(input, party.dates);
+  const areas = await areaOptions(party.region, party.audience);
+  const parsed = parseAnswer(input, party.dates, areas.map((a) => a.key));
   if (!parsed.ok) return parsed;
 
   let answerId = crypto.randomUUID();
@@ -58,7 +70,7 @@ export async function saveAnswer(
 export async function getMyAnswer(partyId: string, answerId: string, token: string): Promise<AnswerInput | null> {
   const answer = (await getStore().listAnswers(partyId)).find((a) => a.id === answerId);
   if (!answer || !verifyToken(token, answer.tokenHash)) return null;
-  const { name, dates, arrival, stay, budget, areas, memo, avoids, drinks, avoidNote } = answer;
+  const { name, dates, arrival, stay, budget, areas, memo, avoids, drinks, smokes, avoidNote } = answer;
   return {
     name,
     dates,
@@ -69,6 +81,7 @@ export async function getMyAnswer(partyId: string, answerId: string, token: stri
     ...(memo ? { memo } : {}),
     avoids: avoids ?? [],
     drinks: drinks !== false,
+    ...(smokes ? { smokes: true } : {}),
     ...(avoidNote ? { avoidNote } : {}),
   };
 }
@@ -86,7 +99,7 @@ export async function decide(
     return { ok: true };
   }
   if (!party.dates.includes(choice.date)) return { ok: false, error: "候補の日から選んでください" };
-  const summary = summarize(party.dates, await store.listAnswers(partyId), choice.date);
+  const summary = summarize(party.dates, await store.listAnswers(partyId), choice.date, await areaOptions(party.region, party.audience));
   if (summary.start === null) return { ok: false, error: "その日に行ける人がいません" };
   const shop = choice.shopId ? await findShop(choice.shopId) : null;
   await store.setDecision(partyId, {
@@ -107,8 +120,15 @@ export async function findShops(input: {
   /** タバコが吸えるお店だけにする(社会人の画面だけで出す) */
   smoking?: boolean;
   audience: string;
+  /** 仙台以外で探すときの地域(ホットペッパーの中エリアのコード)。なければ仙台 */
+  region?: string | null;
 }): Promise<{ shops: Shop[]; otherArea: boolean; raisedTo: number | null }> {
-  const areas = [...new Set(Array.isArray(input.areas) ? input.areas : [])].filter(isAreaKey);
+  // 場所は、その地域の選択肢にあるものだけを受け取る
+  const regionCode = typeof input.region === "string" && /^Y\d{3}$/.test(input.region) ? input.region : null;
+  const allowed = regionCode ? (await areaOptions({ code: regionCode, name: "" }, "student")).map((a) => a.key) : null;
+  const areas = [...new Set(Array.isArray(input.areas) ? input.areas : [])].filter((a): a is string =>
+    allowed ? typeof a === "string" && allowed.includes(a) : isAreaKey(a),
+  );
   if (areas.length === 0) return { shops: [], otherArea: false, raisedTo: null };
   const genres = [...new Set(Array.isArray(input.genres) ? input.genres : [])].filter(isGenreKey);
   const audience = isAudience(input.audience) ? input.audience : "student";
@@ -222,6 +242,8 @@ export async function findSecondShops(
   const { party, summary } = view;
   const decision = party.decision!;
   const first = decision.shopId ? await findShop(decision.shopId) : null;
+  // 仙台以外で一次会のお店が決まっていなければ、探す場所の目印がないので出さない
+  if (party.region && first?.lat == null) return { shops: [], size: 0, near: "" };
   const area = AREAS.find((a) => a.key === summary.area) ?? AREAS[0];
   const base = first?.lat != null && first.lng != null ? { lat: first.lat, lng: first.lng } : { lat: area.lat, lng: area.lng };
   const size = summary.secondParty.length || summary.attendees.length;
@@ -230,7 +252,7 @@ export async function findSecondShops(
     size,
     genre: isSecondGenreKey(genre) ? genre : null,
     exclude: decision.shopId,
-    area: area.key,
+    area: summary.area ?? area.key,
   });
   return { shops, size, near: first?.lat != null ? (decision.shopName ?? first.name) : area.label };
 }
@@ -275,6 +297,17 @@ export async function partyAttendees(
   const store = getStore();
   const party = typeof partyId === "string" ? await store.getParty(partyId) : null;
   if (!party?.decision || !verifyToken(adminToken, party.adminHash)) return null;
-  const summary = summarize(party.dates, await store.listAnswers(party.id), party.decision.date);
+  const summary = summarize(party.dates, await store.listAnswers(party.id), party.decision.date, await areaOptions(party.region, party.audience));
   return { title: party.title, date: party.decision.date, attendees: summary.attendees.map((a) => ({ name: a.name, soft: a.soft })) };
+}
+
+/** 仙台以外の地域を名前で探す(会を作るとき・お店を探すときに使う) */
+export async function searchRegions(keyword: string): Promise<{ code: string; name: string; pref: string }[]> {
+  return typeof keyword === "string" ? searchHpRegions(keyword) : [];
+}
+
+/** その地域の「行きやすい場所」の選択肢(お店を探す画面で使う) */
+export async function regionAreas(code: string): Promise<AreaOption[]> {
+  if (typeof code !== "string" || !/^Y\d{3}$/.test(code)) return [];
+  return areaOptions({ code, name: "" }, "student");
 }

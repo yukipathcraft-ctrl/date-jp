@@ -94,3 +94,28 @@ describe("みんなのひとこと", () => {
     ]);
   });
 });
+
+describe("summarize の場所(仙台以外の地域)", () => {
+  it("その地域の選択肢から、いちばん多い場所を名前つきで選ぶ", () => {
+    const base = { dates: { "2026-11-06": "ok" as const }, arrival: 1140, stay: 1320, budget: 4000 };
+    const s = summarize(
+      ["2026-11-06"],
+      [
+        { ...base, id: "1", name: "A", areas: ["X100"] },
+        { ...base, id: "2", name: "B", areas: ["X100", "X200"] },
+        { ...base, id: "3", name: "C", areas: ["X200", "X999"] },
+      ],
+      null,
+      [
+        { key: "X200", label: "道玄坂" },
+        { key: "X100", label: "渋谷駅東口" },
+      ],
+    );
+    expect(s.area).toBe("X200");
+    expect(s.areaName).toBe("道玄坂");
+    expect(s.areaVotes).toEqual([
+      { key: "X200", label: "道玄坂", votes: 2 },
+      { key: "X100", label: "渋谷駅東口", votes: 2 },
+    ]);
+  });
+});

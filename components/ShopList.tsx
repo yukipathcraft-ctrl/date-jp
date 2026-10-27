@@ -57,7 +57,7 @@ export function ShopList({
       {shops.length === 0 && empty && <p className="mt-4 text-sm text-muted">{empty}</p>}
       {isSample && (
         <p className="mt-2 rounded-xl bg-match-soft px-3 py-2 text-xs font-bold text-match-text">
-          今出ているのは実在しない見本のお店で、お店のデータをつなぐと仙台の本物のお店に変わります
+          今出ているのは実在しない見本のお店で、お店のデータをつなぐと本物のお店に変わります
         </p>
       )}
       <ul className="mt-4 space-y-3">
