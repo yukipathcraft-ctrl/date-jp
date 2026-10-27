@@ -12,12 +12,12 @@ export function LogoMark({ size = 28 }: { size?: number }) {
   );
 }
 
-/** ロゴの横に並べる名前。もとにした KANJI のロゴと同じく、細めの字を、字の間を大きく広げて並べる(表記はほかと同じ「Date」) */
+/** ロゴの横に並べる名前。起動したときに出る「Date」(components/SplashIntro.tsx)とそろえ、いちばん太い字を詰めて並べる */
 export function Wordmark({ size = 28 }: { size?: number }) {
   return (
     <span className="flex items-center gap-2">
       <LogoMark size={size} />
-      <span className="pl-0.5 font-medium tracking-[0.24em] text-white" style={{ fontSize: Math.round(size * 0.72) }}>
+      <span className="font-black tracking-tight text-white" style={{ fontSize: Math.round(size * 0.72) }}>
         Date
       </span>
     </span>
