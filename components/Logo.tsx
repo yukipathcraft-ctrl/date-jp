@@ -12,12 +12,12 @@ export function LogoMark({ size = 28 }: { size?: number }) {
   );
 }
 
-/** ロゴの横に並べる名前。起動したときに出る「Date」(components/SplashIntro.tsx)とそろえ、いちばん太い字を詰めて並べる */
+/** ロゴの横に並べる名前。起動したときに出る「Date」(components/SplashIntro.tsx)とそろえ、Poppins の太字を少し詰めて並べる */
 export function Wordmark({ size = 28 }: { size?: number }) {
   return (
     <span className="flex items-center gap-2">
       <LogoMark size={size} />
-      <span className="font-black tracking-tight text-white" style={{ fontSize: Math.round(size * 0.72) }}>
+      <span className="font-logo font-bold tracking-[-0.02em] text-white" style={{ fontSize: Math.round(size * 0.72) }}>
         Date
       </span>
     </span>

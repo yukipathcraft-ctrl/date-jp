@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans_JP } from "next/font/google";
+import { Noto_Sans_JP, Poppins } from "next/font/google";
 import "./globals.css";
 
 const jp = Noto_Sans_JP({
@@ -9,6 +9,9 @@ const jp = Noto_Sans_JP({
   display: "swap",
   variable: "--font-jp",
 });
+
+// 名前「Date」だけに使う字体。丸みのある幾何学的な太字で、親しみやすく今っぽく見せる
+const logo = Poppins({ weight: "700", subsets: ["latin"], display: "swap", variable: "--font-poppins" });
 
 export const metadata: Metadata = {
   title: { default: "Date | 仙台の飲み会セッティング", template: "%s | Date" },
@@ -26,7 +29,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ja" className={`${jp.variable} h-full antialiased`}>
+    <html lang="ja" className={`${jp.variable} ${logo.variable} h-full antialiased`}>
       <body className="min-h-full">
         <main>{children}</main>
       </body>

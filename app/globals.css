@@ -44,6 +44,8 @@
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-danger: var(--danger);
+  /* 名前「Date」の字体(app/layout.tsx で読み込む Poppins) */
+  --font-logo: var(--font-poppins), "Poppins", system-ui, sans-serif;
   --font-sans: "Hiragino Kaku Gothic ProN", "Hiragino Sans", var(--font-jp), "Noto Sans JP",
     "Yu Gothic UI", Meiryo, system-ui, sans-serif;
 }
