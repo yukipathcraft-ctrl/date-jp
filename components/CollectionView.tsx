@@ -109,7 +109,7 @@ export function CollectionView({
         <div className="px-4 pb-3">
           <Link href={`/c/${c.id}/statement?token=${encodeURIComponent(token ?? "")}`} className={`${BUTTON_SUB} w-full gap-2 text-sm`}>
             <FileText className="size-4 text-accent" aria-hidden />
-            経費精算の明細書を作る
+            経費精算用の名簿と金額
             <ChevronRight className="size-4 text-muted" aria-hidden />
           </Link>
         </div>

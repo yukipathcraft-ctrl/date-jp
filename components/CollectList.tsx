@@ -84,7 +84,7 @@ export function CollectList() {
                     className="flex min-h-11 items-center gap-1.5 border-t border-border px-5 text-xs font-bold text-muted transition-colors hover:bg-surface-2/60 hover:text-text"
                   >
                     <FileText className="size-3.5 text-accent" aria-hidden />
-                    経費精算の明細書
+                    経費精算用の名簿と金額
                   </Link>
                 </li>
               );

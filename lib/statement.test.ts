@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EMPTY_META, averageYen, paymentStatus, statementCsv, statementRows } from "./statement";
+import { EMPTY_META, attendeeLine, averageYen, expenseSummary, paymentStatus, rosterTsv, statementCsv, statementRows } from "./statement";
 import type { CollectionPerson } from "./store/types";
 
 const person = (id: number, name: string, amount: number, organizer = false): CollectionPerson => ({
@@ -47,8 +47,27 @@ describe("statement", () => {
     expect(lines).toContain('提出先,"株式会社A, 総務部"');
     expect(lines).toContain('件名,"新人""A"",歓迎"');
     expect(lines).toContain("精算金額(税込),10000");
-    expect(lines).toContain("No,氏名,区分,負担額,集金状況");
-    expect(lines).toContain("1,山田,幹事,4000,立替(幹事)");
+    expect(lines).toContain("No,氏名,所属・関係,区分,負担額,集金状況");
+    expect(lines).toContain("1,山田,,幹事,4000,立替(幹事)");
     expect(csv.endsWith("\r\n")).toBe(true);
+  });
+
+  it("参加者欄の1行は、所属があればかっこで添え、最後に人数を付ける", () => {
+    expect(attendeeLine(c)).toBe("山田、佐藤、鈴木 計3名");
+    expect(attendeeLine(c, { 2: "株式会社A", 3: " " })).toBe("山田、佐藤(株式会社A)、鈴木 計3名");
+  });
+
+  it("Excel に貼る表はタブ区切りで、合計の行が付き、値の中のタブや改行は空白にする", () => {
+    const lines = rosterTsv(c, { 1: "営業\t部" }).split("\n");
+    expect(lines[0]).toBe("No\t氏名\t所属・関係\t負担額");
+    expect(lines[1]).toBe("1\t山田\t営業 部\t4000");
+    expect(lines.at(-1)).toBe("\t合計\t3名\t10000");
+  });
+
+  it("まとめて貼る文は空の項目を出さず、目的がなければ件名を使う", () => {
+    const text = expenseSummary(c, { ...EMPTY_META, date: "2026-10-30", shop: "居酒屋 伊達" });
+    expect(text).toBe(
+      ["利用日: 2026/10/30", "支払先: 居酒屋 伊達", "目的: 部署の歓迎会", "金額: 10,000円(税込)", "人数: 3名(1人あたり 3,333円)", "参加者: 山田、佐藤、鈴木 計3名"].join("\n"),
+    );
   });
 });

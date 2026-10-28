@@ -534,7 +534,7 @@ export function SplitClient() {
               </Link>
               <Link href={`/c/${collection.id}/statement?token=${collection.token}`} className={`${BUTTON_SUB} w-full gap-2 text-sm`}>
                 <FileText className="size-4 text-accent" aria-hidden />
-                経費精算の明細書を作る
+                経費精算用の名簿と金額
               </Link>
               <button type="button" onClick={makeCollection} disabled={collecting} className={`${BUTTON_SUB} w-full text-sm`}>
                 {collecting ? "作っています…" : "金額を変えたので作り直す"}
