@@ -26,6 +26,10 @@ export const GENRES = [
   { key: "yoshoku", label: "洋食", hotpepper: ["G005", "G006"] },
   { key: "chuka", label: "中華", hotpepper: ["G007"] },
   { key: "yakiniku", label: "焼肉・韓国", hotpepper: ["G008", "G017"] },
+  { key: "bar", label: "ダイニングバー", hotpepper: ["G002"] },
+  { key: "sosaku", label: "創作料理", hotpepper: ["G003"] },
+  { key: "ethnic", label: "アジア・各国料理", hotpepper: ["G009", "G010"] },
+  { key: "okonomiyaki", label: "お好み焼き", hotpepper: ["G016"] },
 ] as const;
 export type GenreKey = (typeof GENRES)[number]["key"];
 
@@ -47,9 +51,19 @@ export function isBudget(v: unknown): v is Budget {
  */
 export const UNLIMITED_BUDGET = 1_000_000;
 
-/** 答えで選べる予算か(選択肢の額か、上限なし) */
+/**
+ * 答えで選べる予算の額。1,000円〜15,000円を500円ごと、その上は20,000円と30,000円。
+ * 幹事の開始時刻と同じように、たくさんの中から選べるようにする
+ */
+export const ANSWER_BUDGETS: number[] = [
+  ...Array.from({ length: 29 }, (_, i) => 1000 + i * 500),
+  20000,
+  30000,
+];
+
+/** 答えで選べる予算か(選択肢の額か、上限なし)。前の答えの額(2,000円など)も、この中に入っている */
 export function isAnswerBudget(v: unknown): v is number {
-  return isBudget(v) || v === UNLIMITED_BUDGET;
+  return isBudget(v) || ANSWER_BUDGETS.includes(v as number) || v === UNLIMITED_BUDGET;
 }
 
 /** 予算の見せ方。上限なしは「上限なし」 */
@@ -78,6 +92,12 @@ export const STAYS = [
   { minutes: 1800, label: "最後まで" },
 ] as const;
 
+/**
+ * 答えで選べる残れる時刻。20:00〜朝5:00 を30分ごと。0:00 は「終電まで」、いちばん最後は「最後まで」(朝まで)。
+ * 幹事の開始時刻と同じように、たくさんの中から選べるようにする
+ */
+export const STAY_CHOICES: number[] = [...Array.from({ length: 19 }, (_, i) => 1200 + i * 30), 1800];
+
 /** 選択肢にない時刻も書ける。5分きざみで、18:00〜朝6:00(30:00)の間 */
 export function isStay(v: unknown): v is number {
   return (
@@ -86,8 +106,14 @@ export function isStay(v: unknown): v is number {
   );
 }
 
+/**
+ * 残れる時刻の見せ方。0時は「終電まで」、いちばん最後は「最後まで」。
+ * それ以外は「21:30まで」、夜中は「深夜1:00まで」とそろえる(25:00 のような書き方はしない)
+ */
 export function stayLabel(minutes: number): string {
-  return STAYS.find((s) => s.minutes === minutes)?.label ?? `${clock(minutes)}まで`;
+  if (minutes === 1440) return "終電まで";
+  if (minutes >= 1800) return "最後まで";
+  return minutes > 1440 ? `深夜${clock(minutes - 1440)}まで` : `${clock(minutes)}まで`;
 }
 
 /**

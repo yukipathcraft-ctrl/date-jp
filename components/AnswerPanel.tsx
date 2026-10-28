@@ -7,7 +7,8 @@ import { useEffect, useState, useTransition } from "react";
 import { getMyAnswer, saveAnswer } from "@/app/actions";
 import { AUDIENCES, isAdult, type Audience } from "@/lib/audience";
 import { AVOIDS } from "@/lib/diet";
-import { AREAS, GENRES, STAYS, UNLIMITED_BUDGET, clock, dateLabel, inputFromMinutes, minutesFromInput, yen, type AreaKey } from "@/lib/sendai";
+import { ANSWER_BUDGETS, AREAS, GENRES, STAY_CHOICES, UNLIMITED_BUDGET, clock, dateLabel, stayLabel, yen, type AreaKey } from "@/lib/sendai";
+import { Picker } from "./Picker";
 import type { DateAnswer } from "@/lib/summary";
 import { MAX_AVOID_NOTE, MAX_MEMO, type AnswerInput } from "@/lib/validation";
 import { Required } from "./Required";
@@ -44,72 +45,6 @@ function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; c
       {on && <Check className="size-3.5 shrink-0" aria-hidden />}
       {children}
     </button>
-  );
-}
-
-/**
- * 時刻を選ぶ。よくある時刻はボタンで、それ以外は「そのほか」から書ける(17:45 や 20:15 など)。
- * value が 0 なら、まだ選んでいない
- */
-function TimeChoices({
-  presets,
-  value,
-  onChange,
-  overnight,
-  hint,
-}: {
-  presets: { minutes: number; label: string }[];
-  value: number;
-  onChange: (minutes: number) => void;
-  /** 残れる時刻のように夜をまたぐもの。01:00 は 25:00 として扱う */
-  overnight: boolean;
-  hint: string;
-}) {
-  const isPreset = presets.some((p) => p.minutes === value);
-  const [other, setOther] = useState(false);
-  const showInput = other || (value !== 0 && !isPreset);
-  return (
-    <>
-      <div className="flex flex-wrap gap-2">
-        {presets.map((p) => (
-          <Choice
-            key={p.minutes}
-            on={!showInput && value === p.minutes}
-            onClick={() => {
-              setOther(false);
-              onChange(p.minutes);
-            }}
-          >
-            {p.label}
-          </Choice>
-        ))}
-        <Choice
-          on={showInput}
-          onClick={() => {
-            setOther(true);
-            if (isPreset) onChange(0);
-          }}
-        >
-          そのほか
-        </Choice>
-      </div>
-      {showInput && (
-        <label className="mt-3 flex items-center gap-3">
-          <input
-            type="time"
-            step={300}
-            className={`${INPUT} w-40 [color-scheme:dark]`}
-            value={value !== 0 && !isPreset ? inputFromMinutes(value) : ""}
-            onChange={(e) => {
-              const m = minutesFromInput(e.target.value, overnight);
-              if (m !== null) onChange(Math.round(m / 5) * 5);
-            }}
-            aria-label="時刻を入れる"
-          />
-          <span className="text-xs text-muted">{hint}</span>
-        </label>
-      )}
-    </>
   );
 }
 
@@ -324,12 +259,12 @@ export function AnswerPanel({
             いつまで残れる?
             <Required />
           </p>
-          <TimeChoices
-            presets={STAYS.map((st) => ({ minutes: st.minutes, label: st.label }))}
+          {/* 幹事の開始時刻と同じように、30分ごとの細かい時刻から選ぶ */}
+          <Picker
+            label="残れる時刻"
             value={form.stay}
+            options={STAY_CHOICES.map((m) => ({ value: m, label: stayLabel(m) }))}
             onChange={(m) => set({ stay: m })}
-            overnight
-            hint="夜中の1時なら 01:00 と書けます"
           />
         </fieldset>
 
@@ -340,16 +275,13 @@ export function AnswerPanel({
             1人いくらまで出せる?
             <Required />
           </p>
-          <div className="flex flex-wrap gap-2">
-            {opts.budgets.map((b) => (
-              <Choice key={b} on={form.budget === b} onClick={() => set({ budget: b })}>
-                〜{yen(b)}
-              </Choice>
-            ))}
-            <Choice on={form.budget === UNLIMITED_BUDGET} onClick={() => set({ budget: UNLIMITED_BUDGET })}>
-              上限なし
-            </Choice>
-          </div>
+          {/* 500円ごとの細かい額から選ぶ(上限なしも選べる) */}
+          <Picker
+            label="1人あたり"
+            value={form.budget}
+            options={[...ANSWER_BUDGETS.map((b) => ({ value: b, label: `〜${yen(b)}` })), { value: UNLIMITED_BUDGET, label: "上限なし" }]}
+            onChange={(b) => set({ budget: b })}
+          />
           <p className="mt-3 text-xs text-muted">誰がいくらと答えたかは幹事にも見えず、行く人全員が出せる額に合わせて決まります</p>
         </fieldset>
 
@@ -412,12 +344,20 @@ export function AnswerPanel({
             <UtensilsCrossed className="size-4" />
             苦手なもの・アレルギー <span className="font-normal">(なければそのままでOK)</span>
           </p>
+          {/* アレルギーと苦手なものを分けて並べる。どちらも人数だけを出し、誰が選んだかは出さない */}
+          {(["allergy", "dislike"] as const).map((kind) => (
+            <div key={kind} className="mt-2 first-of-type:mt-0">
+              <p className="mb-1.5 text-[11px] font-bold text-muted">{kind === "allergy" ? "アレルギー" : "苦手なもの"}</p>
+              <div className="flex flex-wrap gap-2">
+                {AVOIDS.filter((a) => a.kind === kind).map((a) => (
+                  <Choice key={a.key} on={(form.avoids ?? []).includes(a.key)} onClick={() => toggleAvoid(a.key)}>
+                    {a.label}
+                  </Choice>
+                ))}
+              </div>
+            </div>
+          ))}
           <div className="flex flex-wrap gap-2">
-            {AVOIDS.map((a) => (
-              <Choice key={a.key} on={(form.avoids ?? []).includes(a.key)} onClick={() => toggleAvoid(a.key)}>
-                {a.label}
-              </Choice>
-            ))}
           </div>
           <input
             className={`${INPUT} mt-3 min-h-12 text-sm`}

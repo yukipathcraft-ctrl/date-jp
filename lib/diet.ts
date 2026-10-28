@@ -1,15 +1,31 @@
 // 苦手なもの・アレルギーと、お酒を飲むかどうか。
 // 誰が何を選んだかは出さず、人数だけをまとめて、お店選びと予約のときに使う
 
+/**
+ * kind: allergy = 食べると体に出るもの(表示が義務・推奨の食材が中心)、dislike = 苦手なもの。
+ * 前からある key は変えない(前の答えが読めなくなるため)
+ */
 export const AVOIDS = [
-  { key: "shrimp", label: "えび・かに" },
-  { key: "soba", label: "そば" },
-  { key: "milk", label: "乳製品" },
-  { key: "egg", label: "卵" },
-  { key: "wheat", label: "小麦" },
-  { key: "nuts", label: "ナッツ・落花生" },
-  { key: "raw", label: "生もの" },
-  { key: "spicy", label: "辛いもの" },
+  { key: "shrimp", label: "えび・かに", kind: "allergy" },
+  { key: "soba", label: "そば", kind: "allergy" },
+  { key: "milk", label: "乳製品", kind: "allergy" },
+  { key: "egg", label: "卵", kind: "allergy" },
+  { key: "wheat", label: "小麦", kind: "allergy" },
+  { key: "nuts", label: "ナッツ・落花生", kind: "allergy" },
+  { key: "shellfish", label: "貝類", kind: "allergy" },
+  { key: "squid", label: "いか・たこ", kind: "allergy" },
+  { key: "fish", label: "魚", kind: "allergy" },
+  { key: "soy", label: "大豆", kind: "allergy" },
+  { key: "sesame", label: "ごま", kind: "allergy" },
+  { key: "fruit", label: "果物(キウイ・もも など)", kind: "allergy" },
+  { key: "raw", label: "生もの", kind: "dislike" },
+  { key: "spicy", label: "辛いもの", kind: "dislike" },
+  { key: "offal", label: "ホルモン・レバー", kind: "dislike" },
+  { key: "lamb", label: "羊肉", kind: "dislike" },
+  { key: "coriander", label: "パクチー", kind: "dislike" },
+  { key: "mushroom", label: "きのこ", kind: "dislike" },
+  { key: "garlic", label: "にんにく", kind: "dislike" },
+  { key: "cheese", label: "チーズ", kind: "dislike" },
 ] as const;
 export type AvoidKey = (typeof AVOIDS)[number]["key"];
 
