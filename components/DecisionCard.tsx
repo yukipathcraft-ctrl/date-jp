@@ -9,7 +9,8 @@ import type { Decision } from "@/lib/store/types";
 /** 見本のお店(s1, s2…)は実在しないので、予約や地図のリンクを出さない */
 const isSampleShop = (id: string) => /^s\d+$/.test(id);
 
-export function DecisionCard({ decision, partyId }: { decision: Decision; partyId: string }) {
+/** photo = 決まったお店の写真(ホットペッパーの写真。見本のお店や写真のないお店は null) */
+export function DecisionCard({ decision, partyId, photo = null }: { decision: Decision; partyId: string; photo?: string | null }) {
   const shop = decision.shopId && decision.shopName ? { id: decision.shopId, name: decision.shopName } : null;
   return (
     <section className="anim-rise mx-4 rounded-3xl border border-match bg-match-soft px-4 py-6">
@@ -22,6 +23,15 @@ export function DecisionCard({ decision, partyId }: { decision: Decision; partyI
       </p>
       {shop ? (
         <>
+          {photo && (
+            <figure className="mt-4">
+              {/* 外のお店の写真。最適化は使わない */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photo} alt={`${shop.name}の写真`} className="aspect-[16/9] w-full rounded-2xl object-cover" />
+              {/* ホットペッパーの規約で、写真を使うときは「画像提供」を出す */}
+              <figcaption className="mt-1 text-right text-[10px] text-muted">画像提供:ホットペッパー グルメ</figcaption>
+            </figure>
+          )}
           <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-lg font-bold">
             <Store className="size-5 shrink-0" aria-hidden />
             {shop.name}

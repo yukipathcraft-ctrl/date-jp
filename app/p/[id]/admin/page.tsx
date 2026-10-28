@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { AdminPanel } from "@/components/AdminPanel";
 import { DecisionCard } from "@/components/DecisionCard";
+import { findShop } from "@/lib/shops";
 import { Fold } from "@/components/Fold";
 import { SecondPartyShops } from "@/components/SecondPartyShops";
-import { SponsorSlot } from "@/components/SponsorSlot";
 import { ShopList } from "@/components/ShopList";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StepBar } from "@/components/StepBar";
@@ -25,6 +25,9 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
   const view = await loadParty(id);
   if (!view) notFound();
   const { party, summary, shops, otherArea, adminHash } = view;
+  // 決まったお店の写真。いまの候補の中にあればそれを使い、なければお店を引く
+  const chosenId = party.decision?.shopId ?? null;
+  const chosenPhoto = chosenId ? ((shops.find((s) => s.id === chosenId) ?? (await findShop(chosenId)))?.photo ?? null) : null;
 
   if (typeof token !== "string" || !verifyToken(token, adminHash)) {
     return (
@@ -51,7 +54,7 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
         </div>
         {party.decision && (
           <div className="mb-4">
-            <DecisionCard decision={party.decision} partyId={party.id} />
+            <DecisionCard decision={party.decision} partyId={party.id} photo={chosenPhoto} />
           </div>
         )}
         <AdminPanel
@@ -90,14 +93,7 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
         )}
         {/* お店まで決まったら、二次会のお店も出す */}
         {party.decision && (
-          <>
-            {/* 広告は会が決まったあとにだけ、会の種類に合うものを出す(lib/sponsors.ts に載せる会社がなければ出ない) */}
-            <SponsorSlot placement="gift" audience={party.audience} />
-            <SponsorSlot placement="second" audience={party.audience} />
-            <SecondPartyShops partyId={party.id} />
-            <SponsorSlot placement="ride" audience={party.audience} />
-            <SponsorSlot placement="campus" audience={party.audience} />
-          </>
+          <SecondPartyShops partyId={party.id} />
         )}
         <p className="px-4 pt-6 text-center text-sm">
           <a href={`/p/${party.id}`} className="font-bold underline">

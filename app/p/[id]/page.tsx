@@ -4,10 +4,10 @@ import { connection } from "next/server";
 import { AnswerPanel } from "@/components/AnswerPanel";
 import { DeadlineNote } from "@/components/DeadlineNote";
 import { DecisionCard } from "@/components/DecisionCard";
+import { findShop } from "@/lib/shops";
 import { Fold } from "@/components/Fold";
 import { NextHost } from "@/components/NextHost";
 import { SecondPartyShops } from "@/components/SecondPartyShops";
-import { SponsorSlot } from "@/components/SponsorSlot";
 import { ShopList } from "@/components/ShopList";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SummaryView } from "@/components/SummaryView";
@@ -33,6 +33,9 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
   const view = await loadParty(id);
   if (!view) notFound();
   const { party, summary, shops, otherArea } = view;
+  // 決まったお店の写真。いまの候補の中にあればそれを使い、なければお店を引く
+  const chosenId = party.decision?.shopId ?? null;
+  const chosenPhoto = chosenId ? ((shops.find((s) => s.id === chosenId) ?? (await findShop(chosenId)))?.photo ?? null) : null;
   // 答えた人を次の幹事に誘うときの、その時期の会の呼び方(忘年会・新歓など)
   const occasion = nextOccasion(monthInJapan(new Date()), party.audience);
   // 日にちが決まったら、締め切りはもう出さない
@@ -47,7 +50,7 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
           <h1 className="mt-1 text-[22px] font-black tracking-tight">{party.title}</h1>
         </div>
         {deadline && <DeadlineNote state={deadline} />}
-        {party.decision && <DecisionCard decision={party.decision} partyId={party.id} />}
+        {party.decision && <DecisionCard decision={party.decision} partyId={party.id} photo={chosenPhoto} />}
         <div className={party.decision ? "mt-4" : ""}>
           <AnswerPanel partyId={party.id} dates={party.dates} audience={party.audience} start={party.start} occasion={occasion} />
         </div>
@@ -73,14 +76,7 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
         )}
         {/* お店まで決まったら、二次会のお店も出す */}
         {party.decision && (
-          <>
-            {/* 広告は会が決まったあとにだけ、会の種類に合うものを出す(lib/sponsors.ts に載せる会社がなければ出ない) */}
-            <SponsorSlot placement="gift" audience={party.audience} />
-            <SponsorSlot placement="second" audience={party.audience} />
-            <SecondPartyShops partyId={party.id} />
-            <SponsorSlot placement="ride" audience={party.audience} />
-            <SponsorSlot placement="campus" audience={party.audience} />
-          </>
+          <SecondPartyShops partyId={party.id} />
         )}
         {/* 答えた人を、次の会の幹事にする */}
         <div className="mx-4 mt-4">
