@@ -1,7 +1,6 @@
 import "server-only";
 import { cleanEnv } from "./env";
 import { AUDIENCES, type Audience } from "./audience";
-import type { Rating } from "./rating";
 import { AREAS, GENRES, SECOND_GENRES, type AreaKey, type GenreKey, type SecondGenreKey } from "./sendai";
 
 // お店の候補。ホットペッパーの API キーがあれば実際のお店を出し、なければ見本のお店を出す。
@@ -28,8 +27,6 @@ export type Shop = {
   lat: number | null;
   lng: number | null;
   sample: boolean;
-  /** Google の評価。お金がかかるので今は使わず、いつも null(2026-10-28 ユーザーの判断) */
-  rating: Rating | null;
 };
 
 export type Smoking = "ok" | "partial" | "no" | null;
@@ -98,7 +95,6 @@ function sample(
     lat: null,
     lng: null,
     sample: true,
-    rating: null,
   };
 }
 
@@ -219,7 +215,6 @@ function fromHotpepper(s: HotpepperShop, area: AreaKey): Shop {
     lat: Number.isFinite(Number(s.lat)) ? Number(s.lat) : null,
     lng: Number.isFinite(Number(s.lng)) ? Number(s.lng) : null,
     sample: false,
-    rating: null,
   };
 }
 
