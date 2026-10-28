@@ -54,8 +54,8 @@ export async function ogImage({
   const heads = title.split("\n").map((t) => clip(t, 18));
   const longest = Math.max(...heads.map((h) => [...h].length));
   const big = longest > 13 ? 56 : longest > 10 ? 62 : 72;
-  const bold = heads.join("");
-  const regular = ["Date", "SENDAI", "仙台限定", eyebrow, ...lines, ...chips, "◆"].join("");
+  const bold = ["Date", ...heads].join("");
+  const regular = ["SENDAI", "仙台限定", eyebrow, ...lines, ...chips, "◆"].join("");
   const [fontBold, fontRegular] = await Promise.all([loadFont(bold, 700), loadFont(regular, 400)]);
   const fonts = [
     ...(fontBold ? [{ name: "NotoJP", data: fontBold, weight: 700 as const, style: "normal" as const }] : []),
@@ -109,7 +109,8 @@ export async function ogImage({
         >
           {/* 上: 名前 */}
           <div style={{ display: "flex", alignItems: "baseline", gap: 22 }}>
-            <span style={{ fontSize: 36, fontWeight: 400, letterSpacing: 10, color: INK }}>Date</span>
+            {/* 名前は画面の左上・起動の画面と同じく、いちばん太い字を詰めて並べる */}
+            <span style={{ fontSize: 40, fontWeight: 700, letterSpacing: -1, color: INK }}>Date</span>
             <span style={{ fontSize: 20, fontWeight: 400, letterSpacing: 8, color: GOLD_SOFT }}>SENDAI</span>
           </div>
 
