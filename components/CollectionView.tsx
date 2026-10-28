@@ -10,6 +10,7 @@ import { loadMyCollections, rememberCollection } from "@/lib/myCollections";
 import { collectText, reminderText } from "@/lib/share";
 import type { Collection } from "@/lib/store/types";
 import { SendButtons, useCanShare } from "./SendButtons";
+import { BUTTON_SUB } from "./ui";
 
 // 集金のページ。払ったかどうかを、本人が押すか幹事が記録する。色だけでなく ✓ と文字でも分かるようにする
 
@@ -102,6 +103,17 @@ export function CollectionView({
           合計 {yen(c.total)}・{c.people.length}人{host ? `・幹事は${host.name}さん` : ""}
         </p>
       </div>
+
+      {/* 会社に出す明細書へは、いちばん上からすぐ飛べるようにする(幹事だけ) */}
+      {isHost && (
+        <div className="px-4 pb-3">
+          <Link href={`/c/${c.id}/statement?token=${encodeURIComponent(token ?? "")}`} className={`${BUTTON_SUB} w-full gap-2 text-sm`}>
+            <FileText className="size-4 text-accent" aria-hidden />
+            経費精算の明細書を作る
+            <ChevronRight className="size-4 text-muted" aria-hidden />
+          </Link>
+        </div>
+      )}
 
       <section className="mx-4 rounded-3xl border panel px-5 py-5" aria-live="polite">
         <p className="flex items-center gap-2 font-black">
@@ -224,19 +236,6 @@ export function CollectionView({
               <SendButtons mainLabel="共有して催促を送る" share={{ text: remind }} copy={remind} copyLabel="催促の文をコピー" canShare={canShare} />
             </section>
           )}
-          <Link
-            href={`/c/${c.id}/statement?token=${encodeURIComponent(token ?? "")}`}
-            className="mx-4 mt-4 flex items-center gap-3 rounded-3xl border panel px-5 py-4 transition hover:border-white/30"
-          >
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent/10 text-accent">
-              <FileText className="size-5" aria-hidden />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block font-black">経費精算の明細を作る</span>
-              <span className="block text-xs text-muted">会社に出す明細を、PDFやCSV(Excel)で保存できます</span>
-            </span>
-            <ChevronRight className="size-5 shrink-0 text-muted" aria-hidden />
-          </Link>
           <p className="mx-4 mt-3 text-xs text-muted">
             現金で受け取ったときは「受け取った」を押してください。参加した人の押し間違いも、幹事なら取り消せます
           </p>

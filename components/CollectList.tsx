@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, ListChecks, Wallet } from "lucide-react";
+import { ChevronRight, FileText, ListChecks, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { collectionProgress } from "@/app/actions";
@@ -77,6 +77,14 @@ export function CollectList() {
                       )}
                     </span>
                     <ChevronRight className="size-5 shrink-0 text-muted" aria-hidden />
+                  </Link>
+                  {/* 会社に出す明細書へ、集金のページを通らずに飛べる */}
+                  <Link
+                    href={`/c/${c.id}/statement?token=${c.token}`}
+                    className="flex min-h-11 items-center gap-1.5 border-t border-border px-5 text-xs font-bold text-muted transition-colors hover:bg-surface-2/60 hover:text-text"
+                  >
+                    <FileText className="size-3.5 text-accent" aria-hidden />
+                    経費精算の明細書
                   </Link>
                 </li>
               );

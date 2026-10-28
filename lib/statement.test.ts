@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { averageYen, paymentStatus, statementCsv, statementRows } from "./statement";
+import { EMPTY_META, averageYen, paymentStatus, statementCsv, statementRows } from "./statement";
 import type { CollectionPerson } from "./store/types";
 
 const person = (id: number, name: string, amount: number, organizer = false): CollectionPerson => ({
@@ -13,6 +13,7 @@ const person = (id: number, name: string, amount: number, organizer = false): Co
 });
 
 const c = {
+  id: "ab12cd34ef",
   title: "部署の歓迎会",
   total: 10000,
   people: [person(1, "山田", 4000, true), person(2, "佐藤", 3000), person(3, "鈴木", 3000)],
@@ -40,11 +41,13 @@ describe("statement", () => {
   });
 
   it("CSV は CRLF で区切り、カンマや引用符を含む値は囲む", () => {
-    const csv = statementCsv({ ...c, title: '新人"A",歓迎' }, { date: "2026-10-30", shop: "居酒屋 伊達", purpose: "歓迎会" });
+    const csv = statementCsv({ ...c, title: '新人"A",歓迎' }, { ...EMPTY_META, to: "株式会社A, 総務部", date: "2026-10-30", shop: "居酒屋 伊達", purpose: "歓迎会" });
     const lines = csv.split("\r\n");
-    expect(lines[0]).toBe('件名,"新人""A"",歓迎"');
-    expect(lines).toContain("合計金額,10000");
-    expect(lines).toContain("No,氏名,区分,負担額,支払い状況");
+    expect(lines[0]).toBe("精算明細書,No. AB12CD34EF");
+    expect(lines).toContain('提出先,"株式会社A, 総務部"');
+    expect(lines).toContain('件名,"新人""A"",歓迎"');
+    expect(lines).toContain("精算金額(税込),10000");
+    expect(lines).toContain("No,氏名,区分,負担額,集金状況");
     expect(lines).toContain("1,山田,幹事,4000,立替(幹事)");
     expect(csv.endsWith("\r\n")).toBe(true);
   });

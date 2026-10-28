@@ -3,7 +3,24 @@ import type { Collection } from "./store/types";
 // 経費精算に出す明細。集金のページの中身から、表の行と CSV を作る。純粋関数
 
 /** 幹事が明細に書き足す項目。集金のページには日にちとお店を残していないので、ここで入れてもらう */
-export type StatementMeta = { date: string; shop: string; purpose: string };
+export type StatementMeta = {
+  /** 提出先(会社名・部署) */
+  to: string;
+  /** 申請者の所属と氏名 */
+  dept: string;
+  applicant: string;
+  date: string;
+  shop: string;
+  purpose: string;
+  note: string;
+};
+
+export const EMPTY_META: StatementMeta = { to: "", dept: "", applicant: "", date: "", shop: "", purpose: "", note: "" };
+
+/** 明細書の番号。集金のページの id から作るので、同じ会なら何度作っても同じ番号になる */
+export function statementNo(id: string): string {
+  return `No. ${id.toUpperCase()}`;
+}
 
 export type StatementRow = { no: number; name: string; label: string; amount: number; status: string };
 
@@ -39,17 +56,22 @@ function cell(v: string | number): string {
 }
 
 /** 表計算ソフトで開ける CSV。上に会の情報、下に1人ずつの行を置く(改行は CRLF) */
-export function statementCsv(c: Source & { title: string }, meta: StatementMeta): string {
+export function statementCsv(c: Source & { id: string; title: string }, meta: StatementMeta): string {
   const lines: (string | number)[][] = [
+    ["精算明細書", statementNo(c.id)],
+    ["提出先", meta.to],
+    ["所属", meta.dept],
+    ["申請者", meta.applicant],
     ["件名", c.title || "お会計"],
     ["利用日", meta.date],
-    ["店名", meta.shop],
-    ["用途", meta.purpose],
-    ["合計金額", c.total],
+    ["支払先", meta.shop],
+    ["用途・目的", meta.purpose],
+    ["精算金額(税込)", c.total],
     ["人数", c.people.length],
     ["1人あたり平均", averageYen(c)],
+    ["備考", meta.note],
     [],
-    ["No", "氏名", "区分", "負担額", "支払い状況"],
+    ["No", "氏名", "区分", "負担額", "集金状況"],
     ...statementRows(c).map((r) => [r.no, r.name, r.label, r.amount, r.status]),
   ];
   return lines.map((l) => l.map(cell).join(",")).join("\r\n") + "\r\n";
