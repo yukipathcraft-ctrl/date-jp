@@ -2,7 +2,7 @@
 
 import { Check, Copy, Share } from "lucide-react";
 import { useEffect, useState } from "react";
-import { BUTTON_PRIMARY } from "./ui";
+import { BUTTON_PRIMARY, BUTTON_SUB } from "./ui";
 
 /** スマホの共有の画面(Slack・メモ・メールなど)を開けるか。開けないパソコンではコピーを大きくする */
 export function useCanShare(): boolean {
@@ -35,8 +35,8 @@ function CopyButton({ text, label, className }: { text: string; label: string; c
 }
 
 /**
- * 送り方のボタン。学生も社会人も、共有のボタンひとつにする(LINE・Slack・Teams・メールなど、送り先はスマホの共有の画面で選ぶ)。
- * 共有の画面がないパソコンでは、同じ場所のボタンで送る文をコピーする
+ * 送り方のボタン。学生も社会人も、共有のボタンを大きく置き(LINE・Slack・Teams・メールなど、送り先はスマホの共有の画面で選ぶ)、
+ * その下にコピーを控えめに置く。共有の画面がないパソコンでは、コピーだけを大きく出す
  */
 export function SendButtons({ mainLabel, share, copy, copyLabel = "URLをコピー", canShare }: {
   mainLabel: string;
@@ -47,12 +47,15 @@ export function SendButtons({ mainLabel, share, copy, copyLabel = "URLをコピ�
   canShare: boolean;
 }) {
   return (
-    <div className="mt-4">
+    <div className="mt-4 space-y-2">
       {canShare ? (
-        <button type="button" className={`${BUTTON_PRIMARY} w-full gap-2`} onClick={() => navigator.share(share).catch(() => {})}>
-          <Share className="size-5" aria-hidden />
-          {mainLabel}
-        </button>
+        <>
+          <button type="button" className={`${BUTTON_PRIMARY} w-full gap-2`} onClick={() => navigator.share(share).catch(() => {})}>
+            <Share className="size-5" aria-hidden />
+            {mainLabel}
+          </button>
+          <CopyButton text={copy} label={copyLabel} className={`${BUTTON_SUB} w-full gap-2 text-sm`} />
+        </>
       ) : (
         <CopyButton text={copy} label={copyLabel} className={`${BUTTON_PRIMARY} w-full gap-2`} />
       )}
