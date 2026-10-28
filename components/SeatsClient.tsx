@@ -1,11 +1,10 @@
 "use client";
 
-import { Crown, RectangleHorizontal, Circle, Send, Shuffle, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Crown, RectangleHorizontal, Circle, Shuffle, Users } from "lucide-react";
+import { useState } from "react";
 import { assignSeats, parseNames, seatsText, type Person } from "@/lib/seats";
-import { loadAudience, type Audience } from "@/lib/audience";
-import { lineShareUrl, teamsShareUrl } from "@/lib/share";
-import { BUTTON_LINE, BUTTON_PRIMARY, BUTTON_SUB, CARD, INPUT, LABEL, PILL, PILL_OFF, PILL_ON } from "./ui";
+import { SendButtons, useCanShare } from "./SendButtons";
+import { BUTTON_PRIMARY, BUTTON_SUB, CARD, INPUT, LABEL, PILL, PILL_OFF, PILL_ON } from "./ui";
 
 const TABLE_CHOICES = [1, 2, 3, 4, 5, 6];
 
@@ -135,11 +134,7 @@ export function SeatsClient() {
   const [result, setResult] = useState<Person[][] | null>(null);
   // 引き直すたびに数を変え、席の出てくる動きをもう一度流す
   const [draw, setDraw] = useState(0);
-  const [audience, setAudience] = useState<Audience>("student");
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setAudience(loadAudience() ?? "student");
-  }, []);
+  const canShare = useCanShare();
 
   const names = parseNames(text);
   const ready = names.length >= 2;
@@ -298,18 +293,8 @@ export function SeatsClient() {
               {useGroups && "A・B・C はグループ"}
             </p>
           )}
-          {/* 社会人は Teams、学生は LINE で送る */}
-          {audience === "worker" ? (
-            <a href={teamsShareUrl(seatsText(result))} target="_blank" rel="noopener" className={`${BUTTON_SUB} w-full gap-2`}>
-              <Send className="size-4" aria-hidden />
-              Teamsで送る
-            </a>
-          ) : (
-            <a href={lineShareUrl(seatsText(result))} target="_blank" rel="noreferrer" className={`${BUTTON_LINE} w-full gap-2`}>
-              <Send className="size-4" aria-hidden />
-              LINEで送る
-            </a>
-          )}
+          {/* 学生も社会人も、共有のボタンひとつで送る(送り先はスマホの共有の画面で選ぶ) */}
+          <SendButtons mainLabel="共有して席を送る" share={{ text: seatsText(result) }} copy={seatsText(result)} copyLabel="席の文をコピー" canShare={canShare} />
           <button type="button" onClick={() => setResult(null)} className={`${BUTTON_SUB} w-full`}>
             名前を直す
           </button>

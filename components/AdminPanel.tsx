@@ -4,7 +4,6 @@ import { CalendarClock, Calculator, Check, ChevronRight, KeyRound, PartyPopper, 
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { decide } from "@/app/actions";
-import type { Audience } from "@/lib/audience";
 import { dateLabel } from "@/lib/sendai";
 import { decidedText, inviteText } from "@/lib/share";
 import type { Shop } from "@/lib/shops";
@@ -26,8 +25,6 @@ type Props = {
   decision: Decision | null;
   /** その日に行く人の名前と、お酒を飲まないか。会計に持っていく */
   attendees: { name: string; soft: boolean }[];
-  /** 社会人の会は、送るボタンを Slack・Teams 向けにする */
-  audience: Audience;
   /** 幹事が決めた開始時刻(分)。招待の文に添える */
   start: number | null;
 };
@@ -52,7 +49,7 @@ function BoxHead({ icon, title, note, tone }: { icon: React.ReactNode; title: st
   );
 }
 
-export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees, audience, start: partyStart }: Props) {
+export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees, start: partyStart }: Props) {
   const router = useRouter();
   const [origin, setOrigin] = useState("");
   const canShare = useCanShare();
@@ -88,15 +85,13 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           tone="plain"
           icon={<Users className="size-5" />}
           title="みんなに送る"
-          note={audience === "worker" ? "Slack や Teams のチャンネルに貼れば、みんながそこから答えられます" : "グループに送れば、みんながそこから答えられます"}
+          note="グループやチャットに送れば、みんながそこから答えられます"
         />
         <SendButtons
-          line={inviteText(title, guestUrl, partyStart)}
           mainLabel="共有してみんなに送る"
           share={{ text: inviteText(title, guestUrl, partyStart) }}
           copy={guestUrl}
           canShare={canShare}
-          audience={audience}
         />
 
         {/* スマホで作ってパソコンでも開く、といった使い方があるので、自分に送る枠は目立たせておく */}
@@ -114,12 +109,10 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             </span>
           </p>
           <SendButtons
-            line={`${adminNote}\n${adminUrl}`}
             mainLabel="共有して自分に残す"
             share={{ title: adminNote, text: adminNote, url: adminUrl }}
             copy={adminUrl}
             canShare={canShare}
-            audience={audience}
           />
         </div>
       </section>
@@ -139,12 +132,10 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           <p className="mt-1 text-sm text-muted">日にちと時間、お店を入れた文をみんなに送れます</p>
           <SendButtons
             mainLabel="共有して「決まったよ」を送る"
-            line={decidedMessage}
             share={{ text: decidedMessage }}
             copy={decidedMessage}
             copyLabel="送る文をコピー"
             canShare={canShare}
-            audience={audience}
           />
           <div className="mt-5 border-t border-border pt-4" />
           <button

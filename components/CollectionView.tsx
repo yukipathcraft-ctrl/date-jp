@@ -212,7 +212,7 @@ export function CollectionView({
               みんなにこのページを送る
             </h2>
             <p className="mt-1 text-sm text-muted">払った人が自分で「払った」を押せるので、一人ずつ聞かなくて済みます</p>
-            <SendButtons mainLabel="共有してみんなに送る" line={askText} share={{ text: askText }} copy={askText} copyLabel="送る文をコピー" audience={c.audience} canShare={canShare} />
+            <SendButtons mainLabel="共有してみんなに送る" share={{ text: askText }} copy={askText} copyLabel="送る文をコピー" canShare={canShare} />
           </section>
 
           {unpaid.length > 0 && (
@@ -220,7 +220,7 @@ export function CollectionView({
               <h2 className="text-lg font-black">まだの人に催促する</h2>
               <p className="mt-1 text-xs text-muted">まだの{unpaid.length}人の名前と金額だけが入ります。払った人の名前は出ません</p>
               <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm leading-relaxed break-all whitespace-pre-wrap">{remind}</p>
-              <SendButtons mainLabel="共有して催促を送る" line={remind} share={{ text: remind }} copy={remind} copyLabel="催促の文をコピー" audience={c.audience} canShare={canShare} />
+              <SendButtons mainLabel="共有して催促を送る" share={{ text: remind }} copy={remind} copyLabel="催促の文をコピー" canShare={canShare} />
             </section>
           )}
           <p className="mx-4 mt-3 text-xs text-muted">

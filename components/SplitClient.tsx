@@ -497,12 +497,10 @@ export function SplitClient() {
             <div className="px-5 pb-5">
               <SendButtons
                 mainLabel="共有して金額を送る"
-                line={shareText}
                 share={{ text: shareText }}
                 copy={shareText}
                 copyLabel="金額をコピー"
                 canShare={canShare}
-                audience={audience}
               />
             </div>
           </>
