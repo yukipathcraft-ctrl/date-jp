@@ -48,6 +48,6 @@ describe("プライベートの会", () => {
   it("催促も集金の案内も、友達どうしの言い方にする(敬語は会社の会だけ)", () => {
     expect(reminderText("private", "", [{ name: "山田", amount: 3000 }]).startsWith("この前の飲み会のお会計、まだの人お願いします")).toBe(true);
     expect(reminderText("worker", "", [{ name: "山田", amount: 3000 }]).startsWith("お疲れさまです。")).toBe(true);
-    expect(collectText("同期会", "https://x", "private")).toBe("「同期会」のお会計です\n払ったら自分の名前の「払った」を押してください\nhttps://x");
+    expect(collectText("同期会", "https://x", "private")).toBe("「同期会」のお会計です\n自分の金額を見て、幹事に払ってね\nhttps://x");
   });
 });

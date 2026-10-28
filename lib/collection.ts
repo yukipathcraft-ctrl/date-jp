@@ -69,11 +69,14 @@ export function parseCollection(input: CollectionInput): Result<ParsedCollection
 }
 
 /**
- * 「払った」を押してよいか。幹事は誰でも切り替えられる。
- * 参加した人は「払った」にできるが、取り消せるのは本人が押したものだけ(幹事が受け取りを記録したものは戻せない)
+ * 払ったかどうかを変えてよいか。幹事だけ(2026-10-29 から)。
+ * 参加した人が自分で「払った」を押せると、払っていなくても押せてしまうので、幹事が受け取りを確かめたものだけを数える
  */
-export function canSetPayment(current: Payment | undefined, next: boolean, isHost: boolean): boolean {
-  if (isHost) return true;
-  if (next) return current === undefined;
-  return current?.by === "self";
+export function canSetPayment(isHost: boolean): boolean {
+  return isHost;
+}
+
+/** 払ったと数えるか。幹事が受け取りを記録したものだけ(前に本人が押した「払った」は、幹事が確かめるまで数えない) */
+export function isConfirmed(payment: Payment | undefined): boolean {
+  return payment?.by === "host";
 }

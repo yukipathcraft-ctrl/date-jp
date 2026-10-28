@@ -1,7 +1,7 @@
 "use server";
 
 import { AUDIENCES, isAudience } from "@/lib/audience";
-import { canSetPayment, parseCollection, type CollectionInput } from "@/lib/collection";
+import { canSetPayment, isConfirmed, parseCollection, type CollectionInput } from "@/lib/collection";
 import { isValidDeadline } from "@/lib/deadline";
 import { AREAS, isAreaKey, isBudget, isGenreKey, isSecondGenreKey, upcomingDates } from "@/lib/sendai";
 import { findShop, mergeShops, searchSecondShops, searchShops, type Shop } from "@/lib/shops";
@@ -197,8 +197,7 @@ export async function startCollection(input: CollectionInput): Promise<{ ok: tru
 }
 
 /**
- * 払ったかどうかを切り替える。幹事(鍵が合う)は誰でも切り替えられ、受け取りとして記録する。
- * 参加した人は「払った」にでき、自分で押したものだけ取り消せる
+ * 払ったかどうかを切り替える。幹事(鍵が合う)だけが、受け取りとして記録できる
  */
 export async function setCollectionPayment(
   collectionId: string,
@@ -212,10 +211,8 @@ export async function setCollectionPayment(
   const person = c.people.find((p) => p.id === personId);
   if (!person || person.organizer) return { ok: false, error: "この人の支払いは変えられません" };
   const isHost = verifyToken(adminToken, c.adminHash);
-  if (!canSetPayment(c.payments[personId], paid === true, isHost)) {
-    return { ok: false, error: "幹事が受け取りを記録したものは、幹事しか戻せません" };
-  }
-  await store.setPayment(collectionId, personId, paid === true ? { by: isHost ? "host" : "self" } : null);
+  if (!canSetPayment(isHost)) return { ok: false, error: "受け取りの記録は、幹事だけができます" };
+  await store.setPayment(collectionId, personId, paid === true ? { by: "host" } : null);
   return { ok: true };
 }
 
@@ -231,7 +228,7 @@ export async function collectionProgress(
         const c = await store.getCollection(id);
         if (!c) return null;
         const payers = c.people.filter((p) => !p.organizer);
-        const unpaid = payers.filter((p) => !c.payments[p.id]);
+        const unpaid = payers.filter((p) => !isConfirmed(c.payments[p.id]));
         return { id, payers: payers.length, paid: payers.length - unpaid.length, unpaidYen: unpaid.reduce((s, p) => s + p.amount, 0) };
       } catch {
         return null;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canSetPayment, parseCollection } from "./collection";
+import { canSetPayment, isConfirmed, parseCollection } from "./collection";
 
 const person = (name: string, tenths = 10) => ({ name, tenths, label: "ふつう", mark: "●", tone: "yellow" });
 
@@ -31,13 +31,13 @@ describe("parseCollection", () => {
 });
 
 describe("canSetPayment", () => {
-  it("参加した人は払ったにでき、自分で押したものだけ取り消せる", () => {
-    expect(canSetPayment(undefined, true, false)).toBe(true);
-    expect(canSetPayment({ by: "self" }, false, false)).toBe(true);
-    expect(canSetPayment({ by: "host" }, false, false)).toBe(false);
+  it("幹事だけが変えられ、参加した人は押せない", () => {
+    expect(canSetPayment(true)).toBe(true);
+    expect(canSetPayment(false)).toBe(false);
   });
-  it("幹事はいつでも切り替えられる", () => {
-    expect(canSetPayment({ by: "host" }, false, true)).toBe(true);
-    expect(canSetPayment(undefined, true, true)).toBe(true);
+  it("幹事が受け取りを記録したものだけを、払ったと数える", () => {
+    expect(isConfirmed({ by: "host" })).toBe(true);
+    expect(isConfirmed({ by: "self" })).toBe(false);
+    expect(isConfirmed(undefined)).toBe(false);
   });
 });

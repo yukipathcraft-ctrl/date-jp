@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { setCollectionPayment } from "@/app/actions";
+import { isConfirmed } from "@/lib/collection";
 import { yen } from "@/lib/sendai";
 import { loadMyCollections, rememberCollection } from "@/lib/myCollections";
 import { collectText, reminderText } from "@/lib/share";
@@ -12,7 +13,7 @@ import type { Collection } from "@/lib/store/types";
 import { SendButtons, useCanShare } from "./SendButtons";
 import { BUTTON_SUB } from "./ui";
 
-// 集金のページ。払ったかどうかを、本人が押すか幹事が記録する。色だけでなく ✓ と文字でも分かるようにする
+// 集金のページ。払ったかどうかは幹事だけが記録する(本人が押せるとごまかせるため)。色だけでなく ✓ と文字でも分かるようにする
 
 /** 幹事の鍵。集金のページを作った端末に残し、鍵なしの URL で開いても幹事として使えるようにする */
 const hostKey = (id: string) => `nomi:collect:${id}`;
@@ -75,14 +76,13 @@ export function CollectionView({
 
   const isHost = token !== null;
   const payers = c.people.filter((p) => !p.organizer);
-  const unpaid = payers.filter((p) => !c.payments[p.id]);
+  const unpaid = payers.filter((p) => !isConfirmed(c.payments[p.id]));
   const unpaidYen = unpaid.reduce((sum, p) => sum + p.amount, 0);
   const host = c.people.find((p) => p.organizer);
   const url = `${origin}/c/${c.id}`;
   const heading = c.title ? `「${c.title}」の集金` : "お会計の集金";
 
-  function setPaid(personId: number, name: string, paid: boolean) {
-    if (!isHost && paid && !window.confirm(`${name}さんとして「払った」にしますか?`)) return;
+  function setPaid(personId: number, paid: boolean) {
     setError(null);
     start(async () => {
       const r = await setCollectionPayment(c.id, personId, paid, token);
@@ -141,14 +141,17 @@ export function CollectionView({
         </p>
         {!isHost && unpaid.length > 0 && (
           <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm">
-            払ったら、下の自分の名前の「払った」を押してください。幹事に伝わるので、わざわざ連絡しなくて大丈夫です
+            自分の金額を確かめて、幹事に払ってください。幹事が受け取ると、名前に ✓ が付きます
           </p>
         )}
       </section>
 
       <ul className="mx-4 mt-3 divide-y divide-border overflow-hidden rounded-3xl border panel">
         {c.people.map((p, i) => {
-          const pay = c.payments[p.id];
+          const raw = c.payments[p.id];
+          // 幹事が受け取ったものだけを「払った」とする。前に本人が押しただけのものは「申告あり」として、幹事に確かめてもらう
+          const pay = isConfirmed(raw) ? raw : undefined;
+          const claimed = raw && !pay;
           return (
             <li key={p.id} className="anim-stagger flex min-h-16 items-center gap-2.5 px-4" style={{ "--i": i } as React.CSSProperties}>
               <span
@@ -184,13 +187,13 @@ export function CollectionView({
                   <>
                     <span className="tier-green anim-pop inline-flex min-h-9 w-full items-center justify-center gap-1 rounded-full bg-[var(--tb)] text-xs font-bold text-black">
                       <Check className="size-3.5" aria-hidden />
-                      {pay.by === "host" ? "受取済み" : "払った"}
+                      受取済み
                     </span>
-                    {(isHost || pay.by === "self") && (
+                    {isHost && (
                       <button
                         type="button"
                         disabled={pending}
-                        onClick={() => setPaid(p.id, p.name, false)}
+                        onClick={() => setPaid(p.id, false)}
                         className="inline-flex min-h-8 items-center gap-0.5 text-[11px] font-bold text-muted underline-offset-2 hover:underline"
                       >
                         <RotateCcw className="size-3" aria-hidden />
@@ -198,15 +201,20 @@ export function CollectionView({
                       </button>
                     )}
                   </>
+                ) : isHost ? (
+                  <>
+                    <button
+                      type="button"
+                      disabled={pending}
+                      onClick={() => setPaid(p.id, true)}
+                      className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-white/15 bg-surface-2 text-xs font-bold text-text hover:border-white/30 disabled:opacity-50"
+                    >
+                      受け取った
+                    </button>
+                    {claimed && <span className="text-[10px] font-bold text-muted">申告あり・未確認</span>}
+                  </>
                 ) : (
-                  <button
-                    type="button"
-                    disabled={pending}
-                    onClick={() => setPaid(p.id, p.name, true)}
-                    className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-white/15 bg-surface-2 text-xs font-bold text-text hover:border-white/30 disabled:opacity-50"
-                  >
-                    {isHost ? "受け取った" : "払った"}
-                  </button>
+                  <span className="text-xs font-bold text-muted">{claimed ? "確認待ち" : "まだ"}</span>
                 )}
               </span>
             </li>
@@ -226,7 +234,7 @@ export function CollectionView({
               <Users className="size-5" aria-hidden />
               みんなにこのページを送る
             </h2>
-            <p className="mt-1 text-sm text-muted">払った人が自分で「払った」を押せるので、一人ずつ聞かなくて済みます</p>
+            <p className="mt-1 text-sm text-muted">一人ずつの金額が分かるので、金額を聞かれずに済みます。受け取ったら、ここで「受け取った」を押してください</p>
             <SendButtons mainLabel="共有してみんなに送る" share={{ text: askText }} copy={askText} copyLabel="送る文をコピー" canShare={canShare} />
           </section>
 

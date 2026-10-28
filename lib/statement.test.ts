@@ -25,7 +25,7 @@ describe("statement", () => {
     expect(paymentStatus(c, 1)).toBe("立替(幹事)");
     expect(paymentStatus(c, 2)).toBe("受取済み");
     expect(paymentStatus(c, 3)).toBe("未払い");
-    expect(paymentStatus({ ...c, payments: { 3: { by: "self" } } }, 3)).toBe("支払済み(本人申告)");
+    expect(paymentStatus({ ...c, payments: { 3: { by: "self" } } }, 3)).toBe("未確認(本人申告)");
   });
 
   it("行には番号を振り、幹事の区分は「幹事」にする", () => {

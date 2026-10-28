@@ -565,7 +565,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
         )}
       </section>
 
-      {/* 集金。払った人が自分で「払った」を押せるページを作り、幹事はそこで受け取りの記録と催促をする */}
+      {/* 集金。一人ずつの金額のページを作ってみんなに送り、幹事はそこで受け取りの記録と催促をする */}
       {/* トップの「集金のチェック」からはここへ来る(#collect) */}
       <section id="collect" className="mx-4 mt-4 scroll-mt-20 rounded-3xl border panel px-5 py-5">
           <h2 className="flex items-center gap-2 text-lg font-black">
@@ -573,7 +573,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
             集金のチェック
           </h2>
           <p className="mt-1 text-sm text-muted">
-            集金のページを作ってみんなに送ると、払った人が自分で「払った」を押せます。誰が払ったかは幹事の画面でまとめて見られ、まだの人にだけ催促を送れます
+            集金のページを作ってみんなに送ると、一人ずつ自分の金額を確かめられます。受け取ったら幹事が記録するので、まだの人にだけ催促を送れます
           </p>
           {collectError && (
             <p role="alert" className="mt-3 text-sm font-bold text-danger">

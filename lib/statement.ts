@@ -43,13 +43,13 @@ export type StatementRow = { no: number; name: string; affiliation: string; labe
 
 type Source = Pick<Collection, "total" | "people" | "payments" | "subsidy">;
 
-/** 支払いの状況。幹事は立て替えた人なので「立替」、本人が押しただけのものは「申告済み」と分ける */
+/** 支払いの状況。幹事は立て替えた人なので「立替」。前に本人が押しただけのものは、幹事が確かめていないので「未確認」 */
 export function paymentStatus(c: Source, personId: number): string {
   const p = c.people.find((x) => x.id === personId);
   if (p?.organizer) return "立替(幹事)";
   const pay = c.payments[personId];
   if (!pay) return "未払い";
-  return pay.by === "host" ? "受取済み" : "支払済み(本人申告)";
+  return pay.by === "host" ? "受取済み" : "未確認(本人申告)";
 }
 
 export function statementRows(c: Source, affiliations: Record<string, string> = {}): StatementRow[] {

@@ -59,8 +59,8 @@ export function reminderText(
 export function collectText(title: string, url: string, audience: Audience = "student"): string {
   const what = title ? `「${title}」の` : "";
   return isFormal(audience)
-    ? [`${what}お会計のご案内です。`, "お支払い後、ご自身のお名前の「払った」を押してください。", url].join("\n")
-    : [`${what}お会計です`, "払ったら自分の名前の「払った」を押してください", url].join("\n");
+    ? [`${what}お会計のご案内です。`, "ご自身の金額をご確認のうえ、幹事までお支払いください。", url].join("\n")
+    : [`${what}お会計です`, "自分の金額を見て、幹事に払ってね", url].join("\n");
 }
 
 export function decidedText(title: string, date: string, start: number, shopName: string | null, url: string): string {
