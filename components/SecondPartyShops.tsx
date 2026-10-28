@@ -32,6 +32,8 @@ export function SecondPartyShops({ partyId }: { partyId: string }) {
         shops={result?.shops ?? []}
         otherArea={false}
         heading="二次会のお店"
+        // 決まったあとの画面を長くしないよう、最初は3軒だけ
+        initial={3}
         lead={
           result
             ? `${result.near}の近くで、23時以降も開いているお店です(${result.size}人)`

@@ -11,9 +11,10 @@ import type { Decision } from "@/lib/store/types";
 import type { DateRank } from "@/lib/summary";
 import { saveAdminToken } from "./CreateForm";
 import { DeadlineEditor } from "./DeadlineEditor";
+import { Fold } from "./Fold";
 import { SendButtons, useCanShare } from "./SendButtons";
 import { SPLIT_NAMES_KEY } from "./SplitClient";
-import { BUTTON_PRIMARY, BUTTON_SUB } from "./ui";
+import { BUTTON_PRIMARY } from "./ui";
 
 type Props = {
   partyId: string;
@@ -98,7 +99,8 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           copy={guestUrl}
           canShare={canShare}
         />
-        <DeadlineEditor partyId={partyId} token={token} title={title} guestUrl={guestUrl} deadline={deadline} today={today} dates={ranking.map((r) => r.date)} />
+        {/* 締め切りは、日にちが決まるまでのもの */}
+        {!decision && <DeadlineEditor partyId={partyId} token={token} title={title} guestUrl={guestUrl} deadline={deadline} today={today} dates={ranking.map((r) => r.date)} />}
 
         {/* スマホで作ってパソコンでも開く、といった使い方があるので、自分に送る枠は目立たせておく */}
         <div className="mt-5 rounded-2xl border border-accent/40 bg-match-soft p-4">
@@ -165,7 +167,13 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             </span>
             <ChevronRight className="size-5 shrink-0 text-accent" aria-hidden />
           </button>
-          <button type="button" onClick={() => submit(null)} disabled={pending} className={`${BUTTON_SUB} mt-2 w-full`}>
+          {/* 取り消しはめったに使わないので、小さな文字のボタンにする */}
+          <button
+            type="button"
+            onClick={() => window.confirm("決定を取り消して、日にちとお店を選び直しますか?") && submit(null)}
+            disabled={pending}
+            className="mx-auto mt-3 flex min-h-11 items-center px-3 text-xs font-bold text-muted underline underline-offset-2 hover:text-text"
+          >
             決定を取り消す
           </button>
         </section>
@@ -247,7 +255,12 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           </section>
         )
       )}
-      {decision && invite}
+      {/* 決まったあとは、招待と幹事用の URL はたたんでおく(途中から入る人に送るときに開く) */}
+      {decision && (
+        <Fold title="招待の URL・幹事用の URL" note="あとから入る人に送るときに">
+          {invite}
+        </Fold>
+      )}
     </>
   );
 }

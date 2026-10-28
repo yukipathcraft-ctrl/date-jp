@@ -2,17 +2,13 @@
 
 import { Check, ChevronDown, Cigarette, CigaretteOff, ExternalLink, MapPin, Store } from "lucide-react";
 import { useState } from "react";
+import { mapsUrl } from "@/lib/maps";
 import type { Shop } from "@/lib/shops";
 import { areaLabel } from "@/lib/sendai";
 
 const SMOKING_LABEL = { ok: "喫煙可", partial: "分煙", no: "全面禁煙" } as const;
 
 // 予算・場所・人数に合うお店。お店のページへは /go を通す(押された数を数える)
-
-/** Google マップでお店を探す URL。API を使わない普通のリンクなので、お金はかからない */
-function mapsUrl(s: Shop): string {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.name} 仙台`)}`;
-}
 
 export function ShopList({
   partyId,
@@ -129,7 +125,7 @@ export function ShopList({
             {/* 場所や口コミは Google マップで見てもらう(見本のお店は実在しないので出さない) */}
             {!s.sample && (
               <a
-                href={mapsUrl(s)}
+                href={mapsUrl(s.name)}
                 target="_blank"
                 rel="noopener"
                 className="mt-2 flex min-h-11 items-center justify-center gap-1 rounded-xl text-sm font-bold text-muted transition-colors hover:text-text"

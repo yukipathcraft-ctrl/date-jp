@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { AnswerPanel } from "@/components/AnswerPanel";
 import { DeadlineNote } from "@/components/DeadlineNote";
 import { DecisionCard } from "@/components/DecisionCard";
+import { Fold } from "@/components/Fold";
 import { NextHost } from "@/components/NextHost";
 import { SecondPartyShops } from "@/components/SecondPartyShops";
 import { SponsorSlot } from "@/components/SponsorSlot";
@@ -46,21 +47,30 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
           <h1 className="mt-1 text-[22px] font-black tracking-tight">{party.title}</h1>
         </div>
         {deadline && <DeadlineNote state={deadline} />}
-        {party.decision && <DecisionCard decision={party.decision} />}
+        {party.decision && <DecisionCard decision={party.decision} partyId={party.id} />}
         <div className={party.decision ? "mt-4" : ""}>
           <AnswerPanel partyId={party.id} dates={party.dates} audience={party.audience} start={party.start} occasion={occasion} />
         </div>
-        <div className="mt-4">
-          <SummaryView summary={summary} />
-        </div>
-        <ShopList
-          partyId={party.id}
-          shops={shops}
-          otherArea={otherArea}
-          chosenId={party.decision?.shopId}
-          notice={dietNotice(summary.diet)}
-          basis={view.basis}
-        />
+        {/* 決まったあとは、みんなの答えはたたんでおく。お店まで決まったら、ほかの候補のお店は出さない */}
+        {party.decision ? (
+          <Fold title={`みんなの答え(${summary.answered}人)`} note="日にち・時間・予算・場所">
+            <SummaryView summary={summary} />
+          </Fold>
+        ) : (
+          <div className="mt-4">
+            <SummaryView summary={summary} />
+          </div>
+        )}
+        {!party.decision?.shopId && (
+          <ShopList
+            partyId={party.id}
+            shops={shops}
+            otherArea={otherArea}
+            chosenId={party.decision?.shopId}
+            notice={dietNotice(summary.diet)}
+            basis={view.basis}
+          />
+        )}
         {/* お店まで決まったら、二次会のお店も出す */}
         {party.decision && (
           <>
