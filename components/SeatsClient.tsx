@@ -142,11 +142,16 @@ function Toggle({ on, onClick, icon, title, sub }: { on: boolean; onClick: () =>
 export function SeatsClient() {
   const [text, setText] = useState("");
   const [mode, setMode] = useState<Mode>("lottery");
-  // 会社の飲み会なら、はじめから役職の順にしておく
+  // 役職の順は会社の会だけの機能。会社を選んでいる人には、はじめから役職の順にしておく
+  const [company, setCompany] = useState(false);
   useEffect(() => {
     const a = loadAudience();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (a && isFormal(a)) setMode("rank");
+    if (a && isFormal(a)) {
+      /* eslint-disable react-hooks/set-state-in-effect */
+      setCompany(true);
+      setMode("rank");
+      /* eslint-enable react-hooks/set-state-in-effect */
+    }
   }, []);
   const [tables, setTables] = useState(2);
   // 居酒屋の宴会は長テーブルが多いので、最初は長テーブル
@@ -178,6 +183,7 @@ export function SeatsClient() {
   return (
     <div className="space-y-4">
       <section className={`${CARD} space-y-6 px-5 py-5`}>
+        {company && (
         <div>
           <p className={LABEL}>席の決め方</p>
           <div className="grid grid-cols-2 gap-2" role="group" aria-label="席の決め方">
@@ -204,6 +210,7 @@ export function SeatsClient() {
           </div>
           {mode === "rank" && <p className="mt-2 text-xs text-muted">偉い人から順に名前を入れると、上座から順に並べます。上の人は各テーブルに1人ずつ分かれます</p>}
         </div>
+        )}
 
         <label className="block">
           <span className={LABEL}>

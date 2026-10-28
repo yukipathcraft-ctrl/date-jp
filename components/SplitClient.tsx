@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { partyAttendees, partyStatuses, startCollection } from "@/app/actions";
-import { loadAudience, type Audience } from "@/lib/audience";
+import { isFormal, loadAudience, type Audience } from "@/lib/audience";
 import { rememberCollection } from "@/lib/myCollections";
 import { loadMyParties, type MyParty } from "@/lib/myParties";
 import { dateLabel, yen } from "@/lib/sendai";
@@ -206,7 +206,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
   };
   const totalYen = Number(total);
   const ready = Number.isInteger(totalYen) && totalYen > 0 && people.length > 0;
-  const subsidy = ready ? subsidyTotal(subsidyYen ? { kind: subsidyKind, yen: Number(subsidyYen) } : null, totalYen, people.length) : 0;
+  const subsidy = ready && isFormal(audience) ? subsidyTotal(subsidyYen ? { kind: subsidyKind, yen: Number(subsidyYen) } : null, totalYen, people.length) : 0;
   // 補助を引いた残りを、みんなで割る
   const result = ready
     ? splitBill({ total: totalYen - subsidy, weights: people.map((p) => weightOf(p).tenths), unit, organizer })
@@ -237,7 +237,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
         title,
         audience,
         total: totalYen,
-        subsidy: subsidyYen ? { kind: subsidyKind, yen: Number(subsidyYen) } : null,
+        subsidy: isFormal(audience) && subsidyYen ? { kind: subsidyKind, yen: Number(subsidyYen) } : null,
         unit,
         organizer,
         people: people.map((p, i) => {
@@ -310,41 +310,41 @@ export function SplitClient({ from = null }: { from?: string | null }) {
         </span>
       </label>
 
-      {/* 会社や部署・部費からの補助。入れると、その分を引いた残りをみんなで割る */}
-      <div className="mx-4 mt-3 rounded-3xl border panel px-5 py-4">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-bold text-muted">補助(会社・部署・部費など)</span>
-          <div className="grid grid-cols-2 gap-1 rounded-xl bg-surface-2 p-0.5" role="group" aria-label="補助の出し方">
+      {/* 会社や部署からの補助(会社の会だけ)。入れると、その分を引いた残りをみんなで割る。最初は 0円 */}
+      {isFormal(audience) && (
+        <div className="mx-4 mt-2 flex items-center gap-2 rounded-2xl border panel px-4 py-2">
+          <span className="shrink-0 text-xs font-bold text-muted">会社の補助</span>
+          <div className="grid shrink-0 grid-cols-2 gap-0.5 rounded-lg bg-surface-2 p-0.5" role="group" aria-label="補助の出し方">
             {(["per", "lump"] as const).map((k) => (
               <button
                 key={k}
                 type="button"
                 aria-pressed={subsidyKind === k}
                 onClick={() => setSubsidyKind(k)}
-                className={`min-h-9 rounded-lg px-3 text-xs font-bold ${subsidyKind === k ? "bg-surface text-text shadow" : "text-muted"}`}
+                className={`min-h-8 rounded-md px-2 text-[11px] font-bold ${subsidyKind === k ? "bg-surface text-text shadow" : "text-muted"}`}
               >
-                {k === "per" ? "1人あたり" : "全体で"}
+                {k === "per" ? "1人" : "全体"}
               </button>
             ))}
           </div>
+          <span className="ml-auto flex min-w-0 items-baseline gap-0.5">
+            <input
+              className="w-20 min-w-0 bg-transparent text-right text-base font-black tabular-nums outline-none"
+              inputMode="numeric"
+              value={Number(subsidyYen || 0).toLocaleString("ja-JP")}
+              onChange={(e) => setSubsidyYen(e.target.value.replace(/[^\d]/g, "").replace(/^0+/, "").slice(0, 7))}
+              onFocus={(e) => e.target.select()}
+              aria-label={subsidyKind === "per" ? "1人あたりの補助(円)" : "全体の補助(円)"}
+            />
+            <span className="text-xs font-bold text-muted">円</span>
+          </span>
         </div>
-        <span className="mt-2 flex items-baseline gap-2">
-          <span className="text-lg font-black text-muted">¥</span>
-          <input
-            className="w-full min-w-0 bg-transparent text-2xl font-black tabular-nums outline-none placeholder:text-border"
-            inputMode="numeric"
-            value={subsidyYen === "" ? "" : Number(subsidyYen).toLocaleString("ja-JP")}
-            onChange={(e) => setSubsidyYen(e.target.value.replace(/[^\d]/g, "").replace(/^0+/, "").slice(0, 7))}
-            placeholder="なし"
-            aria-label={subsidyKind === "per" ? "1人あたりの補助(円)" : "全体の補助(円)"}
-          />
-        </span>
-        {subsidy > 0 && (
-          <p className="mt-1 text-xs font-bold text-accent">
-            補助 {yen(subsidy)} を引いて、{yen(totalYen - subsidy)} をみんなで割ります
-          </p>
-        )}
-      </div>
+      )}
+      {subsidy > 0 && (
+        <p className="mx-4 mt-1 px-1 text-xs font-bold text-accent">
+          補助 {yen(subsidy)} を引いて、{yen(totalYen - subsidy)} をみんなで割ります
+        </p>
+      )}
 
       {/* 傾斜で割るか(左・最初の選択)、全員同じ額の割り勘か(右) */}
       <div className="mx-4 mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-surface-2 p-1" role="group" aria-label="割り方">
@@ -588,10 +588,13 @@ export function SplitClient({ from = null }: { from?: string | null }) {
                 <ExternalLink className="size-5" aria-hidden />
                 集金のページを開く
               </Link>
-              <Link href={`/c/${collection.id}/statement?token=${collection.token}`} className={`${BUTTON_SUB} w-full gap-2 text-sm`}>
-                <FileText className="size-4 text-accent" aria-hidden />
-                経費精算用の名簿と金額
-              </Link>
+              {/* 経費精算の名簿と金額は、会社の会だけ */}
+              {isFormal(audience) && (
+                <Link href={`/c/${collection.id}/statement?token=${collection.token}`} className={`${BUTTON_SUB} w-full gap-2 text-sm`}>
+                  <FileText className="size-4 text-accent" aria-hidden />
+                  経費精算用の名簿と金額
+                </Link>
+              )}
               <button type="button" onClick={makeCollection} disabled={collecting} className={`${BUTTON_SUB} w-full text-sm`}>
                 {collecting ? "作っています…" : "金額を変えたので作り直す"}
               </button>

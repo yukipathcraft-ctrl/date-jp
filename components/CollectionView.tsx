@@ -106,8 +106,8 @@ export function CollectionView({
         </p>
       </div>
 
-      {/* 会社に出す明細書へは、いちばん上からすぐ飛べるようにする(幹事だけ) */}
-      {isHost && (
+      {/* 会社に出す明細書へは、いちばん上からすぐ飛べるようにする(幹事だけ・会社の会だけ) */}
+      {isHost && c.audience === "worker" && (
         <div className="px-4 pb-3">
           <Link href={`/c/${c.id}/statement?token=${encodeURIComponent(token ?? "")}`} className={`${BUTTON_SUB} w-full gap-2 text-sm`}>
             <FileText className="size-4 text-accent" aria-hidden />
