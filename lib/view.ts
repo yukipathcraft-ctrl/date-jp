@@ -21,7 +21,7 @@ export async function loadParty(id: string): Promise<(PartyView & { adminHash: s
   const party = await store.getParty(id);
   if (!party) return null;
   const answers = await store.listAnswers(id);
-  const summary = summarize(party.dates, answers, party.decision?.date);
+  const summary = summarize(party.dates, answers, party.decision?.date, party.must);
   // 誰も場所を選んでいなければ(全員「どこでもいい」)、選択肢のいちばん上の場所で探す
   const area = summary.area ?? AUDIENCES[party.audience].areas[0];
   const ready = summary.budget !== null;

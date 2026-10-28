@@ -33,9 +33,9 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
     },
     async getParty(id) {
       const row = check<
-        { id: string; title: string; audience: string; dates: string[]; admin_hash: string; decision: Decision | null; start_minutes: number | null; answer_deadline: string | null } | null
+        { id: string; title: string; audience: string; dates: string[]; admin_hash: string; decision: Decision | null; start_minutes: number | null; answer_deadline: string | null; must_names: string[] | null } | null
       >(
-        await db.from("nomi_parties").select("id, title, audience, dates, admin_hash, decision, start_minutes, answer_deadline").eq("id", id).maybeSingle(),
+        await db.from("nomi_parties").select("id, title, audience, dates, admin_hash, decision, start_minutes, answer_deadline, must_names").eq("id", id).maybeSingle(),
       );
       return row ? {
             id: row.id,
@@ -46,6 +46,7 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
             decision: row.decision,
             start: row.start_minutes ?? null,
             deadline: row.answer_deadline ?? null,
+            must: row.must_names ?? [],
           } : null;
     },
     async listAnswers(partyId) {
@@ -63,6 +64,9 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
       if (result.error?.code === "23505") return false;
       check(result);
       return true;
+    },
+    async setMust(partyId, names) {
+      check(await db.from("nomi_parties").update({ must_names: names }).eq("id", partyId));
     },
     async setDeadline(partyId, deadline) {
       check(await db.from("nomi_parties").update({ answer_deadline: deadline }).eq("id", partyId));

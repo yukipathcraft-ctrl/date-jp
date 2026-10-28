@@ -19,12 +19,12 @@ db.collections ??= new Map();
 
 export const memoryStore: Store = {
   async createParty(party) {
-    db.parties.set(party.id, { ...party, decision: null, createdAt: Date.now() });
+    db.parties.set(party.id, { ...party, decision: null, must: [], createdAt: Date.now() });
   },
   async getParty(id) {
     const p = db.parties.get(id);
     if (!p) return null;
-    const party: Party & { createdAt?: number; via?: Via } = { ...structuredClone(p), start: p.start ?? null, deadline: p.deadline ?? null };
+    const party: Party & { createdAt?: number; via?: Via } = { ...structuredClone(p), start: p.start ?? null, deadline: p.deadline ?? null, must: p.must ?? [] };
     delete party.createdAt;
     delete party.via;
     return party;
@@ -44,6 +44,10 @@ export const memoryStore: Store = {
     else list.push({ ...structuredClone(answer), createdAt: Date.now() });
     db.answers.set(partyId, list);
     return true;
+  },
+  async setMust(partyId, names) {
+    const p = db.parties.get(partyId);
+    if (p) p.must = [...names];
   },
   async setDeadline(partyId, deadline) {
     const p = db.parties.get(partyId);

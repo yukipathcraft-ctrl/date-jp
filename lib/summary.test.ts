@@ -25,7 +25,7 @@ describe("rankDates", () => {
       answer("c", { dates: { [D1]: "ok", [D2]: "no" } }),
     ];
     expect(rankDates([D1, D2], answers).map((r) => r.date)).toEqual([D1, D2]);
-    expect(rankDates([D1, D2], answers.slice(0, 2))[0]).toEqual({ date: D2, ok: 2, maybe: 0 });
+    expect(rankDates([D1, D2], answers.slice(0, 2))[0]).toEqual({ date: D2, ok: 2, maybe: 0, mustOk: true });
   });
 });
 
@@ -110,5 +110,29 @@ describe("summarize の食べたいもの", () => {
       ["yakiniku", 2],
       ["izakaya", 1],
     ]);
+  });
+});
+
+describe("必ず来てほしい人", () => {
+  it("その人が行ける日を、行ける人が多い日より先にする", () => {
+    const answers = [
+      answer("部長", { dates: { [D1]: "no", [D2]: "ok" } }),
+      answer("a", { dates: { [D1]: "ok", [D2]: "no" } }),
+      answer("b", { dates: { [D1]: "ok", [D2]: "no" } }),
+    ];
+    expect(rankDates([D1, D2], answers)[0].date).toBe(D1);
+    const ranked = rankDates([D1, D2], answers, ["部長"]);
+    expect(ranked.map((r) => [r.date, r.mustOk])).toEqual([
+      [D2, true],
+      [D1, false],
+    ]);
+    expect(summarize([D1, D2], answers, null, ["部長"]).date).toBe(D2);
+  });
+
+  it("まだ答えていない人と、決めた日に行けない人を出す", () => {
+    const answers = [answer("部長", { dates: { [D1]: "no" } }), answer("a", { dates: { [D1]: "ok" } })];
+    const s = summarize([D1], answers, D1, ["部長", "課長"]);
+    expect(s.mustUnanswered).toEqual(["課長"]);
+    expect(s.mustMissing).toEqual(["部長"]);
   });
 });

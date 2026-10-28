@@ -30,10 +30,16 @@ export type Answer = {
   avoidNote?: string;
 };
 
-export type DateRank = { date: string; ok: number; maybe: number };
+/** mustOk = 幹事が「必ず来てほしい」にした人が全員「行ける」の日(そういう人がいなければ true) */
+export type DateRank = { date: string; ok: number; maybe: number; mustOk: boolean };
 
 export type Summary = {
   answered: number;
+  /** 答えた人の名前(幹事が「必ず来てほしい人」を選ぶのに使う) */
+  names: string[];
+  /** 「必ず来てほしい人」のうち、まだ答えていない人と、決めた日に行けない人 */
+  mustUnanswered: string[];
+  mustMissing: string[];
   ranking: DateRank[];
   /** 行ける人がいちばん多い日。誰も行けなければ null */
   date: string | null;
@@ -59,14 +65,20 @@ export type Summary = {
   likes: { key: GenreKey; label: string; votes: number }[];
 };
 
-export function rankDates(dates: string[], answers: Answer[]): DateRank[] {
+/**
+ * 日の順位。must(必ず来てほしい人の名前)が全員行ける日を先にし、その中で行ける人が多い順。
+ * 部長が来られない日にみんなが集まっても意味がない、という会社の飲み会のため
+ */
+export function rankDates(dates: string[], answers: Answer[], must: string[] = []): DateRank[] {
+  const keyPeople = answers.filter((a) => must.includes(a.name));
   return dates
     .map((date) => ({
       date,
       ok: answers.filter((a) => a.dates[date] === "ok").length,
       maybe: answers.filter((a) => a.dates[date] === "maybe").length,
+      mustOk: keyPeople.every((a) => a.dates[date] === "ok"),
     }))
-    .sort((x, y) => y.ok - x.ok || y.maybe - x.maybe || x.date.localeCompare(y.date));
+    .sort((x, y) => Number(y.mustOk) - Number(x.mustOk) || y.ok - x.ok || y.maybe - x.maybe || x.date.localeCompare(y.date));
 }
 
 /**
@@ -81,8 +93,8 @@ export function startTime(arrivals: number[]): number | null {
   return last;
 }
 
-export function summarize(dates: string[], answers: Answer[], fixedDate?: string | null): Summary {
-  const ranking = rankDates(dates, answers);
+export function summarize(dates: string[], answers: Answer[], fixedDate?: string | null, must: string[] = []): Summary {
+  const ranking = rankDates(dates, answers, must);
   const best = fixedDate ?? (ranking[0] && ranking[0].ok > 0 ? ranking[0].date : null);
   const going = best ? answers.filter((a) => a.dates[best] === "ok") : [];
   const start = startTime(going.map((a) => a.arrival));
@@ -100,6 +112,9 @@ export function summarize(dates: string[], answers: Answer[], fixedDate?: string
 
   return {
     answered: answers.length,
+    names: answers.map((a) => a.name),
+    mustUnanswered: must.filter((n) => !answers.some((a) => a.name === n)),
+    mustMissing: best ? answers.filter((a) => must.includes(a.name) && a.dates[best] !== "ok").map((a) => a.name) : [],
     ranking,
     date: best,
     attendees: going.map((a) => ({ name: a.name, arrival: a.arrival, stay: a.stay, soft: a.drinks === false })),

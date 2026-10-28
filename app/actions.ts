@@ -109,6 +109,17 @@ export async function decide(
   return { ok: true };
 }
 
+/** 必ず来てほしい人を変える(幹事だけ)。答えた人の名前の中から選ぶ */
+export async function setMust(partyId: string, adminToken: string, names: string[]): Promise<{ ok: true } | Fail> {
+  const store = getStore();
+  const party = await store.getParty(partyId);
+  if (!party || !verifyToken(adminToken, party.adminHash)) return { ok: false, error: "幹事のURLから開いてください" };
+  const answered = new Set((await store.listAnswers(partyId)).map((a) => a.name));
+  const picked = [...new Set(Array.isArray(names) ? names : [])].filter((n) => typeof n === "string" && answered.has(n)).slice(0, 10);
+  await store.setMust(partyId, picked);
+  return { ok: true };
+}
+
 /** 回答の締め切りを変える(幹事だけ)。null で締め切りなし */
 export async function setDeadline(partyId: string, adminToken: string, deadline: string | null): Promise<{ ok: true } | Fail> {
   const store = getStore();

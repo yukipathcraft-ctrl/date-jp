@@ -12,6 +12,7 @@ import type { DateRank } from "@/lib/summary";
 import { saveAdminToken } from "./CreateForm";
 import { DeadlineEditor } from "./DeadlineEditor";
 import { Fold } from "./Fold";
+import { MustPicker } from "./MustPicker";
 import { SendButtons, useCanShare } from "./SendButtons";
 import { SPLIT_NAMES_KEY } from "./SplitClient";
 import { BUTTON_PRIMARY } from "./ui";
@@ -33,6 +34,9 @@ type Props = {
   deadline: string | null;
   /** 今日(日本時間)。締め切りの残りの日数に使う */
   today: string;
+  /** 答えた人の名前と、そのうち幹事が「必ず来てほしい」にした人 */
+  names: string[];
+  must: string[];
 };
 
 /** 枠の見出し。アイコンの丸と、何をする枠かの一言 */
@@ -55,7 +59,7 @@ function BoxHead({ icon, title, note, tone }: { icon: React.ReactNode; title: st
   );
 }
 
-export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees, start: partyStart, deadline, today }: Props) {
+export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees, start: partyStart, deadline, today, names, must }: Props) {
   const router = useRouter();
   const [origin, setOrigin] = useState("");
   const canShare = useCanShare();
@@ -182,6 +186,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           <section className="mt-4 mx-4 rounded-3xl border panel px-4 py-6">
             <h2 className="text-lg font-black">幹事が決める</h2>
             <p className="mt-1 text-sm text-muted">みんなの答えからいちばん良さそうな日とお店を先に選んでおきました</p>
+            <MustPicker partyId={partyId} token={token} names={names} must={must} />
             <p className="mt-4 mb-2 text-sm font-bold">日にち</p>
             <div className="grid grid-cols-2 gap-1.5">
               {ranking
@@ -198,6 +203,10 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
                   >
                     {date === r.date && "✓ "}
                     {dateLabel(r.date)} ・ ○{r.ok}人
+                    {/* 必ず来てほしい人を選んだときだけ、その人たちが来られるかを添える(色だけでなく記号と文字で) */}
+                    {must.length > 0 && (
+                      <span className={`block text-[11px] ${r.mustOk ? "" : "opacity-70"}`}>{r.mustOk ? "★ 必ず来てほしい人OK" : "× 来られない人あり"}</span>
+                    )}
                   </button>
                 ))}
             </div>
