@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assignSeats, parseNames, seatsText, type Person } from "./seats";
+import { assignSeats, parseNames, rankSeats, seatsText, type Person } from "./seats";
 
 const people = (names: string[]): Person[] => names.map((name) => ({ name }));
 
@@ -51,5 +51,19 @@ describe("seatsText", () => {
     expect(seatsText([[{ name: "山田", honored: true }, { name: "佐藤" }], [{ name: "鈴木" }]])).toBe(
       "席決めの結果です\n1卓: ★山田、佐藤\n2卓: 鈴木",
     );
+  });
+});
+
+describe("rankSeats", () => {
+  it("偉い順に、1卓目・2卓目…の上座から配る", () => {
+    const r = rankSeats(["部長", "課長", "係長", "主任", "新人"], 2);
+    expect(r.map((t) => t.map((p) => p.name))).toEqual([
+      ["部長", "係長", "新人"],
+      ["課長", "主任"],
+    ]);
+    expect(r[1][0].rank).toBe(2);
+  });
+  it("席の文には、各卓の上座からの順番を付ける", () => {
+    expect(seatsText(rankSeats(["部長", "課長", "係長"], 1)).split("\n")).toEqual(["席順です(各卓、1 が上座)", "1卓: 1.部長、2.課長、3.係長"]);
   });
 });

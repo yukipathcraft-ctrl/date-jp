@@ -1,8 +1,9 @@
 "use client";
 
-import { Crown, RectangleHorizontal, Circle, Shuffle, Users } from "lucide-react";
-import { useState } from "react";
-import { assignSeats, parseNames, seatsText, type Person } from "@/lib/seats";
+import { Crown, ListOrdered, RectangleHorizontal, Circle, Shuffle, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { isFormal, loadAudience } from "@/lib/audience";
+import { assignSeats, parseNames, rankSeats, seatsText, type Person } from "@/lib/seats";
 import { SendButtons, useCanShare } from "./SendButtons";
 import { BUTTON_PRIMARY, BUTTON_SUB, CARD, INPUT, LABEL, PILL, PILL_OFF, PILL_ON } from "./ui";
 
@@ -17,6 +18,8 @@ const GROUPS = [
 const toneOf = (g?: string) => GROUPS.find((x) => x.key === g)?.tone;
 
 type Shape = "round" | "long";
+/** lottery = くじで決める、rank = 役職の順に上座から(会社の飲み会) */
+type Mode = "lottery" | "rank";
 type Meta = { honored: boolean; group?: string };
 
 /**
@@ -24,6 +27,8 @@ type Meta = { honored: boolean; group?: string };
  * fill = 長テーブルの1マスいっぱいに広げる、compact = 丸テーブルに人が多いときに小さくする
  */
 function Seat({ p, index, fill, compact }: { p: Person; index: number; fill?: boolean; compact?: boolean }) {
+  // 役職の順で決めたときは、そのテーブルの上座からの順番(1 が上座)を添える
+  const order = p.rank ? index + 1 : null;
   const tone = toneOf(p.group);
   return (
     <span
@@ -39,6 +44,11 @@ function Seat({ p, index, fill, compact }: { p: Person; index: number; fill?: bo
       style={{ "--i": index } as React.CSSProperties}
     >
       {p.honored && <Crown className="size-3 shrink-0" aria-label="主役" />}
+      {order && (
+        <span className={`grid size-4 shrink-0 place-items-center rounded-full text-[9px] font-black ${order === 1 ? "bg-accent text-accent-text" : "bg-white/15"}`}>
+          {order}
+        </span>
+      )}
       <span className="truncate">{p.name}</span>
       {p.group && !p.honored && <span className="shrink-0 text-[10px] font-black opacity-80">{p.group}</span>}
     </span>
@@ -87,6 +97,11 @@ function LongTable({ people, no }: { people: Person[]; no: number }) {
   );
   return (
     <div className="space-y-2">
+      {/* 左が奥(上座)、右が入口。どちらが上座かを文字で示す */}
+      <div className="flex justify-between px-1 text-[10px] font-bold text-white/40">
+        <span>← 奥(上座)</span>
+        <span>入口 →</span>
+      </div>
       {row(top, 0)}
       <div className="grid h-12 place-items-center rounded-xl bg-white/5 ring-1 ring-white/12">
         <span className="text-[13px] font-black">
@@ -126,6 +141,13 @@ function Toggle({ on, onClick, icon, title, sub }: { on: boolean; onClick: () =>
 
 export function SeatsClient() {
   const [text, setText] = useState("");
+  const [mode, setMode] = useState<Mode>("lottery");
+  // 会社の飲み会なら、はじめから役職の順にしておく
+  useEffect(() => {
+    const a = loadAudience();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (a && isFormal(a)) setMode("rank");
+  }, []);
   const [tables, setTables] = useState(2);
   // 居酒屋の宴会は長テーブルが多いので、最初は長テーブル
   const [shape, setShape] = useState<Shape>("long");
@@ -149,23 +171,50 @@ export function SeatsClient() {
     setMeta((m) => ({ ...m, [name]: { ...(m[name] ?? { honored: false }), ...p } }));
 
   function run() {
-    setResult(assignSeats(people, tables));
+    setResult(mode === "rank" ? rankSeats(names, tables) : assignSeats(people, tables));
     setDraw((d) => d + 1);
   }
 
   return (
     <div className="space-y-4">
       <section className={`${CARD} space-y-6 px-5 py-5`}>
+        <div>
+          <p className={LABEL}>席の決め方</p>
+          <div className="grid grid-cols-2 gap-2" role="group" aria-label="席の決め方">
+            {(
+              [
+                { key: "lottery", label: "くじで決める", Icon: Shuffle },
+                { key: "rank", label: "役職の順に", Icon: ListOrdered },
+              ] as const
+            ).map(({ key, label, Icon }) => (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={mode === key}
+                onClick={() => {
+                  setMode(key);
+                  setResult(null);
+                }}
+                className={`${PILL} justify-center gap-2 ${mode === key ? PILL_ON : PILL_OFF}`}
+              >
+                <Icon className="size-4" aria-hidden />
+                {label}
+              </button>
+            ))}
+          </div>
+          {mode === "rank" && <p className="mt-2 text-xs text-muted">偉い人から順に名前を入れると、上座から順に並べます。上の人は各テーブルに1人ずつ分かれます</p>}
+        </div>
+
         <label className="block">
           <span className={LABEL}>
             <Users className="size-4" aria-hidden />
-            来る人の名前 <span className="font-normal">(1行に1人)</span>
+            来る人の名前 <span className="font-normal">{mode === "rank" ? "(偉い人から順に、1行に1人)" : "(1行に1人)"}</span>
           </span>
           <textarea
             className={`${INPUT} min-h-36 resize-none py-3 leading-relaxed`}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder={"山田\n佐藤\n鈴木"}
+            placeholder={mode === "rank" ? "部長\n課長\n山田\n佐藤" : "山田\n佐藤\n鈴木"}
           />
           <span className="mt-2 block text-xs text-muted">{names.length}人</span>
         </label>
@@ -210,6 +259,7 @@ export function SeatsClient() {
           </div>
         </div>
 
+        {mode === "lottery" && (
         <div className="space-y-2">
           <Toggle
             on={useHonored}
@@ -271,12 +321,13 @@ export function SeatsClient() {
             </ul>
           )}
         </div>
+        )}
       </section>
 
       <div className="px-4">
         <button type="button" disabled={!ready} onClick={run} className={`${BUTTON_PRIMARY} w-full gap-2`}>
           <Shuffle className="size-5" aria-hidden />
-          {!ready ? "名前を2人以上入れてください" : result ? "もう一度くじを引く" : "くじで席を決める"}
+          {!ready ? "名前を2人以上入れてください" : mode === "rank" ? "上座から順に並べる" : result ? "もう一度くじを引く" : "くじで席を決める"}
         </button>
       </div>
 
@@ -287,7 +338,8 @@ export function SeatsClient() {
               {shape === "round" ? <RoundTable people={t} no={i + 1} /> : <LongTable people={t} no={i + 1} />}
             </div>
           ))}
-          {(useHonored || useGroups) && (
+          {mode === "rank" && <p className="text-center text-[11px] text-white/40">数字は、そのテーブルの上座からの順番です</p>}
+          {mode === "lottery" && (useHonored || useGroups) && (
             <p className="text-center text-[11px] text-white/40">
               {useHonored && "冠が主役の席(上座)"}
               {useHonored && useGroups && "・"}

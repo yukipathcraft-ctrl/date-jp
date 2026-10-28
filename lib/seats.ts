@@ -6,6 +6,8 @@ export type Person = {
   honored?: boolean;
   /** 混ぜたいグループ(学年・部署など)。同じグループの人は、なるべく別のテーブルに分ける */
   group?: string;
+  /** 役職の順で決めたときの順番(1 がいちばん偉い人)。くじのときはない */
+  rank?: number;
 };
 
 /** 名前の入力を1行1人に分ける。空の行と、前後の空白は除く */
@@ -53,9 +55,21 @@ export function assignSeats(people: Person[], tables: number, rand: () => number
   return out.map((t) => (t[0]?.honored ? [t[0], ...shuffle(t.slice(1), rand)] : shuffle(t, rand)));
 }
 
-/** LINE で送る文 */
+/**
+ * 役職の順(会社の飲み会)。names は偉い人から順に並べたもの。
+ * 1番目は1卓目の上座、2番目は2卓目の上座…と配り、テーブルの中は上座から順に座る。
+ * 偉い人が1つのテーブルに固まらず、どのテーブルにも上の人がいるようにする
+ */
+export function rankSeats(names: string[], tables: number): Person[][] {
+  const n = Math.max(1, Math.min(Math.floor(tables), names.length || 1));
+  const out: Person[][] = Array.from({ length: n }, () => []);
+  names.forEach((name, i) => out[i % n].push({ name, rank: i + 1 }));
+  return out;
+}
+
+/** LINE で送る文。役職の順で決めたときは、上座からの順番を添える */
 export function seatsText(result: Person[][]): string {
-  return ["席決めの結果です", ...result.map((t, i) => `${i + 1}卓: ${t.map((p) => (p.honored ? `★${p.name}` : p.name)).join("、")}`)].join(
-    "\n",
-  );
+  const label = (p: Person, i: number) => (p.rank ? `${i + 1}.${p.name}` : p.honored ? `★${p.name}` : p.name);
+  const head = result.some((t) => t.some((p) => p.rank)) ? "席順です(各卓、1 が上座)" : "席決めの結果です";
+  return [head, ...result.map((t, i) => `${i + 1}卓: ${t.map(label).join("、")}`)].join("\n");
 }
