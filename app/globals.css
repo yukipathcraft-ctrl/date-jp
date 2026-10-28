@@ -212,3 +212,14 @@ body {
 .tier-purple { --ts: #2b2148; --tc: #cbb8ff; --tb: #9d7bff; }
 /* 自分で倍率を書いた人 */
 .tier-gray { --ts: #2c2925; --tc: #ece6dc; --tb: #b9b0a2; }
+
+/* 印刷(経費精算の明細)では、黒い地をやめて白い紙にする */
+@media print {
+  @page {
+    margin: 16mm;
+  }
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+}

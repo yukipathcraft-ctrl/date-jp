@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, Crown, RotateCcw, Users, Wallet } from "lucide-react";
+import { Check, ChevronRight, Crown, FileText, RotateCcw, Users, Wallet } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { setCollectionPayment } from "@/app/actions";
@@ -223,6 +224,19 @@ export function CollectionView({
               <SendButtons mainLabel="共有して催促を送る" share={{ text: remind }} copy={remind} copyLabel="催促の文をコピー" canShare={canShare} />
             </section>
           )}
+          <Link
+            href={`/c/${c.id}/statement?token=${encodeURIComponent(token ?? "")}`}
+            className="mx-4 mt-4 flex items-center gap-3 rounded-3xl border panel px-5 py-4 transition hover:border-white/30"
+          >
+            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent/10 text-accent">
+              <FileText className="size-5" aria-hidden />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-black">経費精算の明細を作る</span>
+              <span className="block text-xs text-muted">会社に出す明細を、PDFやCSV(Excel)で保存できます</span>
+            </span>
+            <ChevronRight className="size-5 shrink-0 text-muted" aria-hidden />
+          </Link>
           <p className="mx-4 mt-3 text-xs text-muted">
             現金で受け取ったときは「受け取った」を押してください。参加した人の押し間違いも、幹事なら取り消せます
           </p>
