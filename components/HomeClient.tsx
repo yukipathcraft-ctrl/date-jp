@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Beer, Briefcase, CalendarDays, ChevronDown, ChevronRight, CircleCheck, Clock, GraduationCap, Hourglass, Info, ListChecks, MapPin, Shuffle, Store, Wallet, Wrench } from "lucide-react";
+import { ArrowRight, Beer, Briefcase, CalendarDays, ChevronDown, ChevronRight, CircleCheck, Clock, GraduationCap, Hourglass, ListChecks, MapPin, Shuffle, Store, Wallet, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { partyStatuses, type PartyStatus } from "@/app/actions";
@@ -92,31 +92,42 @@ function PartyGroup({
   );
 }
 
-/** 名前の由来。Date は、仙台の「伊達」と、英語の date(日にち)をかけている */
-function NameStory() {
-  return (
-    <details className="group rounded-2xl bg-surface px-4 ring-1 ring-white/8">
-      <summary className="flex cursor-pointer list-none items-center gap-3 py-3.5">
-        <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/6 text-sm font-black text-accent">
-          伊
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[13px] font-black tracking-tight text-white/85">「Date」という名前について</span>
-          <span className="mt-0.5 block text-[10px] text-white/35">伊達(だて)と英語の date をかけています</span>
-        </span>
-        <ChevronRight className="size-4 shrink-0 text-white/30 transition-transform group-open:rotate-90" aria-hidden />
-      </summary>
-      <div className="pb-4 pl-12 text-[13px] leading-relaxed text-white/50">
-        <p>
-          「Date(デート)」は、仙台の街を築いた<span className="font-bold text-white">伊達</span>政宗の「伊達(だて)」と、英語の
-          <span className="font-bold text-white">date</span>をかけた名前です
-        </p>
-        <p className="mt-2">英語の date には、「日にち」と「人と会う約束」の2つの意味があります</p>
-        <p className="mt-2">仙台でみんなが会う日にちを決めるアプリに、ぴったりの名前だと思って付けました</p>
-      </div>
-    </details>
-  );
-}
+/**
+ * 学生・プライベート・会社で変えるところ。見出しの一言、2つの道具の説明、その下の小さな道具。
+ * 会社だけの道具(経費精算・役職の順の席次)は、会社のときだけ出す
+ */
+const HOME_BY_AUDIENCE: Record<
+  Audience,
+  { lead: string; shops: string; split: string; extras: { href: string; label: string; icon: "collect" | "seats" }[] }
+> = {
+  student: {
+    lead: "サークル・ゼミの飲み会を、URLひとつで",
+    shops: "学割・飲み放題のお店",
+    split: "先輩多めの傾斜も割り勘も",
+    extras: [
+      { href: "/collect", label: "集金のチェック", icon: "collect" },
+      { href: "/seats", label: "席をくじで決める", icon: "seats" },
+    ],
+  },
+  private: {
+    lead: "友達との飲み会を、URLひとつで",
+    shops: "飲み放題・個室のお店",
+    split: "割り勘も、年上多めも",
+    extras: [
+      { href: "/collect", label: "集金のチェック", icon: "collect" },
+      { href: "/seats", label: "席をくじで決める", icon: "seats" },
+    ],
+  },
+  worker: {
+    lead: "歓送迎会・忘年会を、URLひとつで",
+    shops: "個室・喫煙できるお店も",
+    split: "会社の補助も、上司多めも",
+    extras: [
+      { href: "/collect", label: "集金・経費精算", icon: "collect" },
+      { href: "/seats", label: "役職の順に席次", icon: "seats" },
+    ],
+  },
+};
 
 /** トップの見出しの下に並べる、みんなの答えから決まるもの */
 const HERO_ITEMS = [
@@ -231,17 +242,15 @@ export function HomeClient() {
 
   const tiers = WEIGHTS[audience];
   const known = statuses ? parties.filter((p) => statuses[p.id]) : [];
-  const pending = known.filter((p) => !statuses![p.id].decision);
-  // 決まった会は、これからの会を日が近い順に出し、終わった会はそのあとに新しい順で出す
-  const decided = known
-    .filter((p) => statuses![p.id].decision)
-    .sort((x, y) => {
-      const a = statuses![x.id].decision!.date;
-      const b = statuses![y.id].decision!.date;
-      const af = a >= today;
-      const bf = b >= today;
-      return af !== bf ? (af ? -1 : 1) : af ? a.localeCompare(b) : b.localeCompare(a);
-    });
+  const home = HOME_BY_AUDIENCE[audience];
+  // 調整中の会を先に、次にこれからの会を日が近い順に。終わった会は「これまでの会」に回す
+  const active = [
+    ...known.filter((p) => !statuses![p.id].decision),
+    ...known
+      .filter((p) => statuses![p.id].decision && statuses![p.id].decision!.date >= today)
+      .sort((x, y) => statuses![x.id].decision!.date.localeCompare(statuses![y.id].decision!.date)),
+  ];
+  const past = known.filter((p) => statuses![p.id].decision && statuses![p.id].decision!.date < today).length;
   const tierIcon = (
     // 傾斜の区分の色を、高さの違う棒で並べる(多めの人ほど高い)
     <span aria-hidden className="flex h-6 items-end gap-[3px]">
@@ -288,7 +297,7 @@ export function HomeClient() {
             ))}
           </ul>
           <p className="mt-5 text-[22px] font-black tracking-tight text-white">飲み会をつくる</p>
-          <p className="mt-1 text-[11px] font-semibold text-white/40">URLを貼るだけで飲み会が決まります</p>
+          <p className="mt-1 text-[11px] font-semibold text-white/40">{home.lead}</p>
           <span className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 text-[14px] font-black tracking-tight text-black">
             会をつくる
             <ArrowRight className="size-4" aria-hidden />
@@ -296,63 +305,50 @@ export function HomeClient() {
         </div>
       </Link>
 
-      {/* 決まった会と、まだ答えを集めている会を分けて出す */}
-      {pending.length > 0 && (
+      {/* あなたの会。調整中と、これからの会だけを出す。終わった会は「これまでの会」へ */}
+      {active.length > 0 && (
         <PartyGroup
-          title="調整中"
-          icon={<Hourglass className="size-3.5" aria-hidden />}
-          items={pending.map((p) => ({
-            party: p,
-            icon: <Hourglass className="size-4" aria-hidden />,
-            sub: `${statuses![p.id].answered}人が回答`,
-          }))}
-        />
-      )}
-      {decided.length > 0 && (
-        <PartyGroup
-          title="決まった"
-          icon={<CircleCheck className="size-3.5" aria-hidden />}
-          items={decided.map((p) => {
-            const d = statuses![p.id].decision!;
+          title="あなたの会"
+          icon={<CalendarDays className="size-3.5" aria-hidden />}
+          items={active.map((p) => {
+            const st = statuses![p.id];
+            const d = st.decision;
             return {
               party: p,
-              icon: <CircleCheck className="size-4" aria-hidden />,
-              sub: `${dateLabel(d.date)} ${clock(d.start)}${d.shopName ? ` ・ ${d.shopName}` : ""}${d.date < today ? " ・ 終わった" : ""}`,
+              icon: d ? <CircleCheck className="size-4" aria-hidden /> : <Hourglass className="size-4" aria-hidden />,
+              sub: d ? `決定 ${dateLabel(d.date)} ${clock(d.start)}${d.shopName ? ` ・ ${d.shopName}` : ""}` : `調整中 ・ ${st.answered}人が回答`,
             };
           })}
         />
       )}
 
-      {decided.length > 0 && (
-        <Link
-          href="/history"
-          className="-mt-2 flex min-h-11 items-center justify-center gap-1 text-[12px] font-bold text-white/50 transition hover:text-white"
-        >
-          これまでの会の記録(店・人数・金額)
-          <ChevronRight className="size-3.5" aria-hidden />
-        </Link>
-      )}
-
       <section>
         <SectionTitle icon={<Wrench className="size-3.5" aria-hidden />}>ツール</SectionTitle>
         <div className="grid grid-cols-2 gap-2.5">
-          <ToolTile href="/shops" icon={<Store className="size-6" aria-hidden />} title="お店を探す" sub="場所と予算ですぐに出す" />
-          <ToolTile
-            href="/split"
-            icon={tierIcon}
-            title="会計をする"
-            sub={{ student: "先輩多めの傾斜も割り勘も", private: "年上多めの傾斜も割り勘も", worker: "上司多めの傾斜も割り勘も" }[audience]}
-          />
-          <ToolTile href="/collect" icon={<ListChecks className="size-6" aria-hidden />} title="集金のチェック" sub="誰が払ったか一目で" />
-          <ToolTile href="/seats" icon={<Shuffle className="size-6" aria-hidden />} title="席決め" sub="くじでテーブルを分ける" />
+          <ToolTile href="/shops" icon={<Store className="size-6" aria-hidden />} title="お店を探す" sub={home.shops} />
+          <ToolTile href="/split" icon={tierIcon} title="会計をする" sub={home.split} />
+        </div>
+        {/* そのほかの道具は小さく1行に。会社のときだけ、経費精算と役職の順の席次になる */}
+        <div className="mt-2.5 grid grid-cols-2 gap-2.5">
+          {home.extras.map((x) => (
+            <Link
+              key={x.href}
+              href={x.href}
+              className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-surface px-3 text-[12px] font-bold text-white/75 ring-1 ring-white/8 transition hover:bg-stone-800 active:scale-95"
+            >
+              {x.icon === "collect" ? <ListChecks className="size-4 text-accent" aria-hidden /> : <Shuffle className="size-4 text-accent" aria-hidden />}
+              {x.label}
+            </Link>
+          ))}
         </div>
       </section>
 
-      <section>
-        <SectionTitle icon={<Info className="size-3.5" aria-hidden />}>このアプリについて</SectionTitle>
-        <NameStory />
-        <p className="mt-6 text-center text-[10px] font-bold tracking-[0.2em] text-white/25">仙台限定</p>
-      </section>
+      {/* もとにした KANJI の「完了済みの会を見る」と同じ、横長の1行 */}
+      {past > 0 && (
+        <HomeRow href="/history" icon={<CircleCheck className="size-4" aria-hidden />} title="これまでの会を見る" sub={`${past}件 ・ お店・人数・金額`} />
+      )}
+
+      <p className="pt-2 text-center text-[10px] font-bold tracking-[0.2em] text-white/25">仙台限定</p>
     </div>
   );
 }
