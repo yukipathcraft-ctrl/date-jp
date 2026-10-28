@@ -25,9 +25,9 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
   const view = await loadParty(id);
   if (!view) notFound();
   const { party, summary, shops, otherArea, adminHash } = view;
-  // 決まったお店の写真。いまの候補の中にあればそれを使い、なければお店を引く
+  // 決まったお店の料理の種類(カードの絵に使う)。いまの候補の中にあればそれを使い、なければお店を引く
   const chosenId = party.decision?.shopId ?? null;
-  const chosenPhoto = chosenId ? ((shops.find((s) => s.id === chosenId) ?? (await findShop(chosenId)))?.photo ?? null) : null;
+  const chosenGenre = chosenId ? ((shops.find((s) => s.id === chosenId) ?? (await findShop(chosenId)))?.genreKey ?? null) : null;
 
   if (typeof token !== "string" || !verifyToken(token, adminHash)) {
     return (
@@ -54,7 +54,7 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
         </div>
         {party.decision && (
           <div className="mb-4">
-            <DecisionCard decision={party.decision} partyId={party.id} photo={chosenPhoto} />
+            <DecisionCard decision={party.decision} partyId={party.id} genre={chosenGenre} />
           </div>
         )}
         <AdminPanel

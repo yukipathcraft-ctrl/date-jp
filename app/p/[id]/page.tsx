@@ -33,9 +33,9 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
   const view = await loadParty(id);
   if (!view) notFound();
   const { party, summary, shops, otherArea } = view;
-  // 決まったお店の写真。いまの候補の中にあればそれを使い、なければお店を引く
+  // 決まったお店の料理の種類(カードの絵に使う)。いまの候補の中にあればそれを使い、なければお店を引く
   const chosenId = party.decision?.shopId ?? null;
-  const chosenPhoto = chosenId ? ((shops.find((s) => s.id === chosenId) ?? (await findShop(chosenId)))?.photo ?? null) : null;
+  const chosenGenre = chosenId ? ((shops.find((s) => s.id === chosenId) ?? (await findShop(chosenId)))?.genreKey ?? null) : null;
   // 答えた人を次の幹事に誘うときの、その時期の会の呼び方(忘年会・新歓など)
   const occasion = nextOccasion(monthInJapan(new Date()), party.audience);
   // 日にちが決まったら、締め切りはもう出さない
@@ -50,7 +50,7 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
           <h1 className="mt-1 text-[22px] font-black tracking-tight">{party.title}</h1>
         </div>
         {deadline && <DeadlineNote state={deadline} />}
-        {party.decision && <DecisionCard decision={party.decision} partyId={party.id} photo={chosenPhoto} />}
+        {party.decision && <DecisionCard decision={party.decision} partyId={party.id} genre={chosenGenre} />}
         <div className={party.decision ? "mt-4" : ""}>
           <AnswerPanel partyId={party.id} dates={party.dates} audience={party.audience} start={party.start} occasion={occasion} />
         </div>
