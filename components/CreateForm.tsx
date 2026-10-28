@@ -88,7 +88,7 @@ export function CreateForm() {
             className={`${INPUT} mt-2`}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder={audience === "student" ? "例: ゼミの打ち上げ" : "例: 部署の歓迎会"}
+            placeholder={{ student: "例: ゼミの打ち上げ", private: "例: 高校の同期で飲み", worker: "例: 部署の歓迎会" }[audience]}
             maxLength={40}
             aria-label="飲み会の名前"
           />

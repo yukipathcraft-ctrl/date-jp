@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { deadlineReminderText, inviteText, reminderText, teamsShareUrl } from "./share";
+import { collectText, deadlineReminderText, inviteText, reminderText, teamsShareUrl } from "./share";
 
 describe("reminderText", () => {
   it("まだの人の名前と金額だけを並べる", () => {
@@ -41,5 +41,13 @@ describe("deadlineReminderText", () => {
     expect(deadlineReminderText("歓迎会", "https://x", "2026-10-28", 0)).toBe("「歓迎会」の日程、今日までが締め切りです\nまだの人は入れてください\nhttps://x");
     expect(deadlineReminderText("歓迎会", "https://x", "2026-10-29", 1).split("\n")[0]).toBe("「歓迎会」の日程、明日までが締め切りです");
     expect(deadlineReminderText("歓迎会", "https://x", "2026-11-02", 5).split("\n")[0]).toBe("「歓迎会」の日程、11/2(月)までが締め切りです");
+  });
+});
+
+describe("プライベートの会", () => {
+  it("催促も集金の案内も、友達どうしの言い方にする(敬語は会社の会だけ)", () => {
+    expect(reminderText("private", "", [{ name: "山田", amount: 3000 }]).startsWith("この前の飲み会のお会計、まだの人お願いします")).toBe(true);
+    expect(reminderText("worker", "", [{ name: "山田", amount: 3000 }]).startsWith("お疲れさまです。")).toBe(true);
+    expect(collectText("同期会", "https://x", "private")).toBe("「同期会」のお会計です\n払ったら自分の名前の「払った」を押してください\nhttps://x");
   });
 });

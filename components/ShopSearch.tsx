@@ -3,7 +3,7 @@
 import { Check, Cigarette, DoorClosed, MapPin, SlidersHorizontal, UtensilsCrossed, Wallet } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { findShops } from "@/app/actions";
-import { AUDIENCES, loadAudience, type Audience } from "@/lib/audience";
+import { AUDIENCES, isAdult, loadAudience, type Audience } from "@/lib/audience";
 import { AREAS, GENRES, areaLabel, yen, type AreaKey, type GenreKey } from "@/lib/sendai";
 import type { Shop } from "@/lib/shops";
 import { ShopList } from "./ShopList";
@@ -80,7 +80,7 @@ export function ShopSearch() {
   useEffect(() => {
     if (!audience) return;
     start(async () => {
-      setResult(await findShops({ areas, genres, budget, privateRoom, smoking: audience === "worker" && smoking, audience }));
+      setResult(await findShops({ areas, genres, budget, privateRoom, smoking: audience !== null && isAdult(audience) && smoking, audience }));
     });
   }, [areas, genres, budget, privateRoom, smoking, audience]);
 
@@ -97,7 +97,7 @@ export function ShopSearch() {
     budget === null ? "予算は決めない" : `${yen(budget)}まで`,
     genres.length > 0 ? genres.map((k) => GENRES.find((g) => g.key === k)!.label).join("・") : null,
     privateRoom ? "個室あり" : null,
-    audience === "worker" && smoking ? "喫煙できる" : null,
+    audience !== null && isAdult(audience) && smoking ? "喫煙できる" : null,
   ]
     .filter(Boolean)
     .join(" / ");
@@ -159,7 +159,7 @@ export function ShopSearch() {
               </span>
             }
           />
-          {audience === "worker" && (
+          {audience !== null && isAdult(audience) && (
             <Option
               on={smoking}
               onClick={() => setSmoking(!smoking)}

@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowRight, Briefcase, CalendarDays, ChevronDown, ChevronRight, CircleCheck, Clock, GraduationCap, Hourglass, Info, ListChecks, MapPin, Shuffle, Store, Wallet, Wrench } from "lucide-react";
+import { ArrowRight, Beer, Briefcase, CalendarDays, ChevronDown, ChevronRight, CircleCheck, Clock, GraduationCap, Hourglass, Info, ListChecks, MapPin, Shuffle, Store, Wallet, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { partyStatuses, type PartyStatus } from "@/app/actions";
-import { AUDIENCES, loadAudience, saveAudience, type Audience } from "@/lib/audience";
+import { AUDIENCES, AUDIENCE_ORDER, loadAudience, saveAudience, type Audience } from "@/lib/audience";
 import { loadMyParties, type MyParty } from "@/lib/myParties";
 import { clock, dateLabel } from "@/lib/sendai";
 import { WEIGHTS } from "@/lib/split";
@@ -133,7 +133,7 @@ const HERO_ITEMS = [
  */
 let introPlayed = false;
 
-/** 起動画面 → 学生か社会人か → ホーム。起動画面はアプリを開いたときだけ出す(タップで飛ばせる) */
+/** 起動画面 → 学生・プライベート・会社のどれか → ホーム。起動画面はアプリを開いたときだけ出す(タップで飛ばせる) */
 export function HomeClient() {
   const [phase, setPhase] = useState<Phase>("loading");
   const [audience, setAudience] = useState<Audience | null>(null);
@@ -200,12 +200,12 @@ export function HomeClient() {
           <h1 className="mt-6 text-3xl font-black tracking-tight">あなたは?</h1>
           {/* 375px 幅でもきれいに2行で収まるよう、行の切れ目を決めておく */}
           <p className="mt-2 text-muted">
-            <span className="block">選んだほうに合う予算・時間・お店を出します</span>
+            <span className="block">選んだものに合う予算・時間・お店を出します</span>
             <span className="block">あとからでも切り替えられます</span>
           </p>
           <div className="mt-8 grid gap-3">
-            {(["student", "worker"] as const).map((a) => {
-              const Icon = a === "student" ? GraduationCap : Briefcase;
+            {AUDIENCE_ORDER.map((a) => {
+              const Icon = { student: GraduationCap, private: Beer, worker: Briefcase }[a];
               return (
                 <button
                   key={a}
@@ -258,13 +258,13 @@ export function HomeClient() {
 
   return (
     <div className="anim-rise mx-auto max-w-xl space-y-5 px-4 pt-6 pb-16">
-      {/* いちばん上: 名前と、学生・社会人。隅に小さく置き、押すと選び直す画面を開く */}
+      {/* いちばん上: 名前と、学生・プライベート・会社。隅に小さく置き、押すと選び直す画面を開く */}
       <div className="flex items-center justify-between pt-2">
         <Wordmark size={26} />
         <button
           type="button"
           onClick={() => setPhase("choose")}
-          aria-label={`学生と社会人を選び直す(いまは${AUDIENCES[audience].label})`}
+          aria-label={`学生・プライベート・会社を選び直す(いまは${AUDIENCES[audience].label})`}
           className="-mr-1 flex h-9 items-center gap-1 rounded-full px-3 text-[12px] font-bold text-white/70 ring-1 ring-white/20 transition hover:text-white hover:ring-white/40 active:scale-95"
         >
           {AUDIENCES[audience].label}
@@ -332,7 +332,7 @@ export function HomeClient() {
             href="/split"
             icon={tierIcon}
             title="会計をする"
-            sub={audience === "student" ? "先輩多めの傾斜も割り勘も" : "上司多めの傾斜も割り勘も"}
+            sub={{ student: "先輩多めの傾斜も割り勘も", private: "年上多めの傾斜も割り勘も", worker: "上司多めの傾斜も割り勘も" }[audience]}
           />
           <ToolTile href="/collect" icon={<ListChecks className="size-6" aria-hidden />} title="集金のチェック" sub="誰が払ったか一目で" />
           <ToolTile href="/seats" icon={<Shuffle className="size-6" aria-hidden />} title="席決め" sub="くじでテーブルを分ける" />

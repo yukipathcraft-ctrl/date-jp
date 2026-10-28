@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { getMyAnswer, saveAnswer } from "@/app/actions";
-import { AUDIENCES, type Audience } from "@/lib/audience";
+import { AUDIENCES, isAdult, type Audience } from "@/lib/audience";
 import { AVOIDS } from "@/lib/diet";
 import { AREAS, GENRES, STAYS, UNLIMITED_BUDGET, clock, dateLabel, inputFromMinutes, minutesFromInput, yen, type AreaKey } from "@/lib/sendai";
 import type { DateAnswer } from "@/lib/summary";
@@ -389,8 +389,8 @@ export function AnswerPanel({
           </div>
           <p className="mt-2 text-xs text-muted">飲まないと答えると、会計で「飲まない」の区分に入ります</p>
 
-          {/* 社会人の会では、喫煙できるお店かどうかが大事なので聞く(人数だけを幹事に見せる) */}
-          {audience === "worker" && (
+          {/* 社会人の会(プライベート・会社)では、喫煙できるお店かどうかが大事なので聞く(人数だけを幹事に見せる) */}
+          {isAdult(audience) && (
             <>
               <p className={`${LABEL} mt-5`} aria-hidden>
                 <Cigarette className="size-4" />

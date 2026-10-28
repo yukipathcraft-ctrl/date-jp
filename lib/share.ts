@@ -1,4 +1,4 @@
-import type { Audience } from "./audience";
+import { isFormal, type Audience } from "./audience";
 import { clock, dateLabel, yen } from "./sendai";
 
 /** LINE の送り先選びを開く URL */
@@ -35,7 +35,7 @@ export function deadlineReminderText(title: string, url: string, deadline: strin
 }
 
 /**
- * 会計の催促の文。まだ払っていない人の名前と金額を並べる。学生と社会人で言い方を変える
+ * 会計の催促の文。まだ払っていない人の名前と金額を並べる。会社の会だけ敬語にする
  * (責める言い方にしない。誰が払ったかは書かず、まだの人だけを書く)
  */
 export function reminderText(
@@ -43,9 +43,9 @@ export function reminderText(
   title: string,
   unpaid: { name: string; amount: number }[],
 ): string {
-  const what = title.trim() ? `「${title.trim()}」` : audience === "student" ? "この前の飲み会" : "先日の会";
+  const what = title.trim() ? `「${title.trim()}」` : isFormal(audience) ? "先日の会" : "この前の飲み会";
   const list = unpaid.map((u) => `・${u.name}さん ${yen(u.amount)}`);
-  return audience === "student"
+  return !isFormal(audience)
     ? [`${what}のお会計、まだの人お願いします`, ...list, "払ってたらごめん"].join("\n")
     : [
         "お疲れさまです。",
@@ -55,10 +55,10 @@ export function reminderText(
       ].join("\n");
 }
 
-/** 集金のページを送る文。社会人の会は敬語にする */
+/** 集金のページを送る文。会社の会は敬語にする */
 export function collectText(title: string, url: string, audience: Audience = "student"): string {
   const what = title ? `「${title}」の` : "";
-  return audience === "worker"
+  return isFormal(audience)
     ? [`${what}お会計のご案内です。`, "お支払い後、ご自身のお名前の「払った」を押してください。", url].join("\n")
     : [`${what}お会計です`, "払ったら自分の名前の「払った」を押してください", url].join("\n");
 }

@@ -15,6 +15,13 @@ export const WEIGHTS: Record<Audience, Weight[]> = {
     { key: "less", label: "少なめ", note: "後輩・1年", tenths: 7, mark: "▼", tone: "green" },
     { key: "soft", label: "飲まない", note: "ソフトドリンク", tenths: 6, mark: "◇", tone: "purple" },
   ],
+  // 友達どうしは上下が少ないので、割り勘を基本に、多め・少なめだけ
+  private: [
+    { key: "more", label: "多め", note: "年上・誘った人", tenths: 13, mark: "▲", tone: "blue" },
+    { key: "normal", label: "ふつう", note: "", tenths: 10, mark: "●", tone: "yellow" },
+    { key: "less", label: "少なめ", note: "年下", tenths: 8, mark: "▼", tone: "green" },
+    { key: "soft", label: "飲まない", note: "ソフトドリンク", tenths: 7, mark: "◇", tone: "purple" },
+  ],
   worker: [
     { key: "boss", label: "上司", note: "部長・課長", tenths: 15, mark: "★", tone: "red" },
     { key: "senior", label: "先輩", note: "", tenths: 12, mark: "▲", tone: "blue" },
