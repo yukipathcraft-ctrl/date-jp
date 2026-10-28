@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, Share } from "lucide-react";
+import { Check, Copy, Share, Share2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { BUTTON_PRIMARY, BUTTON_SUB } from "./ui";
 
@@ -12,6 +12,16 @@ export function useCanShare(): boolean {
     setCanShare(typeof navigator.share === "function");
   }, []);
   return canShare;
+}
+
+/** iPhone・iPad か。共有のアイコンを、その端末で見慣れた形にする */
+function useIsApple(): boolean {
+  const [apple, setApple] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setApple(/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent));
+  }, []);
+  return apple;
 }
 
 function CopyButton({ text, label, className }: { text: string; label: string; className: string }) {
@@ -47,6 +57,8 @@ export function SendButtons({ mainLabel, share, copy, copyLabel = "URLをコピ�
   canShare: boolean;
 }) {
   const [copied, setCopied] = useState(false);
+  const apple = useIsApple();
+  const ShareIcon = apple ? Share : Share2;
   async function onShare() {
     if (canShare) {
       await navigator.share(share).catch(() => {});
@@ -60,8 +72,11 @@ export function SendButtons({ mainLabel, share, copy, copyLabel = "URLをコピ�
   }
   return (
     <div className="mt-4 space-y-2">
-      <button type="button" className={`${BUTTON_PRIMARY} w-full gap-2`} onClick={onShare}>
-        {copied ? <Check className="size-5" aria-hidden /> : <Share className="size-5" aria-hidden />}
+      <button type="button" className={`${BUTTON_PRIMARY} w-full gap-2.5`} onClick={onShare}>
+        {/* 共有だと一目で分かるよう、アイコンを黒い丸に入れて大きめに出す */}
+        <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-full bg-black/85 text-accent">
+          {copied ? <Check className="size-4" strokeWidth={3} /> : <ShareIcon className="size-4" strokeWidth={2.5} />}
+        </span>
         {copied ? "コピーしました。LINEなどに貼ってください" : mainLabel}
       </button>
       <CopyButton text={copy} label={copyLabel} className={`${BUTTON_SUB} w-full gap-2 text-sm`} />

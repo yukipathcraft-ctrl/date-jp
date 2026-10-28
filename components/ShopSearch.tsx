@@ -59,7 +59,8 @@ function Option({
 
 export function ShopSearch() {
   const [audience, setAudience] = useState<Audience | null>(null);
-  const [areas, setAreas] = useState<AreaKey[]>(["station"]);
+  // 場所は最初は選ばない(選ぶまではお店を出さない)
+  const [areas, setAreas] = useState<AreaKey[]>([]);
   const [genres, setGenres] = useState<GenreKey[]>([]);
   const [budget, setBudget] = useState<number | null>(null);
   const [privateRoom, setPrivateRoom] = useState(false);
@@ -72,28 +73,30 @@ export function ShopSearch() {
     const a = loadAudience() ?? "student";
     /* eslint-disable react-hooks/set-state-in-effect */
     setAudience(a);
-    setAreas([AUDIENCES[a].areas[0]]);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   // 条件が変わるたびに探し直す
   useEffect(() => {
     if (!audience) return;
+    if (areas.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setResult(null);
+      return;
+    }
     start(async () => {
       setResult(await findShops({ areas, genres, budget, privateRoom, smoking: audience !== null && isAdult(audience) && smoking, audience }));
     });
   }, [areas, genres, budget, privateRoom, smoking, audience]);
 
-  // 場所は最後の1つを外せない(どこかでは探す)
-  const toggleArea = (k: AreaKey) =>
-    setAreas((cur) => (cur.includes(k) ? (cur.length > 1 ? cur.filter((a) => a !== k) : cur) : [...cur, k]));
+  const toggleArea = (k: AreaKey) => setAreas((cur) => (cur.includes(k) ? cur.filter((a) => a !== k) : [...cur, k]));
   const toggleGenre = (k: GenreKey) =>
     setGenres((cur) => (cur.includes(k) ? cur.filter((g) => g !== k) : [...cur, k]));
 
   const opts = AUDIENCES[audience ?? "student"];
   const areaOptions = opts.areas.map((k) => AREAS.find((a) => a.key === k)!);
   const summary = [
-    areas.map(areaLabel).join("・"),
+    areas.length > 0 ? areas.map(areaLabel).join("・") : "場所はまだ",
     budget === null ? "予算は決めない" : `${yen(budget)}まで`,
     genres.length > 0 ? genres.map((k) => GENRES.find((g) => g.key === k)!.label).join("・") : null,
     privateRoom ? "個室あり" : null,
@@ -191,7 +194,12 @@ export function ShopSearch() {
       </div>
 
       <div className={`mt-4 transition-opacity ${pending ? "opacity-50" : ""}`} aria-busy={pending}>
-        {result &&
+        {areas.length === 0 && (
+          <p id="shops" className="mx-4 rounded-3xl border panel px-5 py-6 text-sm text-muted">
+            上で「どこで飲む?」を選ぶと、合うお店が出ます
+          </p>
+        )}
+        {areas.length > 0 && result &&
           (result.shops.length > 0 ? (
             <>
               {result.raisedTo !== null && budget !== null && (

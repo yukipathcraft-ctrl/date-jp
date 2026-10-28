@@ -57,9 +57,8 @@ function SectionTitle({ children, icon }: { children: React.ReactNode; icon: Rea
   );
 }
 
-const madeOn = (p: MyParty) => new Date(p.createdAt).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" });
 
-/** 「調整中の会」「決まった会」の1かたまり。多いときは3件だけ出し、残りは押すと開く */
+/** 「調整中」「決まった」の1かたまり。場所をとらないよう、最初は2件だけ出し、残りは押すと開く */
 function PartyGroup({
   title,
   icon,
@@ -76,17 +75,17 @@ function PartyGroup({
         {title} <span className="tracking-normal text-stone-500">{items.length}</span>
       </SectionTitle>
       <div className="space-y-2">
-        {(all ? items : items.slice(0, 3)).map(({ party: p, icon: rowIcon, sub }) => (
+        {(all ? items : items.slice(0, 2)).map(({ party: p, icon: rowIcon, sub }) => (
           <HomeRow key={p.id} href={`/p/${p.id}/admin?token=${p.token}`} icon={rowIcon} title={p.title} sub={sub} />
         ))}
       </div>
-      {!all && items.length > 3 && (
+      {!all && items.length > 2 && (
         <button
           type="button"
           onClick={() => setAll(true)}
           className="mt-2 min-h-11 w-full text-xs font-bold text-white/40 underline underline-offset-2 hover:text-white/60"
         >
-          ほかの{items.length - 3}件も見る
+          ほかの{items.length - 2}件も見る
         </button>
       )}
     </section>
@@ -300,25 +299,25 @@ export function HomeClient() {
       {/* 決まった会と、まだ答えを集めている会を分けて出す */}
       {pending.length > 0 && (
         <PartyGroup
-          title="調整中の会"
+          title="調整中"
           icon={<Hourglass className="size-3.5" aria-hidden />}
           items={pending.map((p) => ({
             party: p,
             icon: <Hourglass className="size-4" aria-hidden />,
-            sub: `${statuses![p.id].answered}人が回答 ・ ${madeOn(p)}につくった会`,
+            sub: `${statuses![p.id].answered}人が回答`,
           }))}
         />
       )}
       {decided.length > 0 && (
         <PartyGroup
-          title="決まった会"
+          title="決まった"
           icon={<CircleCheck className="size-3.5" aria-hidden />}
           items={decided.map((p) => {
             const d = statuses![p.id].decision!;
             return {
               party: p,
               icon: <CircleCheck className="size-4" aria-hidden />,
-              sub: `${dateLabel(d.date)} ${clock(d.start)}〜${d.shopName ? ` ・ ${d.shopName}` : ""}${d.date < today ? " ・ 終わった会" : ""}`,
+              sub: `${dateLabel(d.date)} ${clock(d.start)}${d.shopName ? ` ・ ${d.shopName}` : ""}${d.date < today ? " ・ 終わった" : ""}`,
             };
           })}
         />

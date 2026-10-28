@@ -67,6 +67,9 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
   const [shopId, setShopId] = useState<string | null>(decision?.shopId ?? shops[0]?.id ?? null);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  // 決めるときのお店の候補は、最初は3軒だけ出す(選んだお店が4軒目より後なら、それも出す)
+  const [allShops, setAllShops] = useState(false);
+  const shownShops = allShops ? shops : shops.filter((s, i) => i < 3 || s.id === shopId);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -231,7 +234,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
                       <span className="mt-0.5 block text-xs font-normal text-muted">日にちだけ先に決めて、お店はあとで選びます</span>
                     </span>
                   </button>
-                  {shops.map((s) => (
+                  {shownShops.map((s) => (
                     <button
                       key={s.id}
                       type="button"
@@ -245,6 +248,15 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
                       {s.name}
                     </button>
                   ))}
+                  {!allShops && shops.length > shownShops.length && (
+                    <button
+                      type="button"
+                      onClick={() => setAllShops(true)}
+                      className="min-h-11 w-full text-xs font-bold text-muted underline underline-offset-2 hover:text-text"
+                    >
+                      ほかのお店も見る(あと{shops.length - shownShops.length}軒)
+                    </button>
+                  )}
                 </div>
               </>
             )}
