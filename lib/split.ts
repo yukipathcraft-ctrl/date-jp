@@ -45,6 +45,18 @@ export function tenthsFromInput(text: string): number | null {
 
 export const ROUND_UNITS = [10, 100, 500] as const;
 
+/** 会社や部署・部費から出る補助。per = 1人あたり、lump = 全体でいくら */
+export type Subsidy = { kind: "per" | "lump"; yen: number };
+
+/**
+ * 補助の合計(円)。お会計の合計を超えない。
+ * 会社の飲み会では「会社から1人3,000円」のような補助がよくあり、残りをみんなで割る
+ */
+export function subsidyTotal(s: Subsidy | null, total: number, people: number): number {
+  if (!s || !Number.isInteger(s.yen) || s.yen <= 0 || total <= 0) return 0;
+  return Math.min(total, s.kind === "per" ? s.yen * people : s.yen);
+}
+
 export type SplitInput = {
   /** 合計(円) */
   total: number;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { splitBill, tenthsFromInput } from "./split";
+import { splitBill, subsidyTotal, tenthsFromInput } from "./split";
 
 const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 
@@ -52,5 +52,17 @@ describe("tenthsFromInput", () => {
     expect(tenthsFromInput("0")).toBeNull();
     expect(tenthsFromInput("6")).toBeNull();
     expect(tenthsFromInput("たくさん")).toBeNull();
+  });
+});
+
+describe("subsidyTotal", () => {
+  it("1人あたりなら人数をかけ、全体ならその額にする", () => {
+    expect(subsidyTotal({ kind: "per", yen: 3000 }, 40000, 8)).toBe(24000);
+    expect(subsidyTotal({ kind: "lump", yen: 10000 }, 40000, 8)).toBe(10000);
+  });
+  it("お会計の合計を超えない。なし・0円・マイナスは0にする", () => {
+    expect(subsidyTotal({ kind: "per", yen: 6000 }, 40000, 8)).toBe(40000);
+    expect(subsidyTotal(null, 40000, 8)).toBe(0);
+    expect(subsidyTotal({ kind: "lump", yen: -5 }, 40000, 8)).toBe(0);
   });
 });

@@ -10,7 +10,7 @@ import { loadMyParties, type MyParty } from "@/lib/myParties";
 import { dateLabel, yen } from "@/lib/sendai";
 import { NextHost } from "./NextHost";
 import { SendButtons, useCanShare } from "./SendButtons";
-import { ROUND_UNITS, WEIGHTS, splitBill, tenthsFromInput, type Weight } from "@/lib/split";
+import { ROUND_UNITS, WEIGHTS, splitBill, subsidyTotal, tenthsFromInput, type Weight } from "@/lib/split";
 import { BUTTON_PRIMARY, BUTTON_SUB, PILL, PILL_OFF, PILL_ON } from "./ui";
 
 // 会計。最初は傾斜(区分や倍率を選ぶ)で、「割り勘」に切り替えると全員同じ額にする。
@@ -34,6 +34,9 @@ type Saved = {
   /** 傾斜で割るか。前の保存にないときは傾斜にする */
   weighted?: boolean;
   collection?: { id: string; token: string } | null;
+  /** 会社や部署からの補助。前の保存にはない */
+  subsidyKind?: "per" | "lump";
+  subsidyYen?: string;
 };
 
 function loadSaved(): Saved | null {
@@ -84,6 +87,9 @@ export function SplitClient() {
   const [loaded, setLoaded] = useState(false);
   const [collection, setCollection] = useState<Saved["collection"]>(null);
   const [weighted, setWeighted] = useState(true);
+  // 会社や部署・部費からの補助(1人あたり、または全体でいくら)。空なら補助なし
+  const [subsidyKind, setSubsidyKind] = useState<"per" | "lump">("per");
+  const [subsidyYen, setSubsidyYen] = useState("");
   const [collectError, setCollectError] = useState<string | null>(null);
   const [collecting, startCollecting] = useTransition();
   const router = useRouter();
@@ -147,6 +153,8 @@ export function SplitClient() {
       setPeople(saved.people.map((p) => ({ id: p.id, name: p.name, weight: p.weight, custom: p.custom ?? "" })));
       setCollection(saved.collection ?? null);
       setWeighted(saved.weighted ?? true);
+      setSubsidyKind(saved.subsidyKind ?? "per");
+      setSubsidyYen(saved.subsidyYen ?? "");
       setUnit(saved.unit ?? 100);
       setOrganizer(saved.organizer ?? 0);
     } else {
@@ -164,9 +172,9 @@ export function SplitClient() {
   useEffect(() => {
     if (!loaded) return;
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify({ title, total, people, unit, organizer, weighted, collection } satisfies Saved));
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ title, total, people, unit, organizer, weighted, collection, subsidyKind, subsidyYen } satisfies Saved));
     } catch {}
-  }, [loaded, title, total, people, unit, organizer, weighted, collection]);
+  }, [loaded, title, total, people, unit, organizer, weighted, collection, subsidyKind, subsidyYen]);
 
   function startOver() {
     if (!window.confirm("いまの会計を消して、新しい会計を始めますか?")) return;
@@ -176,6 +184,7 @@ export function SplitClient() {
     setUnit(100);
     setOrganizer(0);
     setWeighted(true);
+    setSubsidyYen("");
     setCollection(null);
   }
 
@@ -192,8 +201,10 @@ export function SplitClient() {
   };
   const totalYen = Number(total);
   const ready = Number.isInteger(totalYen) && totalYen > 0 && people.length > 0;
+  const subsidy = ready ? subsidyTotal(subsidyYen ? { kind: subsidyKind, yen: Number(subsidyYen) } : null, totalYen, people.length) : 0;
+  // 補助を引いた残りを、みんなで割る
   const result = ready
-    ? splitBill({ total: totalYen, weights: people.map((p) => weightOf(p).tenths), unit, organizer })
+    ? splitBill({ total: totalYen - subsidy, weights: people.map((p) => weightOf(p).tenths), unit, organizer })
     : null;
   const nameOf = (p: Person, i: number) => p.name.trim() || `${i + 1}人目`;
 
@@ -208,6 +219,7 @@ export function SplitClient() {
   const shareText = result
     ? [
         `${title.trim() ? `「${title.trim()}」の` : ""}お会計 ${yen(totalYen)}(${people.length}人)`,
+        ...(subsidy > 0 ? [`補助 ${yen(subsidy)} を引いて、${yen(totalYen - subsidy)} をみんなで`] : []),
         ...people.map((p, i) => `${weighted ? `${weightOf(p).mark} ` : "・"}${nameOf(p, i)} ${yen(result.amounts[i])}`),
       ].join("\n")
     : "";
@@ -220,6 +232,7 @@ export function SplitClient() {
         title,
         audience,
         total: totalYen,
+        subsidy: subsidyYen ? { kind: subsidyKind, yen: Number(subsidyYen) } : null,
         unit,
         organizer,
         people: people.map((p, i) => {
@@ -289,6 +302,42 @@ export function SplitClient() {
           />
         </span>
       </label>
+
+      {/* 会社や部署・部費からの補助。入れると、その分を引いた残りをみんなで割る */}
+      <div className="mx-4 mt-3 rounded-3xl border panel px-5 py-4">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-sm font-bold text-muted">補助(会社・部署・部費など)</span>
+          <div className="grid grid-cols-2 gap-1 rounded-xl bg-surface-2 p-0.5" role="group" aria-label="補助の出し方">
+            {(["per", "lump"] as const).map((k) => (
+              <button
+                key={k}
+                type="button"
+                aria-pressed={subsidyKind === k}
+                onClick={() => setSubsidyKind(k)}
+                className={`min-h-9 rounded-lg px-3 text-xs font-bold ${subsidyKind === k ? "bg-surface text-text shadow" : "text-muted"}`}
+              >
+                {k === "per" ? "1人あたり" : "全体で"}
+              </button>
+            ))}
+          </div>
+        </div>
+        <span className="mt-2 flex items-baseline gap-2">
+          <span className="text-lg font-black text-muted">¥</span>
+          <input
+            className="w-full min-w-0 bg-transparent text-2xl font-black tabular-nums outline-none placeholder:text-border"
+            inputMode="numeric"
+            value={subsidyYen === "" ? "" : Number(subsidyYen).toLocaleString("ja-JP")}
+            onChange={(e) => setSubsidyYen(e.target.value.replace(/[^\d]/g, "").replace(/^0+/, "").slice(0, 7))}
+            placeholder="なし"
+            aria-label={subsidyKind === "per" ? "1人あたりの補助(円)" : "全体の補助(円)"}
+          />
+        </span>
+        {subsidy > 0 && (
+          <p className="mt-1 text-xs font-bold text-accent">
+            補助 {yen(subsidy)} を引いて、{yen(totalYen - subsidy)} をみんなで割ります
+          </p>
+        )}
+      </div>
 
       {/* 傾斜で割るか(左・最初の選択)、全員同じ額の割り勘か(右) */}
       <div className="mx-4 mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-surface-2 p-1" role="group" aria-label="割り方">

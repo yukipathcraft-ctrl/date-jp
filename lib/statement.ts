@@ -41,7 +41,7 @@ export function statementNo(id: string): string {
 
 export type StatementRow = { no: number; name: string; affiliation: string; label: string; amount: number; status: string };
 
-type Source = Pick<Collection, "total" | "people" | "payments">;
+type Source = Pick<Collection, "total" | "people" | "payments" | "subsidy">;
 
 /** 支払いの状況。幹事は立て替えた人なので「立替」、本人が押しただけのものは「申告済み」と分ける */
 export function paymentStatus(c: Source, personId: number): string {
@@ -86,6 +86,7 @@ export function statementCsv(c: Source & { id: string; title: string }, meta: St
     ["所在地", meta.address],
     ["用途・目的", meta.purpose],
     ["精算金額(税込)", c.total],
+    ...(c.subsidy ? [["うち補助(会社・部署負担)", c.subsidy], ["うち参加者の負担", c.total - c.subsidy]] : []),
     ["人数", c.people.length],
     ["1人あたり平均", averageYen(c)],
     ["備考", meta.note],
@@ -129,6 +130,7 @@ export function expenseSummary(c: Source & { title: string }, meta: StatementMet
     ["所在地", meta.address],
     ["目的", meta.purpose || c.title],
     ["金額", `${c.total.toLocaleString("ja-JP")}円(税込)`],
+    ["補助", c.subsidy ? `${c.subsidy.toLocaleString("ja-JP")}円(会社・部署負担。残り${(c.total - c.subsidy).toLocaleString("ja-JP")}円は参加者の負担)` : ""],
     ["人数", `${c.people.length}名(1人あたり ${averageYen(c).toLocaleString("ja-JP")}円)`],
     ["参加者", attendeeLine(c, meta.affiliations)],
   ];

@@ -101,6 +101,8 @@ export function CollectionView({
         <h1 className="mt-1 text-[22px] font-black tracking-tight">{heading}</h1>
         <p className="mt-1 text-sm text-muted">
           合計 {yen(c.total)}・{c.people.length}人{host ? `・幹事は${host.name}さん` : ""}
+          {/* 補助があれば、引いた残りをみんなで割ったことを書く */}
+          {(c.subsidy ?? 0) > 0 && <span className="block">補助 {yen(c.subsidy!)} を引いた {yen(c.total - c.subsidy!)} をみんなで割りました</span>}
         </p>
       </div>
 

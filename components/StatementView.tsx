@@ -290,6 +290,11 @@ export function StatementView({ collection: c }: { collection: Omit<Collection, 
               <Row head="支払先">{meta.shop || blank}</Row>
               <Row head="所在地">{meta.address || blank}</Row>
               <Row head="目的">{meta.purpose || blank}</Row>
+              {(c.subsidy ?? 0) > 0 && (
+                <Row head="補助">
+                  {yen(c.subsidy!)}(会社・部署負担)・参加者の負担 {yen(c.total - c.subsidy!)}
+                </Row>
+              )}
               <Row head="参加人数">
                 {c.people.length}名(1人あたり平均 {yen(averageYen(c))})
               </Row>

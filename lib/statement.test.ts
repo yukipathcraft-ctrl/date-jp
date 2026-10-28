@@ -70,4 +70,10 @@ describe("statement", () => {
       ["利用日: 2026/10/30", "支払先: 居酒屋 伊達", "目的: 部署の歓迎会", "金額: 10,000円(税込)", "人数: 3名(1人あたり 3,333円)", "参加者: 山田、佐藤、鈴木 計3名"].join("\n"),
     );
   });
+
+  it("補助があれば、CSV とまとめて貼る文に補助と参加者の負担を出す", () => {
+    const withSub = { ...c, subsidy: 4000 };
+    expect(statementCsv(withSub, EMPTY_META).split("\r\n")).toContain("うち補助(会社・部署負担),4000");
+    expect(expenseSummary(withSub, EMPTY_META)).toContain("補助: 4,000円(会社・部署負担。残り6,000円は参加者の負担)");
+  });
 });

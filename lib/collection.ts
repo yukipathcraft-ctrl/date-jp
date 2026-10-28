@@ -1,5 +1,5 @@
 import { isAudience, type Audience } from "./audience";
-import { ROUND_UNITS, splitBill, CUSTOM_MAX, CUSTOM_MIN } from "./split";
+import { ROUND_UNITS, splitBill, subsidyTotal, CUSTOM_MAX, CUSTOM_MIN } from "./split";
 import type { CollectionPerson, Payment } from "./store/types";
 
 // 傾斜会計から集金のページを作るときの、入力の確かめと金額の計算し直し。純粋関数
@@ -15,9 +15,11 @@ export type CollectionInput = {
   unit: unknown;
   organizer: unknown;
   people: unknown;
+  /** 会社や部署からの補助。{ kind: "per" | "lump", yen } */
+  subsidy?: unknown;
 };
 
-export type ParsedCollection = { title: string; audience: Audience; total: number; people: CollectionPerson[] };
+export type ParsedCollection = { title: string; audience: Audience; total: number; subsidy: number; people: CollectionPerson[] };
 
 /** 画面から来た値を確かめ、金額はサーバーで計算し直す(画面の金額は信じない) */
 export function parseCollection(input: CollectionInput): Result<ParsedCollection> {
@@ -46,13 +48,21 @@ export function parseCollection(input: CollectionInput): Result<ParsedCollection
     });
     tenths.push(t);
   }
-  const { amounts } = splitBill({ total, weights: tenths, unit, organizer });
+  const raw2 = (input.subsidy ?? null) as { kind?: unknown; yen?: unknown } | null;
+  const subsidy = subsidyTotal(
+    raw2 && (raw2.kind === "per" || raw2.kind === "lump") ? { kind: raw2.kind, yen: Number(raw2.yen) } : null,
+    total,
+    rows.length,
+  );
+  // 補助を引いた残りを、みんなで割る
+  const { amounts } = splitBill({ total: total - subsidy, weights: tenths, unit, organizer });
   return {
     ok: true,
     value: {
       title: typeof input.title === "string" ? input.title.trim().slice(0, 30) : "",
       audience: isAudience(input.audience) ? input.audience : "student",
       total,
+      subsidy,
       people: rows.map((r, i) => ({ ...r, amount: amounts[i], organizer: i === organizer })),
     },
   };
