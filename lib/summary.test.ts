@@ -136,3 +136,14 @@ describe("必ず来てほしい人", () => {
     expect(s.mustMissing).toEqual(["部長"]);
   });
 });
+
+describe("誰がいつ行けるかの表", () => {
+  it("候補の日を日付の順に並べ、1人ずつの答えを返す(答えのない日は ×)", () => {
+    const s = summarize([D2, D1], [answer("a", { dates: { [D1]: "ok", [D2]: "maybe" } }), answer("b", { dates: { [D1]: "no" } })]);
+    expect(s.dates).toEqual([D1, D2]);
+    expect(s.who).toEqual([
+      { name: "a", dates: { [D2]: "maybe", [D1]: "ok" } },
+      { name: "b", dates: { [D2]: "no", [D1]: "no" } },
+    ]);
+  });
+});

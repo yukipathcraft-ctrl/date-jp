@@ -1,6 +1,7 @@
 import { CalendarDays, Cigarette, Clock, MapPin, MessageSquareText, Moon, UtensilsCrossed, Users, Wallet, Wine } from "lucide-react";
 import { areaLabel, budgetLabel, clock, dateLabel, stayLabel } from "@/lib/sendai";
 import type { Summary } from "@/lib/summary";
+import { WhoCanGo } from "./WhoCanGo";
 
 // みんなの回答から決まったこと。予算は「全員が出せる額」だけを出し、誰がいくらと答えたかは出さない
 
@@ -77,6 +78,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
       <section className="mx-4 rounded-3xl border panel px-4 py-6">
         <h2 className="text-lg font-black">みんなの答え({summary.answered}人)</h2>
         <p className="mt-2 text-sm text-muted">どの日も全員が行けないと答えているので、候補の日を足して作り直してください</p>
+        <WhoCanGo summary={summary} />
         <Notes notes={summary.notes} />
       </section>
     );
@@ -109,6 +111,8 @@ export function SummaryView({ summary }: { summary: Summary }) {
     <section className="mx-4 rounded-3xl border panel px-4 py-6">
       <h2 className="text-lg font-black">みんなの答えで決まったこと</h2>
       <p className="mt-1 text-sm text-muted">{summary.answered}人が回答</p>
+      {/* 日にちを決めるのに大事なので、決まったことの前に出す */}
+      <WhoCanGo summary={summary} />
       <dl className="mt-4 divide-y divide-border rounded-2xl border border-border">
         {rows.map(({ icon: Icon, label, value, sub }) => (
           <div key={label} className="flex items-start gap-3 px-4 py-3">

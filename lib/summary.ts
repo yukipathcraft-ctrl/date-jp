@@ -40,6 +40,11 @@ export type Summary = {
   /** 「必ず来てほしい人」のうち、まだ答えていない人と、決めた日に行けない人 */
   mustUnanswered: string[];
   mustMissing: string[];
+  /** 必ず来てほしい人の名前(表で目印を付ける) */
+  must: string[];
+  /** 候補の日(日付の順)と、1人ずつの答え。調整さんのように、誰がいつ行けるかを表で見せる */
+  dates: string[];
+  who: { name: string; dates: Record<string, DateAnswer> }[];
   ranking: DateRank[];
   /** 行ける人がいちばん多い日。誰も行けなければ null */
   date: string | null;
@@ -113,6 +118,9 @@ export function summarize(dates: string[], answers: Answer[], fixedDate?: string
   return {
     answered: answers.length,
     names: answers.map((a) => a.name),
+    must,
+    dates: [...dates].sort(),
+    who: answers.map((a) => ({ name: a.name, dates: Object.fromEntries(dates.map((d) => [d, a.dates[d] ?? "no"])) })),
     mustUnanswered: must.filter((n) => !answers.some((a) => a.name === n)),
     mustMissing: best ? answers.filter((a) => must.includes(a.name) && a.dates[best] !== "ok").map((a) => a.name) : [],
     ranking,
