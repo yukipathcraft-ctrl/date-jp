@@ -113,10 +113,11 @@ export function CreateForm() {
               value={startAt}
               onChange={(e) => setStartAt(Number(e.target.value))}
               aria-label="何時から始めるか"
-              className="absolute inset-0 cursor-pointer opacity-0"
+              // 押すと開く時刻の一覧は、スマホによっては白い地に白い字になって読めなくなるので、色をはっきり決めておく
+              className="absolute inset-0 cursor-pointer text-white opacity-0 [color-scheme:dark]"
             >
               {START_CHOICES.map((m) => (
-                <option key={m} value={m}>
+                <option key={m} value={m} className="bg-[#1c1a17] text-white">
                   {clock(m)}
                 </option>
               ))}
