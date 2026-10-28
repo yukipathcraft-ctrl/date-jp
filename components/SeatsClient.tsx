@@ -326,7 +326,7 @@ export function SeatsClient() {
 
       <div className="px-4">
         <button type="button" disabled={!ready} onClick={run} className={`${BUTTON_PRIMARY} w-full gap-2`}>
-          <Shuffle className="size-5" aria-hidden />
+          {mode === "rank" ? <ListOrdered className="size-5" aria-hidden /> : <Shuffle className="size-5" aria-hidden />}
           {!ready ? "名前を2人以上入れてください" : mode === "rank" ? "上座から順に並べる" : result ? "もう一度くじを引く" : "くじで席を決める"}
         </button>
       </div>
