@@ -40,7 +40,7 @@ type Props = {
 };
 
 /** 「幹事が決める」の中の小見出し。選ぶものごとに色(tier-*)を変え、アイコンを添える */
-function StepHead({ tone, icon, children }: { tone: "blue" | "green"; icon: React.ReactNode; children: React.ReactNode }) {
+function StepHead({ tone, icon, children }: { tone: "blue" | "orange"; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <p className={`tier-${tone} mt-5 mb-2 flex items-center gap-2 text-sm font-black text-[var(--tc)]`}>
       <span className="grid size-7 place-items-center rounded-lg bg-[var(--ts)] text-[var(--tb)]">{icon}</span>
@@ -233,10 +233,11 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             </div>
             {shops.length > 0 && (
               <>
-                <StepHead tone="green" icon={<Store className="size-4" aria-hidden />}>
+                <StepHead tone="orange" icon={<Store className="size-4" aria-hidden />}>
                   お店
                 </StepHead>
-                <div className="tier-green space-y-1.5">
+                {/* 選んでいないお店は色を付けず、選んだお店だけを暖かいオレンジにする */}
+                <div className="tier-orange space-y-1.5">
                   {/* 「お店はあとで決める」はいちばん前に、お店とは違う点線の枠で出す(日にちだけ先に決めたい幹事が多いため) */}
                   <button
                     type="button"
@@ -261,7 +262,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
                       aria-pressed={shopId === s.id}
                       onClick={() => setShopId(s.id)}
                       className={`flex min-h-12 w-full items-center rounded-xl border px-4 text-left text-sm font-bold transition-colors ${
-                        shopId === s.id ? "border-[var(--tb)] bg-[var(--tb)] text-black" : "border-[var(--tb)]/25 bg-[var(--ts)] text-[var(--tc)]"
+                        shopId === s.id ? "border-[var(--tb)] bg-[var(--tb)] text-black" : "border-border bg-surface text-text hover:border-white/30"
                       }`}
                     >
                       {shopId === s.id && "✓ "}

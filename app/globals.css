@@ -212,6 +212,8 @@ body {
 .tier-yellow { --ts: #3a2d10; --tc: #ffd47e; --tb: #f5b83d; }
 .tier-green { --ts: #143425; --tc: #93e3b2; --tb: #4cc982; }
 .tier-purple { --ts: #2b2148; --tc: #cbb8ff; --tb: #9d7bff; }
+/* 幹事が決めるときのお店。料理に合う暖かい色 */
+.tier-orange { --ts: #3a2214; --tc: #ffc09a; --tb: #ff8a4c; }
 /* 自分で倍率を書いた人 */
 .tier-gray { --ts: #2c2925; --tc: #ece6dc; --tb: #b9b0a2; }
 
