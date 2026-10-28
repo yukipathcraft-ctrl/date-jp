@@ -1,6 +1,8 @@
 "use server";
 
 import { AUDIENCES, isAudience } from "@/lib/audience";
+import { headers } from "next/headers";
+import { billingEnabled, createStatementCheckout } from "@/lib/billing";
 import { canSetPayment, isConfirmed, parseCollection, type CollectionInput } from "@/lib/collection";
 import { isValidDeadline } from "@/lib/deadline";
 import { AREAS, isAreaKey, isBudget, isGenreKey, isSecondGenreKey, upcomingDates } from "@/lib/sendai";
@@ -214,6 +216,26 @@ export async function setCollectionPayment(
   if (!canSetPayment(isHost)) return { ok: false, error: "受け取りの記録は、幹事だけができます" };
   await store.setPayment(collectionId, personId, paid === true ? { by: "host" } : null);
   return { ok: true };
+}
+
+/**
+ * 経費精算の名簿と金額を買う。幹事の鍵を確かめてから、Stripe のお会計のページを作って URL を返す。
+ * 戻り先は /c/{id}/paid(幹事の鍵は Stripe に渡さない)
+ */
+export async function buyStatement(collectionId: string, adminToken: string): Promise<{ ok: true; url: string } | Fail> {
+  const c = await getStore().getCollection(collectionId);
+  if (!c || !verifyToken(adminToken, c.adminHash)) return { ok: false, error: "幹事のURLから開いてください" };
+  if (!billingEnabled()) return { ok: false, error: "いまは支払いを受け付けていません" };
+  if (c.pro) return { ok: false, error: "この会計はもう買ってあります" };
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  try {
+    return { ok: true, url: await createStatementCheckout(c.id, c.title, `${proto}://${host}`) };
+  } catch (e) {
+    console.error("[billing] お会計のページを作れませんでした", e);
+    return { ok: false, error: "お会計のページを開けませんでした。少し待ってからもう一度お試しください" };
+  }
 }
 
 /** 「集金のチェック」の一覧に出す、集金ごとの進み具合。払ったかどうかの数だけを返す */

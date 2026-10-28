@@ -349,6 +349,11 @@ export function HomeClient() {
       )}
 
       <p className="pt-2 text-center text-[10px] font-bold tracking-[0.2em] text-white/25">仙台限定</p>
+      <p className="text-center text-[10px]">
+        <Link href="/legal" className="text-white/30 underline underline-offset-2 hover:text-white/60">
+          特定商取引法に基づく表記
+        </Link>
+      </p>
     </div>
   );
 }

@@ -42,9 +42,15 @@ function Burst() {
 export function CollectionView({
   collection: c,
   hostToken,
+  justPaid = false,
+  statementPrice = null,
 }: {
   collection: Omit<Collection, "adminHash">;
   hostToken: string | null;
+  /** Stripe で名簿を買って戻ってきたところか */
+  justPaid?: boolean;
+  /** 名簿の値段。買っていないときだけ入る(有料にしていないときや、買ったあとは null) */
+  statementPrice?: number | null;
 }) {
   const router = useRouter();
   const canShare = useCanShare();
@@ -107,11 +113,18 @@ export function CollectionView({
       </div>
 
       {/* 会社に出す明細書へは、いちばん上からすぐ飛べるようにする(幹事だけ・会社の会だけ) */}
-      {isHost && c.audience === "worker" && (
+      {isHost && justPaid && (
+        <p role="status" className="mx-4 mb-3 flex items-center gap-2 rounded-2xl border border-accent/50 bg-accent/10 px-4 py-3 text-sm font-bold text-accent">
+          <Check className="size-4 shrink-0" aria-hidden />
+          お支払いが済みました。下から名簿と金額を開けます
+        </p>
+      )}
+      {isHost && (c.audience === "worker" || c.pro) && (
         <div className="px-4 pb-3">
           <Link href={`/c/${c.id}/statement?token=${encodeURIComponent(token ?? "")}`} className={`${BUTTON_SUB} w-full gap-2 text-sm`}>
             <FileText className="size-4 text-accent" aria-hidden />
             経費精算用の名簿と金額
+            {statementPrice !== null && <span className="text-xs font-bold text-muted">{yen(statementPrice)}</span>}
             <ChevronRight className="size-4 text-muted" aria-hidden />
           </Link>
         </div>

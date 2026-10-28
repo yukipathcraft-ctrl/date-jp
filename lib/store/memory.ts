@@ -88,6 +88,10 @@ export const memoryStore: Store = {
     const c = db.collections.get(id);
     return c ? structuredClone(c) : null;
   },
+  async markCollectionPaid(collectionId, sessionId) {
+    const c = db.collections.get(collectionId);
+    if (c) c.pro = { sessionId, at: new Date().toISOString() };
+  },
   async setPayment(collectionId, personId, payment) {
     const c = db.collections.get(collectionId);
     if (!c) return;

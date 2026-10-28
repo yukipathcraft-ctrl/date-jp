@@ -123,6 +123,19 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
       }
       return { ...r.data, audience: isAudience(r.data.audience) ? r.data.audience : "student", id: r.id, adminHash: r.admin_hash, payments };
     },
+    async markCollectionPaid(collectionId, sessionId) {
+      // 集金の中身(data)に、買ったことを足す
+      const row = check<{ data: Record<string, unknown> } | null>(
+        await db.from("nomi_collections").select("data").eq("id", collectionId).maybeSingle(),
+      );
+      if (!row) return;
+      check(
+        await db
+          .from("nomi_collections")
+          .update({ data: { ...row.data, pro: { sessionId, at: new Date().toISOString() } } })
+          .eq("id", collectionId),
+      );
+    },
     async setPayment(collectionId, personId, payment) {
       if (payment) {
         check(

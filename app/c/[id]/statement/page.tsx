@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { SiteHeader } from "@/components/SiteHeader";
+import { StatementPaywall } from "@/components/StatementPaywall";
 import { StatementView } from "@/components/StatementView";
+import { STATEMENT_PRICE, billingEnabled } from "@/lib/billing";
 import { PageMotion } from "@/components/PageMotion";
 import { getStore } from "@/lib/store";
 import { verifyToken } from "@/lib/tokens";
@@ -31,7 +33,10 @@ export default async function StatementPage(props: PageProps<"/c/[id]/statement"
       <div className="print:hidden">
         <SiteHeader />
       </div>
-      {ok ? (
+      {/* 有料にしているあいだは、買った会計だけ名簿を出す(Stripe のキーがなければ、今までどおり誰でも使える) */}
+      {ok && billingEnabled() && !view.pro ? (
+        <StatementPaywall collectionId={view.id} token={token as string} title={view.title} price={STATEMENT_PRICE} />
+      ) : ok ? (
         <StatementView collection={view} />
       ) : (
         <div className="mx-auto max-w-xl px-4 pt-10 text-center">
