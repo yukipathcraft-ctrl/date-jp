@@ -127,7 +127,8 @@ function Toggle({ on, onClick, icon, title, sub }: { on: boolean; onClick: () =>
 export function SeatsClient() {
   const [text, setText] = useState("");
   const [tables, setTables] = useState(2);
-  const [shape, setShape] = useState<Shape>("round");
+  // 居酒屋の宴会は長テーブルが多いので、最初は長テーブル
+  const [shape, setShape] = useState<Shape>("long");
   const [useHonored, setUseHonored] = useState(false);
   const [useGroups, setUseGroups] = useState(false);
   const [meta, setMeta] = useState<Record<string, Meta>>({});
@@ -174,8 +175,8 @@ export function SeatsClient() {
           <div className="grid grid-cols-2 gap-2" role="group" aria-label="テーブルの形">
             {(
               [
-                { key: "round", label: "丸テーブル", Icon: Circle },
                 { key: "long", label: "長テーブル", Icon: RectangleHorizontal },
+                { key: "round", label: "丸テーブル", Icon: Circle },
               ] as const
             ).map(({ key, label, Icon }) => (
               <button
