@@ -1,6 +1,7 @@
 // この端末で作った集金。幹事の鍵入りの URL をなくさないよう、ブラウザにだけ残す
 
-export type MyCollection = { id: string; token: string; title: string; total: number; createdAt: number };
+/** partyId = 会の画面から会計を始めたときの、その会(「これまでの会」で金額を出すのに使う) */
+export type MyCollection = { id: string; token: string; title: string; total: number; createdAt: number; partyId?: string };
 
 const KEY = "nomi:collections";
 

@@ -60,7 +60,7 @@ export function CollectionView({
         localStorage.setItem(hostKey(c.id), hostToken);
         // 「集金のチェック」の一覧に出す(作った日は最初に開いた日のまま)
         const prev = loadMyCollections().find((x) => x.id === c.id);
-        rememberCollection({ id: c.id, token: hostToken, title: c.title, total: c.total, createdAt: prev?.createdAt ?? Date.now() });
+        rememberCollection({ id: c.id, token: hostToken, title: c.title, total: c.total, createdAt: prev?.createdAt ?? Date.now(), partyId: prev?.partyId });
       } else setToken(localStorage.getItem(hostKey(c.id)));
     } catch {}
     /* eslint-enable react-hooks/set-state-in-effect */

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { partyAttendees, partyStatuses, startCollection } from "@/app/actions";
 import { loadAudience, type Audience } from "@/lib/audience";
+import { rememberCollection } from "@/lib/myCollections";
 import { loadMyParties, type MyParty } from "@/lib/myParties";
 import { dateLabel, yen } from "@/lib/sendai";
 import { NextHost } from "./NextHost";
@@ -77,7 +78,10 @@ function TierTag({ w }: { w: Weight }) {
   );
 }
 
-export function SplitClient() {
+/** from = 会の画面から来たときの、その会の id。作った集金をその会とつなぐ */
+export function SplitClient({ from = null }: { from?: string | null }) {
+  // どの会の会計か。会の画面から来たか、決まった会から名前を読み込んだときに入る
+  const [fromParty, setFromParty] = useState<string | null>(from);
   const [audience, setAudience] = useState<Audience>("student");
   const [title, setTitle] = useState("");
   const [total, setTotal] = useState("");
@@ -126,6 +130,7 @@ export function SplitClient() {
       setPeople(r.attendees.slice(0, 30).map((a) => person(a.soft ? "soft" : "normal", a.name.slice(0, 20))));
       setOrganizer(0);
       setCollection(null);
+      setFromParty(p.id);
     });
   }
 
@@ -245,6 +250,8 @@ export function SplitClient() {
         return;
       }
       setCollection({ id: r.id, token: r.adminToken });
+      // 「これまでの会」で、その会にいくらかかったかを出せるようにする
+      rememberCollection({ id: r.id, token: r.adminToken, title, total: totalYen, createdAt: Date.now(), ...(fromParty ? { partyId: fromParty } : {}) });
       router.push(`/c/${r.id}?token=${r.adminToken}`);
     });
   }

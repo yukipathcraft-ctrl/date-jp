@@ -324,6 +324,16 @@ export function HomeClient() {
         />
       )}
 
+      {decided.length > 0 && (
+        <Link
+          href="/history"
+          className="-mt-2 flex min-h-11 items-center justify-center gap-1 text-[12px] font-bold text-white/50 transition hover:text-white"
+        >
+          これまでの会の記録(店・人数・金額)
+          <ChevronRight className="size-3.5" aria-hidden />
+        </Link>
+      )}
+
       <section>
         <SectionTitle icon={<Wrench className="size-3.5" aria-hidden />}>ツール</SectionTitle>
         <div className="grid grid-cols-2 gap-2.5">

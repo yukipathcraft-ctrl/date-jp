@@ -23,7 +23,7 @@ export default async function SplitPage(props: PageProps<"/split">) {
           <h1 className="text-[22px] font-black tracking-tight">会計</h1>
           <p className="mt-1 text-sm text-muted">合計を入れて一人ずつ傾斜を選ぶと、払う金額がすぐに出ます。全員同じ額の割り勘や、集金のチェックもできます</p>
         </div>
-        <SplitClient />
+        <SplitClient from={typeof from === "string" ? from : null} />
       </div>
     </PageMotion>
   );

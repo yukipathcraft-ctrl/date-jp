@@ -50,6 +50,9 @@ export function CreateForm() {
     /* eslint-disable react-hooks/set-state-in-effect */
     setToday(upcomingDates(new Date(), 1)[0]);
     setAudience(loadAudience() ?? "student");
+    // 「これまでの会」の「この会をもとに作る」から来たら、名前を入れておく
+    const copied = new URLSearchParams(location.search).get("title");
+    if (copied) setTitle(copied.slice(0, 40));
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
