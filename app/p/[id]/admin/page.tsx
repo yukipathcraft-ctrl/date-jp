@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { AdminPanel } from "@/components/AdminPanel";
 import { DecisionCard } from "@/components/DecisionCard";
-import { findShop } from "@/lib/shops";
 import { Fold } from "@/components/Fold";
 import { SecondPartyShops } from "@/components/SecondPartyShops";
 import { ShopList } from "@/components/ShopList";
@@ -25,9 +24,6 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
   const view = await loadParty(id);
   if (!view) notFound();
   const { party, summary, shops, otherArea, adminHash } = view;
-  // 決まったお店の料理の種類(カードの絵に使う)。いまの候補の中にあればそれを使い、なければお店を引く
-  const chosenId = party.decision?.shopId ?? null;
-  const chosenGenre = chosenId ? ((shops.find((s) => s.id === chosenId) ?? (await findShop(chosenId)))?.genreKey ?? null) : null;
 
   if (typeof token !== "string" || !verifyToken(token, adminHash)) {
     return (
@@ -54,10 +50,12 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
         </div>
         {party.decision && (
           <div className="mb-4">
-            <DecisionCard decision={party.decision} partyId={party.id} genre={chosenGenre} />
+            <DecisionCard decision={party.decision} partyId={party.id} />
           </div>
         )}
         <AdminPanel
+          // 必ず来てほしい人を変えたら、いちばん良い日を選び直す
+          key={party.must.join("|")}
           partyId={party.id}
           title={party.title}
           token={token}
@@ -70,6 +68,8 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
           start={party.start}
           deadline={party.deadline}
           today={upcomingDates(new Date(), 1)[0]}
+          names={summary.names}
+          must={party.must}
         />
         {/* 決まったあとは、みんなの答えはたたんでおく。お店まで決まったら、ほかの候補のお店は出さない */}
         {party.decision ? (

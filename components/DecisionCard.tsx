@@ -1,7 +1,5 @@
 import { ExternalLink, MapPin, PartyPopper, Store } from "lucide-react";
 import { mapsUrl } from "@/lib/maps";
-import type { GenreKey } from "@/lib/sendai";
-import { GenreArt } from "./GenreArt";
 import { clock, dateLabel } from "@/lib/sendai";
 import type { Decision } from "@/lib/store/types";
 
@@ -11,11 +9,7 @@ import type { Decision } from "@/lib/store/types";
 /** 見本のお店(s1, s2…)は実在しないので、予約や地図のリンクを出さない */
 const isSampleShop = (id: string) => /^s\d+$/.test(id);
 
-/**
- * genre = 決まったお店の料理の種類。その種類の絵を出す(ホットペッパーの写真は広告の画像のことがあるので使わない)。
- * 分からなければ乾杯の絵にする
- */
-export function DecisionCard({ decision, partyId, genre = null }: { decision: Decision; partyId: string; genre?: GenreKey | null }) {
+export function DecisionCard({ decision, partyId }: { decision: Decision; partyId: string }) {
   const shop = decision.shopId && decision.shopName ? { id: decision.shopId, name: decision.shopName } : null;
   return (
     <section className="anim-rise mx-4 rounded-3xl border border-match bg-match-soft px-4 py-6">
@@ -28,9 +22,6 @@ export function DecisionCard({ decision, partyId, genre = null }: { decision: De
       </p>
       {shop ? (
         <>
-          <div className="mt-4">
-            <GenreArt genre={genre} />
-          </div>
           <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-lg font-bold">
             <Store className="size-5 shrink-0" aria-hidden />
             {shop.name}
