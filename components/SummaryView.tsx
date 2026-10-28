@@ -1,4 +1,4 @@
-import { CalendarDays, Cigarette, Clock, MapPin, MessageSquareText, Moon, UtensilsCrossed, Users, Wallet, Wine } from "lucide-react";
+import { CalendarDays, ChevronDown, Cigarette, Clock, MapPin, MessageSquareText, Moon, UtensilsCrossed, Users, Wallet, Wine } from "lucide-react";
 import { areaLabel, budgetLabel, clock, dateLabel, stayLabel } from "@/lib/sendai";
 import type { Summary } from "@/lib/summary";
 import { WhoCanGo } from "./WhoCanGo";
@@ -84,6 +84,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
     );
   }
 
+  // いつも出すのは、日にち・時間・予算の3つだけ。場所と二次会は「くわしく」の中に入れる
   const rows = [
     { icon: CalendarDays, label: "日にち", value: dateLabel(summary.date), sub: `${summary.attendees.length}人が行けます` },
     {
@@ -93,6 +94,8 @@ export function SummaryView({ summary }: { summary: Summary }) {
       sub: summary.lateJoiners.length > 0 ? `${summary.lateJoiners.join("と")}さんは途中から来ます` : "全員そろって始められます",
     },
     { icon: Wallet, label: "予算", value: budgetLabel(summary.budget!), sub: "行く人全員が出せる額です" },
+  ];
+  const more = [
     {
       icon: MapPin,
       label: "場所",
@@ -125,14 +128,28 @@ export function SummaryView({ summary }: { summary: Summary }) {
           </div>
         ))}
       </dl>
-      <Diet diet={summary.diet} />
-      <Notes notes={summary.notes} />
 
-      <details className="mt-4 rounded-2xl bg-surface-2 px-4 py-3">
-        <summary className="flex min-h-10 cursor-pointer items-center gap-2 text-sm font-bold">
+      {/* 場所・二次会・苦手なもの・ひとこと・何時まで残れるかは、たたんでおく */}
+      <details className="group mt-3 rounded-2xl bg-surface-2 px-4 py-3">
+        <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 text-sm font-bold [&::-webkit-details-marker]:hidden">
           <Users className="size-4" aria-hidden />
-          日ごとの人数と、何時まで残れるか
+          <span className="flex-1">くわしく見る(場所・二次会・苦手なもの・ひとこと)</span>
+          <ChevronDown className="size-4 text-muted transition-transform group-open:rotate-180" aria-hidden />
         </summary>
+        <dl className="mt-2 divide-y divide-border rounded-2xl border border-border">
+          {more.map(({ icon: Icon, label, value, sub }) => (
+            <div key={label} className="flex items-start gap-3 px-4 py-3">
+              <Icon className="mt-1 size-5 shrink-0" aria-hidden />
+              <dt className="w-14 shrink-0 pt-0.5 text-sm font-bold text-muted">{label}</dt>
+              <dd className="min-w-0">
+                <span className="block text-lg font-black">{value}</span>
+                <span className="block text-xs text-muted">{sub}</span>
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <Diet diet={summary.diet} />
+        <Notes notes={summary.notes} />
         <ul className="mt-2 space-y-1 text-sm">
           {summary.ranking.map((r) => (
             <li key={r.date} className="flex justify-between">

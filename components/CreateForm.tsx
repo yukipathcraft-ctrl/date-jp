@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { createParty } from "@/app/actions";
@@ -32,6 +32,9 @@ function FieldHead({ title, sub }: { title: string; sub: string }) {
     </div>
   );
 }
+
+/** 選べる開始時刻。15:00〜23:45 を15分ごと(分) */
+const START_CHOICES = Array.from({ length: 36 }, (_, i) => 900 + i * 15);
 
 export function CreateForm() {
   const router = useRouter();
@@ -99,22 +102,26 @@ export function CreateForm() {
 
         <div className="mt-5 border-t border-white/8 pt-5">
           <FieldHead title="何時から始める?" sub="みんなには聞きません" />
-          <div className="mt-3 grid grid-cols-3 gap-1.5" role="group" aria-label="何時から始めるか">
-            {AUDIENCES[audience].arrivals.map((m) => (
-              <button
-                key={m}
-                type="button"
-                aria-pressed={startAt === m}
-                onClick={() => setStartAt(m)}
-                className={`flex min-h-12 items-center justify-center gap-1 rounded-xl text-sm font-black tabular-nums transition active:scale-95 ${
-                  startAt === m ? "bg-accent text-accent-text" : "bg-white/6 text-white ring-1 ring-white/10 hover:bg-white/10"
-                }`}
-              >
-                {startAt === m && <Check className="size-3.5" aria-hidden />}
-                {clock(m)}
-              </button>
-            ))}
-          </div>
+          {/* KANJI のように、何時からでも自由に選べるようにする(15分ごと) */}
+          <label className="relative mt-3 flex min-h-14 items-center justify-between rounded-2xl bg-white/6 px-4 ring-1 ring-white/10">
+            <span className="text-sm font-bold text-white/60">開始時刻</span>
+            <span className="flex items-center gap-1.5 text-2xl font-black tabular-nums">
+              {clock(startAt)}
+              <ChevronDown className="size-5 text-accent" aria-hidden />
+            </span>
+            <select
+              value={startAt}
+              onChange={(e) => setStartAt(Number(e.target.value))}
+              aria-label="何時から始めるか"
+              className="absolute inset-0 cursor-pointer opacity-0"
+            >
+              {START_CHOICES.map((m) => (
+                <option key={m} value={m}>
+                  {clock(m)}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
 
         <div className="mt-5 border-t border-white/8 pt-5">

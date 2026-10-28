@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarClock, CalendarDays, Calculator, Check, ChevronRight, KeyRound, PartyPopper, Store, Users } from "lucide-react";
+import { CalendarClock, CalendarDays, Calculator, Check, ChevronDown, ChevronRight, KeyRound, PartyPopper, Store, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { decide } from "@/app/actions";
@@ -116,6 +116,13 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           copy={guestUrl}
           canShare={canShare}
         />
+        {/* 締め切りと幹事用の URL は、いつも使うものではないので「そのほかの設定」にたたむ */}
+        {/* 作った直後だけは開いておき、幹事用の URL を自分に残してもらう */}
+        <details open={created} className="group mt-4 rounded-2xl bg-surface-2 px-4 py-2">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-bold [&::-webkit-details-marker]:hidden">
+            <span className="flex-1">そのほかの設定(締め切り・幹事用のURL)</span>
+            <ChevronDown className="size-4 text-muted transition-transform group-open:rotate-180" aria-hidden />
+          </summary>
         {/* 締め切りは、日にちが決まるまでのもの */}
         {!decision && <DeadlineEditor partyId={partyId} token={token} title={title} guestUrl={guestUrl} deadline={deadline} today={today} dates={ranking.map((r) => r.date)} />}
 
@@ -140,6 +147,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             canShare={canShare}
           />
         </div>
+        </details>
       </section>
   );
 

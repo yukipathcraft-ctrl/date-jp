@@ -89,6 +89,7 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
             chosenId={party.decision?.shopId}
             notice={dietNotice(summary.diet)}
             basis={view.basis}
+            initial={3}
           />
         )}
         {/* お店まで決まったら、二次会のお店も出す */}

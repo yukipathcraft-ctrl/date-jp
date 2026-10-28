@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, ChevronDown, Cigarette, CigaretteOff, ExternalLink, MapPin, Store } from "lucide-react";
+import { Check, ChevronDown, Cigarette, CigaretteOff, ExternalLink, Heart, MapPin, Store } from "lucide-react";
+import { toggleFavorite, useFavorites } from "@/lib/favorites";
 import { useState } from "react";
 import { mapsUrl } from "@/lib/maps";
 import type { Shop } from "@/lib/shops";
@@ -44,6 +45,7 @@ export function ShopList({
   initial?: number;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const favorites = useFavorites();
   if (shops.length === 0 && !empty) return null;
   const isSample = shops.some((s) => s.sample);
   return (
@@ -76,8 +78,23 @@ export function ShopList({
       )}
       <ul className="mt-4 space-y-3">
         {(expanded ? shops : shops.slice(0, initial)).map((s, i) => (
-          <li key={s.id} style={{ "--i": i } as React.CSSProperties} className={`anim-stagger rounded-2xl border p-4 ${chosenId === s.id ? "border-match bg-match-soft" : "border-border"}`}>
-            <div className="flex items-start gap-3">
+          <li key={s.id} style={{ "--i": i } as React.CSSProperties} className={`anim-stagger relative rounded-2xl border p-4 ${chosenId === s.id ? "border-match bg-match-soft" : "border-border"}`}>
+            {/* お気に入り。押すと、この端末の「お気に入りのお店」に入る(見本のお店は実在しないので出さない) */}
+            {!s.sample && (() => {
+              const fav = favorites.some((f) => f.id === s.id);
+              return (
+                <button
+                  type="button"
+                  aria-pressed={fav}
+                  aria-label={fav ? `${s.name}をお気に入りから外す` : `${s.name}をお気に入りに入れる`}
+                  onClick={() => toggleFavorite({ id: s.id, name: s.name, genre: s.genre, access: s.access, budgetLabel: s.budgetLabel })}
+                  className={`absolute top-2 right-2 grid size-11 place-items-center rounded-full transition active:scale-90 ${fav ? "text-[#ff6b74]" : "text-white/35 hover:text-white/70"}`}
+                >
+                  <Heart className={`size-5 ${fav ? "fill-current" : ""}`} aria-hidden />
+                </button>
+              );
+            })()}
+            <div className="flex items-start gap-3 pr-9">
               {s.photo ? (
                 // 外のお店の写真。最適化は使わない
                 // eslint-disable-next-line @next/next/no-img-element
