@@ -26,14 +26,16 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
           admin_hash: party.adminHash,
           start_minutes: party.start,
           via: party.via,
+          // 締め切りのない会は欄に何も書かない(締め切りの欄を足す前の DB でも作れるようにする)
+          ...(party.deadline ? { answer_deadline: party.deadline } : {}),
         }),
       );
     },
     async getParty(id) {
       const row = check<
-        { id: string; title: string; audience: string; dates: string[]; admin_hash: string; decision: Decision | null; start_minutes: number | null } | null
+        { id: string; title: string; audience: string; dates: string[]; admin_hash: string; decision: Decision | null; start_minutes: number | null; answer_deadline: string | null } | null
       >(
-        await db.from("nomi_parties").select("id, title, audience, dates, admin_hash, decision, start_minutes").eq("id", id).maybeSingle(),
+        await db.from("nomi_parties").select("id, title, audience, dates, admin_hash, decision, start_minutes, answer_deadline").eq("id", id).maybeSingle(),
       );
       return row ? {
             id: row.id,
@@ -43,6 +45,7 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
             adminHash: row.admin_hash,
             decision: row.decision,
             start: row.start_minutes ?? null,
+            deadline: row.answer_deadline ?? null,
           } : null;
     },
     async listAnswers(partyId) {
@@ -60,6 +63,9 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
       if (result.error?.code === "23505") return false;
       check(result);
       return true;
+    },
+    async setDeadline(partyId, deadline) {
+      check(await db.from("nomi_parties").update({ answer_deadline: deadline }).eq("id", partyId));
     },
     async setDecision(partyId, decision) {
       check(await db.from("nomi_parties").update({ decision }).eq("id", partyId));

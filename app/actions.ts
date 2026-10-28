@@ -2,7 +2,8 @@
 
 import { AUDIENCES, isAudience } from "@/lib/audience";
 import { canSetPayment, parseCollection, type CollectionInput } from "@/lib/collection";
-import { AREAS, isAreaKey, isBudget, isGenreKey, isSecondGenreKey } from "@/lib/sendai";
+import { isValidDeadline } from "@/lib/deadline";
+import { AREAS, isAreaKey, isBudget, isGenreKey, isSecondGenreKey, upcomingDates } from "@/lib/sendai";
 import { findShop, mergeShops, searchSecondShops, searchShops, type Shop } from "@/lib/shops";
 import { getStore } from "@/lib/store";
 import type { Decision } from "@/lib/store/types";
@@ -15,8 +16,15 @@ import { parseAnswer, parseParty, type AnswerInput } from "@/lib/validation";
 type Fail = { ok: false; error: string };
 
 /** via = "guest" なら、ほかの会で答えたことがある人が作った(招待から幹事が生まれた数を数える) */
-export async function createParty(input: { title: string; audience: string; dates: string[]; start: number; via?: string }): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
-  const parsed = parseParty(input);
+export async function createParty(input: {
+  title: string;
+  audience: string;
+  dates: string[];
+  start: number;
+  deadline?: string | null;
+  via?: string;
+}): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
+  const parsed = parseParty(input, upcomingDates(new Date(), 1)[0]);
   if (!parsed.ok) return parsed;
   const id = generateGroupId();
   const adminToken = generateToken();
@@ -98,6 +106,16 @@ export async function decide(
     shopId: shop?.id ?? null,
     shopName: shop?.name ?? null,
   });
+  return { ok: true };
+}
+
+/** 回答の締め切りを変える(幹事だけ)。null で締め切りなし */
+export async function setDeadline(partyId: string, adminToken: string, deadline: string | null): Promise<{ ok: true } | Fail> {
+  const store = getStore();
+  const party = await store.getParty(partyId);
+  if (!party || !verifyToken(adminToken, party.adminHash)) return { ok: false, error: "幹事のURLから開いてください" };
+  if (!isValidDeadline(deadline, upcomingDates(new Date(), 1)[0])) return { ok: false, error: "締め切りは今日から60日後までの日にしてください" };
+  await store.setDeadline(partyId, deadline);
   return { ok: true };
 }
 

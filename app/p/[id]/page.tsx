@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { AnswerPanel } from "@/components/AnswerPanel";
+import { DeadlineNote } from "@/components/DeadlineNote";
 import { DecisionCard } from "@/components/DecisionCard";
 import { NextHost } from "@/components/NextHost";
 import { SecondPartyShops } from "@/components/SecondPartyShops";
@@ -12,7 +13,8 @@ import { SummaryView } from "@/components/SummaryView";
 import { getStore } from "@/lib/store";
 import { dietNotice } from "@/lib/diet";
 import { monthInJapan, nextOccasion } from "@/lib/invite";
-import { clock } from "@/lib/sendai";
+import { deadlineState } from "@/lib/deadline";
+import { clock, upcomingDates } from "@/lib/sendai";
 import { loadParty } from "@/lib/view";
 import { PageMotion } from "@/components/PageMotion";
 
@@ -32,6 +34,8 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
   const { party, summary, shops, otherArea } = view;
   // 答えた人を次の幹事に誘うときの、その時期の会の呼び方(忘年会・新歓など)
   const occasion = nextOccasion(monthInJapan(new Date()), party.audience);
+  // 日にちが決まったら、締め切りはもう出さない
+  const deadline = party.decision ? null : deadlineState(party.deadline, upcomingDates(new Date(), 1)[0]);
 
   return (
     <PageMotion>
@@ -41,6 +45,7 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
           <p className="text-sm font-bold text-muted">飲み会の日程とお店{party.start !== null ? ` ・ ${clock(party.start)}から` : ""}</p>
           <h1 className="mt-1 text-[22px] font-black tracking-tight">{party.title}</h1>
         </div>
+        {deadline && <DeadlineNote state={deadline} />}
         {party.decision && <DecisionCard decision={party.decision} />}
         <div className={party.decision ? "mt-4" : ""}>
           <AnswerPanel partyId={party.id} dates={party.dates} audience={party.audience} start={party.start} occasion={occasion} />

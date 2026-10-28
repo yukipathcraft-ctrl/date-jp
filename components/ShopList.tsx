@@ -1,13 +1,49 @@
 "use client";
 
-import { Check, ChevronDown, Cigarette, CigaretteOff, ExternalLink, Store } from "lucide-react";
+import { Check, ChevronDown, Cigarette, CigaretteOff, ExternalLink, Star, Store, ThumbsUp } from "lucide-react";
 import { useState } from "react";
 import type { Shop } from "@/lib/shops";
+import { countLabel, isHighlyRated, type Rating } from "@/lib/rating";
 import { areaLabel } from "@/lib/sendai";
 
 const SMOKING_LABEL = { ok: "喫煙可", partial: "分煙", no: "全面禁煙" } as const;
 
 // 予算・場所・人数に合うお店。お店のページへは /go を通す(押された数を数える)
+
+/**
+ * Google の評価。★は Google の数字をそのまま出し、口コミの数を添える。
+ * 口コミの数も加味した点が高いお店にだけ「評価が高い」を付ける(色だけでなく、アイコンと文字で示す)
+ */
+function RatingLine({ rating }: { rating: Rating }) {
+  const body = (
+    <>
+      <Star className="size-3.5 fill-current text-accent" aria-hidden />
+      <span className="font-black tabular-nums">{rating.value.toFixed(1)}</span>
+      <span className="text-muted">
+        (口コミ {countLabel(rating.count)}
+        {rating.sample ? "・見本" : "・Google"})
+      </span>
+    </>
+  );
+  return (
+    <p className="mt-1 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs">
+      <span className="sr-only">評価</span>
+      {rating.mapsUrl ? (
+        <a href={rating.mapsUrl} target="_blank" rel="noopener" className="inline-flex items-center gap-1 underline-offset-2 hover:underline">
+          {body}
+        </a>
+      ) : (
+        <span className="inline-flex items-center gap-1">{body}</span>
+      )}
+      {isHighlyRated(rating) && (
+        <span className="ml-1 inline-flex items-center gap-0.5 rounded-md bg-accent/15 px-1.5 py-0.5 text-[11px] font-bold text-accent">
+          <ThumbsUp className="size-3" aria-hidden />
+          評価が高い
+        </span>
+      )}
+    </p>
+  );
+}
 
 export function ShopList({
   partyId,
@@ -89,6 +125,7 @@ export function ShopList({
               <div className="min-w-0">
                 {chosenId === s.id && <p className="text-xs font-bold text-match-text">★ このお店に決定</p>}
                 <p className="font-black">{s.name}</p>
+                {s.rating && <RatingLine rating={s.rating} />}
                 <p className="text-xs text-muted">
                   {/* 実際のお店は、場所を最寄り駅からの道のりで示す(エリア名は検索の条件で、お店の住所とずれることがある) */}
                   {s.sample ? `${s.genre} ・ ${areaLabel(s.area)} ・ ${s.access}` : `${s.genre} ・ ${s.access}`}
@@ -133,6 +170,11 @@ export function ShopList({
           もっと見る(あと{shops.length - initial}軒)
           <ChevronDown className="size-4" aria-hidden />
         </button>
+      )}
+      {shops.some((s) => s.rating) && (
+        <p className="mt-3 text-xs text-muted">
+          ★は{shops.some((s) => s.rating && !s.rating.sample) ? " Google マップ" : "見本"}の評価です。並び順と「評価が高い」は、口コミの数も加味して決めています(口コミが少ないお店の高い★は、少し割り引いて見ます)
+        </p>
       )}
       {/* ホットペッパーの規約で、クレジットと、写真を使うときの「画像提供」の表示が必要 */}
       {!isSample && (

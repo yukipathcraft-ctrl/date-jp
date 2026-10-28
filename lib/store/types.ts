@@ -13,6 +13,8 @@ export type Party = {
   decision: Decision | null;
   /** 幹事が決めた開始時刻(分)。null は前の会で、参加者が何時から来られるかを答える */
   start: number | null;
+  /** 回答の締め切り(その日の終わりまで。日本時間)。null は締め切りなし */
+  deadline: string | null;
 };
 
 export type StoredAnswer = Answer & { tokenHash: string };
@@ -74,6 +76,8 @@ export interface Store {
   /** id が同じなら上書き。名前が同じ別の人がいれば false */
   saveAnswer(partyId: string, answer: StoredAnswer): Promise<boolean>;
   setDecision(partyId: string, decision: Decision | null): Promise<void>;
+  /** 回答の締め切りを変える。null で締め切りなし */
+  setDeadline(partyId: string, deadline: string | null): Promise<void>;
   /** お店のページへ飛んだ数(誰が押したかは残さない)。「お店を探す」から来たときは partyId が null */
   logShopClick(partyId: string | null, shopId: string): Promise<void>;
   getStats(since: Date): Promise<Stats>;

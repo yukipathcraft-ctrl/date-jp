@@ -10,6 +10,7 @@ import type { Shop } from "@/lib/shops";
 import type { Decision } from "@/lib/store/types";
 import type { DateRank } from "@/lib/summary";
 import { saveAdminToken } from "./CreateForm";
+import { DeadlineEditor } from "./DeadlineEditor";
 import { SendButtons, useCanShare } from "./SendButtons";
 import { SPLIT_NAMES_KEY } from "./SplitClient";
 import { BUTTON_PRIMARY, BUTTON_SUB } from "./ui";
@@ -27,6 +28,10 @@ type Props = {
   attendees: { name: string; soft: boolean }[];
   /** 幹事が決めた開始時刻(分)。招待の文に添える */
   start: number | null;
+  /** 回答の締め切り。招待の文に添え、ここで変えられる */
+  deadline: string | null;
+  /** 今日(日本時間)。締め切りの残りの日数に使う */
+  today: string;
 };
 
 /** 枠の見出し。アイコンの丸と、何をする枠かの一言 */
@@ -49,7 +54,7 @@ function BoxHead({ icon, title, note, tone }: { icon: React.ReactNode; title: st
   );
 }
 
-export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees, start: partyStart }: Props) {
+export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees, start: partyStart, deadline, today }: Props) {
   const router = useRouter();
   const [origin, setOrigin] = useState("");
   const canShare = useCanShare();
@@ -89,10 +94,11 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
         />
         <SendButtons
           mainLabel="共有してみんなに送る"
-          share={{ text: inviteText(title, guestUrl, partyStart) }}
+          share={{ text: inviteText(title, guestUrl, partyStart, deadline) }}
           copy={guestUrl}
           canShare={canShare}
         />
+        <DeadlineEditor partyId={partyId} token={token} title={title} guestUrl={guestUrl} deadline={deadline} today={today} dates={ranking.map((r) => r.date)} />
 
         {/* スマホで作ってパソコンでも開く、といった使い方があるので、自分に送る枠は目立たせておく */}
         <div className="mt-5 rounded-2xl border border-accent/40 bg-match-soft p-4">

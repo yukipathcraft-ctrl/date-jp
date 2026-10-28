@@ -24,7 +24,7 @@ export const memoryStore: Store = {
   async getParty(id) {
     const p = db.parties.get(id);
     if (!p) return null;
-    const party: Party & { createdAt?: number; via?: Via } = { ...structuredClone(p), start: p.start ?? null };
+    const party: Party & { createdAt?: number; via?: Via } = { ...structuredClone(p), start: p.start ?? null, deadline: p.deadline ?? null };
     delete party.createdAt;
     delete party.via;
     return party;
@@ -44,6 +44,10 @@ export const memoryStore: Store = {
     else list.push({ ...structuredClone(answer), createdAt: Date.now() });
     db.answers.set(partyId, list);
     return true;
+  },
+  async setDeadline(partyId, deadline) {
+    const p = db.parties.get(partyId);
+    if (p) p.deadline = deadline;
   },
   async setDecision(partyId, decision) {
     const p = db.parties.get(partyId);

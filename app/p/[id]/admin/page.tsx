@@ -11,6 +11,7 @@ import { StepBar } from "@/components/StepBar";
 import { SummaryView } from "@/components/SummaryView";
 import { verifyToken } from "@/lib/tokens";
 import { dietNotice } from "@/lib/diet";
+import { upcomingDates } from "@/lib/sendai";
 import { loadParty } from "@/lib/view";
 import { PageMotion } from "@/components/PageMotion";
 
@@ -63,6 +64,8 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
           decision={party.decision}
           attendees={summary.attendees.map((a) => ({ name: a.name, soft: a.soft }))}
           start={party.start}
+          deadline={party.deadline}
+          today={upcomingDates(new Date(), 1)[0]}
         />
         <div className="mt-4">
           <SummaryView summary={summary} />

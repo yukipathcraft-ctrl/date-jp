@@ -19,9 +19,19 @@ export function teamsShareUrl(text: string): string {
 // LINE で送る文。友だちに自分で打つような短い文にする。
 // アプリの宣伝の一言は付けない(URL を貼ると Date のカードが出るので、それで伝わる)
 
-/** start = 幹事が決めた開始時刻(分)。あれば「19:00〜」と添える */
-export function inviteText(title: string, url: string, start: number | null = null): string {
-  return [`「${title}」の日程調整です${start !== null ? `(${clock(start)}〜)` : ""}`, "行ける日を入れてください", url].join("\n");
+/** start = 幹事が決めた開始時刻(分)。あれば「19:00〜」と添える。deadline(回答の締め切り)があれば、いつまでに答えるかを書く */
+export function inviteText(title: string, url: string, start: number | null = null, deadline: string | null = null): string {
+  return [
+    `「${title}」の日程調整です${start !== null ? `(${clock(start)}〜)` : ""}`,
+    deadline ? `${dateLabel(deadline)}までに、行ける日を入れてください` : "行ける日を入れてください",
+    url,
+  ].join("\n");
+}
+
+/** 締め切りの前に、まだ答えていない人へ送る文。誰がまだかは書かない(グループに送るので、名指しにしない) */
+export function deadlineReminderText(title: string, url: string, deadline: string, daysLeft: number): string {
+  const when = daysLeft === 0 ? "今日" : daysLeft === 1 ? "明日" : dateLabel(deadline);
+  return [`「${title}」の日程、${when}までが締め切りです`, "まだの人は入れてください", url].join("\n");
 }
 
 /**

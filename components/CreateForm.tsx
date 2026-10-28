@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { createParty } from "@/app/actions";
 import { AUDIENCES, loadAudience, type Audience } from "@/lib/audience";
+import { DEADLINE_CHOICES, addDays, choiceAllowed } from "@/lib/deadline";
 import { answeredBefore } from "@/lib/invite";
 import { rememberParty } from "@/lib/myParties";
 import { clock, dateLabel, upcomingDates } from "@/lib/sendai";
@@ -39,6 +40,8 @@ export function CreateForm() {
   const [audience, setAudience] = useState<Audience>("student");
   // 何時から始めるか(分)。幹事が決め、参加者には聞かない
   const [startAt, setStartAt] = useState(1140);
+  // 回答の締め切り(今日から何日後か)。null は締め切りなし
+  const [deadlineDays, setDeadlineDays] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   // 今日。カレンダーで今日より前を選べないようにする。日付はブラウザで開いたときに作る
@@ -54,11 +57,15 @@ export function CreateForm() {
     setDates((cur) => (cur.includes(d) ? cur.filter((x) => x !== d) : cur.length < MAX_DATES ? [...cur, d] : cur));
   }
 
+  // 候補の日を変えて、選んでいた締め切りがいちばん早い候補の日以降になったら、締め切りなしにする
+  const deadlineOf = (days: number | null) => (days !== null && today ? addDays(today, days) : null);
+  const deadline = deadlineOf(deadlineDays) && choiceAllowed(deadlineOf(deadlineDays)!, dates) ? deadlineOf(deadlineDays) : null;
+
   function submit() {
     setError(null);
     start(async () => {
       // ほかの会で答えたことがある人なら、招待から幹事になった会として数える
-      const result = await createParty({ title, audience, dates, start: startAt, via: answeredBefore() ? "guest" : undefined });
+      const result = await createParty({ title, audience, dates, start: startAt, deadline, via: answeredBefore() ? "guest" : undefined });
       if (!result.ok) {
         setError(result.error);
         return;
@@ -126,6 +133,39 @@ export function CreateForm() {
                 すべて外す
               </button>
             </div>
+          )}
+        </div>
+
+        <div className="mt-5 border-t border-white/8 pt-5">
+          <FieldHead title="回答の締め切り" sub="なくても作れます。みんなの画面に残りの日数が出ます" />
+          <div className="mt-3 grid grid-cols-2 gap-1.5" role="group" aria-label="回答の締め切り">
+            {[null, ...DEADLINE_CHOICES.map((c) => c.days)].map((days) => {
+              const choice = DEADLINE_CHOICES.find((c) => c.days === days);
+              const date = deadlineOf(days);
+              const allowed = date === null || choiceAllowed(date, dates);
+              const on = allowed && (days === null ? deadline === null : deadline === date);
+              return (
+                <button
+                  key={days ?? "none"}
+                  type="button"
+                  aria-pressed={on}
+                  disabled={!allowed}
+                  onClick={() => setDeadlineDays(days)}
+                  className={`flex min-h-12 flex-col items-center justify-center rounded-xl px-2 text-sm font-black transition active:scale-95 disabled:opacity-35 ${
+                    on ? "bg-accent text-accent-text" : "bg-white/6 text-white ring-1 ring-white/10 hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-1">
+                    {on && <Check className="size-3.5" aria-hidden />}
+                    {choice ? choice.label : "締め切りなし"}
+                  </span>
+                  {date && <span className="text-[11px] font-bold opacity-80">{dateLabel(date)}</span>}
+                </button>
+              );
+            })}
+          </div>
+          {dates.length > 0 && DEADLINE_CHOICES.some((c) => !choiceAllowed(deadlineOf(c.days) ?? "", dates)) && (
+            <p className="mt-2 text-[11px] text-white/45">いちばん早い候補の日より前の日だけ選べます</p>
           )}
         </div>
       </section>

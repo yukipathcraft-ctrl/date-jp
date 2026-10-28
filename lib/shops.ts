@@ -1,6 +1,8 @@
 import "server-only";
 import { cleanEnv } from "./env";
 import { AUDIENCES, type Audience } from "./audience";
+import { withRatings } from "./places";
+import { scoreOf, type Rating } from "./rating";
 import { AREAS, GENRES, SECOND_GENRES, type AreaKey, type GenreKey, type SecondGenreKey } from "./sendai";
 
 // お店の候補。ホットペッパーの API キーがあれば実際のお店を出し、なければ見本のお店を出す。
@@ -27,6 +29,8 @@ export type Shop = {
   lat: number | null;
   lng: number | null;
   sample: boolean;
+  /** Google の評価。聞けなかったお店や、キーがないときは null */
+  rating: Rating | null;
 };
 
 export type Smoking = "ok" | "partial" | "no" | null;
@@ -95,6 +99,7 @@ function sample(
     lat: null,
     lng: null,
     sample: true,
+    rating: null,
   };
 }
 
@@ -215,6 +220,7 @@ function fromHotpepper(s: HotpepperShop, area: AreaKey): Shop {
     lat: Number.isFinite(Number(s.lat)) ? Number(s.lat) : null,
     lng: Number.isFinite(Number(s.lng)) ? Number(s.lng) : null,
     sample: false,
+    rating: null,
   };
 }
 
@@ -228,7 +234,21 @@ async function callHotpepper(key: string, params: Record<string, string>): Promi
   return body.results?.shop ?? [];
 }
 
+/**
+ * 出すお店に評価をつけ、口コミの数を加味した点の高い順に並べ直す。
+ * タバコを吸う人がいる会では、吸えるお店を先にしたまま、その中で並べ直す
+ */
+async function rateAndSort(found: { shops: Shop[]; otherArea: boolean }, q: ShopQuery): Promise<{ shops: Shop[]; otherArea: boolean }> {
+  const rated = await withRatings(found.shops);
+  rated.sort((a, b) => smokeScore(b, q) - smokeScore(a, q) || scoreOf(b.rating) - scoreOf(a.rating));
+  return { shops: rated, otherArea: found.otherArea };
+}
+
 export async function searchShops(q: ShopQuery, limit = 3): Promise<{ shops: Shop[]; otherArea: boolean }> {
+  return rateAndSort(await findShops(q, limit), q);
+}
+
+async function findShops(q: ShopQuery, limit: number): Promise<{ shops: Shop[]; otherArea: boolean }> {
   const key = cleanEnv(process.env.HOTPEPPER_API_KEY);
   if (!key) return pickSamples(q, limit);
   const area = AREAS.find((a) => a.key === q.area)!;
@@ -293,7 +313,8 @@ export async function searchSecondShops(
       const seen = new Set(shops.map((s) => s.id));
       shops = [...shops, ...pick(await callHotpepper(key, { ...params, range: "3" })).filter((s) => !seen.has(s.id))];
     }
-    return shops.slice(0, limit);
+    // 二次会は近い順のまま。評価は見るためだけにつける
+    return await withRatings(shops.slice(0, limit));
   } catch (e) {
     console.error("[shops] 二次会のお店を読めませんでした", e);
     return [];

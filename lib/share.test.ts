@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { inviteText, reminderText, teamsShareUrl } from "./share";
+import { deadlineReminderText, inviteText, reminderText, teamsShareUrl } from "./share";
 
 describe("reminderText", () => {
   it("まだの人の名前と金額だけを並べる", () => {
@@ -30,5 +30,16 @@ describe("teamsShareUrl", () => {
 describe("inviteText", () => {
   it("幹事が決めた開始時刻を添える", () => {
     expect(inviteText("歓迎会", "https://x", 1140)).toBe("「歓迎会」の日程調整です(19:00〜)\n行ける日を入れてください\nhttps://x");
+  });
+  it("締め切りがあれば、いつまでに答えるかを書く", () => {
+    expect(inviteText("歓迎会", "https://x", 1140, "2026-11-02")).toBe("「歓迎会」の日程調整です(19:00〜)\n11/2(月)までに、行ける日を入れてください\nhttps://x");
+  });
+});
+
+describe("deadlineReminderText", () => {
+  it("今日・明日はそう書き、それより先は日付で書く", () => {
+    expect(deadlineReminderText("歓迎会", "https://x", "2026-10-28", 0)).toBe("「歓迎会」の日程、今日までが締め切りです\nまだの人は入れてください\nhttps://x");
+    expect(deadlineReminderText("歓迎会", "https://x", "2026-10-29", 1).split("\n")[0]).toBe("「歓迎会」の日程、明日までが締め切りです");
+    expect(deadlineReminderText("歓迎会", "https://x", "2026-11-02", 5).split("\n")[0]).toBe("「歓迎会」の日程、11/2(月)までが締め切りです");
   });
 });

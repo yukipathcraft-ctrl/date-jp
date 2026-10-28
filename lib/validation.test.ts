@@ -5,11 +5,18 @@ const answer = { name: "山田", dates: { "2026-11-06": "ok" }, stay: 1320, budg
 
 describe("parseParty", () => {
   it("幹事が選んだ開始時刻を受け取る", () => {
-    const r = parseParty({ title: "歓迎会", audience: "worker", dates: ["2026-11-06"], start: 1170 });
+    const r = parseParty({ title: "歓迎会", audience: "worker", dates: ["2026-11-06"], start: 1170 }, "2026-10-28");
     expect(r.ok && r.value.start).toBe(1170);
+    expect(r.ok && r.value.deadline).toBeNull();
+  });
+  it("回答の締め切りを受け取り、過去の日は受け付けない", () => {
+    const base = { title: "歓迎会", audience: "worker", dates: ["2026-11-06"], start: 1170 };
+    const r = parseParty({ ...base, deadline: "2026-11-01" }, "2026-10-28");
+    expect(r.ok && r.value.deadline).toBe("2026-11-01");
+    expect(parseParty({ ...base, deadline: "2026-10-27" }, "2026-10-28").ok).toBe(false);
   });
   it("開始時刻がなければ作れない", () => {
-    expect(parseParty({ title: "歓迎会", audience: "worker", dates: ["2026-11-06"], start: undefined }).ok).toBe(false);
+    expect(parseParty({ title: "歓迎会", audience: "worker", dates: ["2026-11-06"], start: undefined }, "2026-10-28").ok).toBe(false);
   });
 });
 
