@@ -98,15 +98,15 @@ function PartyGroup({
  */
 const HOME_BY_AUDIENCE: Record<
   Audience,
-  { lead: string; shops: string; split: string; extras: { href: string; label: string; icon: "collect" | "seats" }[] }
+  { lead: string; shops: string; split: string; extras: { href: string; label: string; sub: string; icon: "collect" | "seats" }[] }
 > = {
   student: {
     lead: "サークル・ゼミの飲み会を、URLひとつで",
     shops: "学割・飲み放題のお店",
     split: "先輩多めの傾斜も割り勘も",
     extras: [
-      { href: "/collect", label: "集金のチェック", icon: "collect" },
-      { href: "/seats", label: "席をくじで決める", icon: "seats" },
+      { href: "/collect", label: "集金のチェック", sub: "誰が払ったかを確かめる", icon: "collect" },
+      { href: "/seats", label: "席をくじで決める", sub: "くじで公平に", icon: "seats" },
     ],
   },
   private: {
@@ -114,8 +114,8 @@ const HOME_BY_AUDIENCE: Record<
     shops: "飲み放題・個室のお店",
     split: "割り勘も、年上多めも",
     extras: [
-      { href: "/collect", label: "集金のチェック", icon: "collect" },
-      { href: "/seats", label: "席をくじで決める", icon: "seats" },
+      { href: "/collect", label: "集金のチェック", sub: "誰が払ったかを確かめる", icon: "collect" },
+      { href: "/seats", label: "席をくじで決める", sub: "くじで公平に", icon: "seats" },
     ],
   },
   worker: {
@@ -123,8 +123,8 @@ const HOME_BY_AUDIENCE: Record<
     shops: "個室・喫煙できるお店も",
     split: "会社の補助も、上司多めも",
     extras: [
-      { href: "/collect", label: "集金・経費精算", icon: "collect" },
-      { href: "/seats", label: "役職の順に席次", icon: "seats" },
+      { href: "/collect", label: "集金・経費精算", sub: "名簿と金額をそのまま", icon: "collect" },
+      { href: "/seats", label: "役職の順に席次", sub: "上座から順に", icon: "seats" },
     ],
   },
 };
@@ -327,18 +327,15 @@ export function HomeClient() {
         <div className="grid grid-cols-2 gap-2.5">
           <ToolTile href="/shops" icon={<Store className="size-6" aria-hidden />} title="お店を探す" sub={home.shops} />
           <ToolTile href="/split" icon={tierIcon} title="会計をする" sub={home.split} />
-        </div>
-        {/* そのほかの道具は小さく1行に。会社のときだけ、経費精算と役職の順の席次になる */}
-        <div className="mt-2.5 grid grid-cols-2 gap-2.5">
+          {/* 4つとも同じ大きさで並べる。会社のときだけ、経費精算と役職の順の席次になる */}
           {home.extras.map((x) => (
-            <Link
+            <ToolTile
               key={x.href}
               href={x.href}
-              className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-surface px-3 text-[12px] font-bold text-white/75 ring-1 ring-white/8 transition hover:bg-stone-800 active:scale-95"
-            >
-              {x.icon === "collect" ? <ListChecks className="size-4 text-accent" aria-hidden /> : <Shuffle className="size-4 text-accent" aria-hidden />}
-              {x.label}
-            </Link>
+              icon={x.icon === "collect" ? <ListChecks className="size-6" aria-hidden /> : <Shuffle className="size-6" aria-hidden />}
+              title={x.label}
+              sub={x.sub}
+            />
           ))}
         </div>
       </section>
