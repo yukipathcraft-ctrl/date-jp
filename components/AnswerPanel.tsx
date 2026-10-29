@@ -51,7 +51,10 @@ function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; c
 
 /** start = 幹事が決めた開始時刻(分)。あれば「何時から来られる?」は聞かない(前の会は null) */
 /** occasion = 答えたあとに次の幹事に誘うときの、その時期の会の呼び方(忘年会など) */
-/** host = 幹事の画面に置くとき。まだ答えていなければ、大きな入力欄ではなく、みんなの画面への案内だけを出す */
+/**
+ * host = 幹事の画面に置くとき。まだ答えていなければ、大きな入力欄の代わりに「自分の予定を入れる」ボタンを出し、押すとその場で開く。
+ * hostOpen = 最初から開いておく(会を作った直後)
+ */
 export function AnswerPanel({
   partyId,
   dates,
@@ -59,6 +62,7 @@ export function AnswerPanel({
   start: partyStart,
   occasion,
   host = false,
+  hostOpen = false,
 }: {
   partyId: string;
   dates: string[];
@@ -66,6 +70,7 @@ export function AnswerPanel({
   start: number | null;
   occasion: string;
   host?: boolean;
+  hostOpen?: boolean;
 }) {
   const router = useRouter();
   const [mine, setMine] = useState<Mine | null>(null);
@@ -85,6 +90,8 @@ export function AnswerPanel({
   const [saved, setSaved] = useState(false);
   /** 「今回はパス」で答えたか(受け取りの文を変える) */
   const [passed, setPassed] = useState(false);
+  /** 幹事の画面で、入力欄を開いたか */
+  const [open, setOpen] = useState(hostOpen);
   const [pending, start] = useTransition();
 
   useEffect(() => {
@@ -125,16 +132,17 @@ export function AnswerPanel({
 
   if (!loaded) return host ? null : <section className="mx-4 min-h-40 rounded-3xl border panel" />;
 
-  if (host && !mine && !editing) {
+  if (host && !mine && !editing && !open) {
     return (
-      <Link
-        href={`/p/${partyId}`}
-        className="mx-4 flex items-center gap-2 rounded-3xl border panel px-4 py-4 text-sm font-bold transition-colors hover:bg-white/5"
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="mx-4 flex w-[calc(100%-2rem)] items-center gap-2 rounded-3xl border panel px-4 py-4 text-left text-sm font-bold transition-colors hover:bg-white/5"
       >
         <UserRound className="size-4 shrink-0 text-accent" aria-hidden />
-        <span className="flex-1">自分も回答する(みんなの画面へ)</span>
+        <span className="flex-1">自分の予定を入れる</span>
         <ArrowRight className="size-4 shrink-0 text-accent" aria-hidden />
-      </Link>
+      </button>
     );
   }
 
@@ -201,7 +209,7 @@ export function AnswerPanel({
 
   return (
     <section>
-      <h2 className="px-4 pb-3 text-lg font-black">{editing ? "回答を直す" : "30秒で答える"}</h2>
+      <h2 className="px-4 pb-3 text-lg font-black">{editing ? "回答を直す" : host ? "自分の予定を入れる" : "30秒で答える"}</h2>
       <div className="mx-4 overflow-hidden rounded-3xl border panel">
         <label className="block border-b border-border px-5 py-5">
           <span className={LABEL}>
@@ -220,7 +228,7 @@ export function AnswerPanel({
             行かない人が気まずくならないよう、理由を聞かずに1回で断れるようにする。
             全部の日を × にして送るので、催促や「まだの人」には出ない。予算や時刻は使われない値を入れておく
           */}
-          {!editing && (
+          {!editing && !host && (
             <button
               type="button"
               disabled={pending || form.name.trim() === ""}

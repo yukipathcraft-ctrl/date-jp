@@ -54,8 +54,8 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
             <DecisionCard decision={party.decision} partyId={party.id} />
           </div>
         )}
-        {/* 幹事も自分の回答を直せるように、ここに置く(日にちを決めたあとも、お酒を飲むかなどを直せる)。
-            作った直後は、みんなに送ることを先にしてほしいので出さない */}
+        {/* 幹事も自分の予定を入れたり直したりできるように、ここに置く(日にちを決めたあとも、お酒を飲むかなどを直せる)。
+            作った直後は、みんなに送る欄の下に、入力欄を開いた形で出す */}
         {created !== "1" && <div className="mb-4">
           <AnswerPanel host partyId={party.id} dates={party.dates} audience={party.audience} start={party.start} occasion="" />
         </div>}
@@ -77,6 +77,11 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
           names={summary.names}
           must={party.must}
         />
+        {created === "1" && (
+          <div className="mt-4">
+            <AnswerPanel host hostOpen partyId={party.id} dates={party.dates} audience={party.audience} start={party.start} occasion="" />
+          </div>
+        )}
         {/* 決まったあとは、みんなの答えはたたんでおく。お店まで決まったら、ほかの候補のお店は出さない */}
         {party.decision ? (
           <Fold title={`みんなの答え(${summary.answered}人)`} note="日にち・時間・予算・場所">
