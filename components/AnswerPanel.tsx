@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, CalendarDays, Check, ChevronDown, Cigarette, Clock, Heart, MapPin, MessageSquareText, Moon, Pencil, UserRound, UtensilsCrossed, Wallet, Wine, X } from "lucide-react";
+import { ArrowRight, CalendarDays, Check, Cigarette, Clock, Heart, MapPin, MessageSquareText, Moon, Pencil, UserRound, UtensilsCrossed, Wallet, Wine } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
@@ -8,6 +8,7 @@ import { getMyAnswer, saveAnswer } from "@/app/actions";
 import { AUDIENCES, isAdult, type Audience } from "@/lib/audience";
 import { AVOIDS } from "@/lib/diet";
 import { ANSWER_BUDGETS, AREAS, GENRES, STAY_CHOICES, UNLIMITED_BUDGET, clock, dateLabel, stayLabel, yen, type AreaKey } from "@/lib/sendai";
+import { AddPicker } from "./AddPicker";
 import { Picker } from "./Picker";
 import type { DateAnswer } from "@/lib/summary";
 import { MAX_AVOID_NOTE, MAX_MEMO, type AnswerInput } from "@/lib/validation";
@@ -345,49 +346,16 @@ export function AnswerPanel({
             苦手なもの・アレルギー <span className="font-normal">(なければそのままでOK)</span>
           </p>
           {/* 選択肢が多いので、▼ で選んで足していく。選んだものだけを下に並べ、× で外す。誰が選んだかは出さない */}
-          <label className="relative flex min-h-12 items-center justify-between rounded-2xl bg-white/6 px-4 ring-1 ring-white/10">
-            <span className="text-sm font-bold text-white/60">選んで足す</span>
-            <span className="flex items-center gap-1.5 text-sm font-black text-accent">
-              {(form.avoids ?? []).length > 0 ? `${(form.avoids ?? []).length}つ選んでいます` : "なし"}
-              <ChevronDown className="size-5" aria-hidden />
-            </span>
-            <select
-              value=""
-              onChange={(e) => e.target.value && toggleAvoid(e.target.value)}
-              aria-label="苦手なもの・アレルギーを選んで足す"
-              className="absolute inset-0 cursor-pointer text-white opacity-0 [color-scheme:dark]"
-            >
-              <option value="" disabled className="bg-[#1c1a17] text-white">
-                選んでください
-              </option>
-              {(["allergy", "dislike"] as const).map((kind) => (
-                <optgroup key={kind} label={kind === "allergy" ? "アレルギー" : "苦手なもの"} className="bg-[#1c1a17] text-white">
-                  {AVOIDS.filter((x) => x.kind === kind && !(form.avoids ?? []).includes(x.key)).map((x) => (
-                    <option key={x.key} value={x.key} className="bg-[#1c1a17] text-white">
-                      {x.label}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </label>
-          {(form.avoids ?? []).length > 0 && (
-            <ul className="mt-2 flex flex-wrap gap-2">
-              {AVOIDS.filter((x) => (form.avoids ?? []).includes(x.key)).map((x) => (
-                <li key={x.key}>
-                  <button
-                    type="button"
-                    onClick={() => toggleAvoid(x.key)}
-                    aria-label={`${x.label}を外す`}
-                    className="tier-red inline-flex min-h-10 items-center gap-1 rounded-full bg-[var(--ts)] pr-2 pl-3 text-sm font-bold text-[var(--tc)]"
-                  >
-                    {x.label}
-                    <X className="size-4" aria-hidden />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+          <AddPicker
+            label="苦手なもの・アレルギー"
+            groups={[
+              { group: "アレルギー", options: AVOIDS.filter((x) => x.kind === "allergy") },
+              { group: "苦手なもの", options: AVOIDS.filter((x) => x.kind === "dislike") },
+            ]}
+            selected={form.avoids ?? []}
+            onToggle={toggleAvoid}
+            tone="red"
+          />
           <input
             className={`${INPUT} mt-3 min-h-12 text-sm`}
             value={form.avoidNote ?? ""}
@@ -406,13 +374,8 @@ export function AnswerPanel({
             <Heart className="size-4" />
             食べたいもの <span className="font-normal">(いくつでも・なくてもOK)</span>
           </p>
-          <div className="flex flex-wrap gap-2">
-            {GENRES.map((g) => (
-              <Choice key={g.key} on={(form.likes ?? []).includes(g.key)} onClick={() => toggleLike(g.key)}>
-                {g.label}
-              </Choice>
-            ))}
-          </div>
+          {/* アレルギーと同じく、▼ で選んで足していく */}
+          <AddPicker label="食べたいもの" groups={[{ options: GENRES }]} selected={form.likes ?? []} onToggle={toggleLike} tone="green" />
           <p className="mt-2 text-xs text-muted">多かったものから、お店を自動で選びます</p>
         </fieldset>
 
