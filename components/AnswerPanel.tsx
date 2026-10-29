@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, CalendarDays, Check, Cigarette, Clock, Heart, MapPin, MessageSquareText, Moon, Pencil, UserRound, UtensilsCrossed, Wallet, Wine } from "lucide-react";
+import { ArrowRight, CalendarDays, Check, ChevronDown, Cigarette, Clock, Heart, MapPin, MessageSquareText, Moon, Pencil, UserRound, UtensilsCrossed, Wallet, Wine, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
@@ -171,7 +171,7 @@ export function AnswerPanel({
         : form.stay === 0
           ? "いつまで残れるかを選んでください"
           : form.budget === 0
-            ? "1人いくらまで出せるかを選んでください"
+            ? "どのくらいのお店がいいかを選んでください"
             : null;
   const areas = opts.areas.map((k) => AREAS.find((a) => a.key === k)!);
 
@@ -269,20 +269,20 @@ export function AnswerPanel({
         </fieldset>
 
         <fieldset className="border-b border-border px-5 py-5">
-          <legend className="sr-only">1人いくらまで出せる?</legend>
+          <legend className="sr-only">どのくらいのお店がいい?</legend>
           <p className={LABEL} aria-hidden>
             <Wallet className="size-4" />
-            1人いくらまで出せる?
+            どのくらいのお店がいい?
             <Required />
           </p>
           {/* 500円ごとの細かい額から選ぶ(上限なしも選べる) */}
           <Picker
-            label="1人あたり"
+            label="1人の目安"
             value={form.budget}
-            options={[...ANSWER_BUDGETS.map((b) => ({ value: b, label: `〜${yen(b)}` })), { value: UNLIMITED_BUDGET, label: "上限なし" }]}
+            options={[...ANSWER_BUDGETS.map((b) => ({ value: b, label: `${yen(b)}くらいまで` })), { value: UNLIMITED_BUDGET, label: "どこでもいい" }]}
             onChange={(b) => set({ budget: b })}
           />
-          <p className="mt-3 text-xs text-muted">誰がいくらと答えたかは幹事にも見えず、行く人全員が出せる額に合わせて決まります</p>
+          <p className="mt-3 text-xs text-muted">気楽に行けるお店の目安を選んでください。誰が選んだかは幹事にも見えず、みんなが気楽に行けるお店に合わせます</p>
         </fieldset>
 
         <fieldset className="px-5 py-5">
@@ -344,21 +344,50 @@ export function AnswerPanel({
             <UtensilsCrossed className="size-4" />
             苦手なもの・アレルギー <span className="font-normal">(なければそのままでOK)</span>
           </p>
-          {/* アレルギーと苦手なものを分けて並べる。どちらも人数だけを出し、誰が選んだかは出さない */}
-          {(["allergy", "dislike"] as const).map((kind) => (
-            <div key={kind} className="mt-2 first-of-type:mt-0">
-              <p className="mb-1.5 text-[11px] font-bold text-muted">{kind === "allergy" ? "アレルギー" : "苦手なもの"}</p>
-              <div className="flex flex-wrap gap-2">
-                {AVOIDS.filter((a) => a.kind === kind).map((a) => (
-                  <Choice key={a.key} on={(form.avoids ?? []).includes(a.key)} onClick={() => toggleAvoid(a.key)}>
-                    {a.label}
-                  </Choice>
-                ))}
-              </div>
-            </div>
-          ))}
-          <div className="flex flex-wrap gap-2">
-          </div>
+          {/* 選択肢が多いので、▼ で選んで足していく。選んだものだけを下に並べ、× で外す。誰が選んだかは出さない */}
+          <label className="relative flex min-h-12 items-center justify-between rounded-2xl bg-white/6 px-4 ring-1 ring-white/10">
+            <span className="text-sm font-bold text-white/60">選んで足す</span>
+            <span className="flex items-center gap-1.5 text-sm font-black text-accent">
+              {(form.avoids ?? []).length > 0 ? `${(form.avoids ?? []).length}つ選んでいます` : "なし"}
+              <ChevronDown className="size-5" aria-hidden />
+            </span>
+            <select
+              value=""
+              onChange={(e) => e.target.value && toggleAvoid(e.target.value)}
+              aria-label="苦手なもの・アレルギーを選んで足す"
+              className="absolute inset-0 cursor-pointer text-white opacity-0 [color-scheme:dark]"
+            >
+              <option value="" disabled className="bg-[#1c1a17] text-white">
+                選んでください
+              </option>
+              {(["allergy", "dislike"] as const).map((kind) => (
+                <optgroup key={kind} label={kind === "allergy" ? "アレルギー" : "苦手なもの"} className="bg-[#1c1a17] text-white">
+                  {AVOIDS.filter((x) => x.kind === kind && !(form.avoids ?? []).includes(x.key)).map((x) => (
+                    <option key={x.key} value={x.key} className="bg-[#1c1a17] text-white">
+                      {x.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </label>
+          {(form.avoids ?? []).length > 0 && (
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {AVOIDS.filter((x) => (form.avoids ?? []).includes(x.key)).map((x) => (
+                <li key={x.key}>
+                  <button
+                    type="button"
+                    onClick={() => toggleAvoid(x.key)}
+                    aria-label={`${x.label}を外す`}
+                    className="tier-red inline-flex min-h-10 items-center gap-1 rounded-full bg-[var(--ts)] pr-2 pl-3 text-sm font-bold text-[var(--tc)]"
+                  >
+                    {x.label}
+                    <X className="size-4" aria-hidden />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
           <input
             className={`${INPUT} mt-3 min-h-12 text-sm`}
             value={form.avoidNote ?? ""}

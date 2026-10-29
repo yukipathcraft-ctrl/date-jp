@@ -66,9 +66,9 @@ export function isAnswerBudget(v: unknown): v is number {
   return isBudget(v) || ANSWER_BUDGETS.includes(v as number) || v === UNLIMITED_BUDGET;
 }
 
-/** 予算の見せ方。上限なしは「上限なし」 */
+/** 1人あたりの目安の見せ方。上限なしは「どこでもOK」 */
 export function budgetLabel(n: number): string {
-  return n >= UNLIMITED_BUDGET ? "上限なし" : `${yen(n)}まで`;
+  return n >= UNLIMITED_BUDGET ? "どこでもOK" : `1人${yen(n)}くらいまで`;
 }
 
 export function yen(n: number): string {

@@ -44,7 +44,7 @@ export async function loadParty(id: string): Promise<(PartyView & { adminHash: s
   const basis = ready
     ? [
         `${summary.attendees.length}人`,
-        budget === null ? "予算は上限なし" : `1人${budget.toLocaleString("ja-JP")}円まで`,
+        budget === null ? "金額はどこでもOK" : `1人${budget.toLocaleString("ja-JP")}円くらいまで`,
         summary.area ? areaLabel(area) : `場所はどこでもOK(${areaLabel(area)})`,
         ...(byLikes ? [`${summary.likes.filter((l) => genres.includes(l.key)).map((l) => l.label).join("・")}が食べたい人が多い`] : []),
         ...(summary.diet.smokers > 0 ? ["タバコが吸えるお店を先に"] : []),

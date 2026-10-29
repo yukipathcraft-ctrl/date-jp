@@ -93,7 +93,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
       value: `${clock(summary.start!)}〜${clock(summary.firstEnd!)}`,
       sub: summary.lateJoiners.length > 0 ? `${summary.lateJoiners.join("と")}さんは途中から来ます` : "全員そろって始められます",
     },
-    { icon: Wallet, label: "予算", value: budgetLabel(summary.budget!), sub: "行く人全員が出せる額です" },
+    { icon: Wallet, label: "お店", value: budgetLabel(summary.budget!), sub: "行く人みんなが気楽に行けるお店です" },
   ];
   const more = [
     {
