@@ -155,7 +155,7 @@ export function AnswerPanel({
           </span>
           {saved
             ? passed
-              ? `${mine.name}さん、今回はパスで受け取りました。また誘いますね`
+              ? `${mine.name}さん、今回は行けないと受け取りました。また誘いますね`
               : `${mine.name}さんの答えを受け取りました、ありがとう!`
             : `${mine.name}さんの答えは保存してあります`}
         </p>
@@ -248,8 +248,8 @@ export function AnswerPanel({
               className="mt-3 min-h-11 w-full rounded-xl text-sm text-muted underline-offset-4 transition-colors enabled:hover:text-text enabled:hover:underline disabled:opacity-60"
             >
               {form.name.trim() === ""
-                ? "今回は行けないときは、名前を入れて「パス」できます"
-                : "今回は行けない・見送るときは「パス」(理由は聞きません)"}
+                ? "今回は行けないときは、名前を入れてここを押してください"
+                : "今回は行けないときはこちら(理由は聞きません)"}
             </button>
           )}
         </label>
