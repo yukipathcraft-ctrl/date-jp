@@ -80,6 +80,8 @@ export function AnswerPanel({
   });
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  /** 「今回はパス」で答えたか(受け取りの文を変える) */
+  const [passed, setPassed] = useState(false);
   const [pending, start] = useTransition();
 
   useEffect(() => {
@@ -98,10 +100,10 @@ export function AnswerPanel({
     });
   }
 
-  function submit() {
+  function submit(input: AnswerInput = form, pass = false) {
     setError(null);
     start(async () => {
-      const result = await saveAnswer(partyId, mine ? { answerId: mine.answerId, token: mine.token } : null, form);
+      const result = await saveAnswer(partyId, mine ? { answerId: mine.answerId, token: mine.token } : null, input);
       if (!result.ok) {
         setError(result.error);
         return;
@@ -113,6 +115,7 @@ export function AnswerPanel({
       setMine(next);
       setEditing(false);
       setSaved(true);
+      setPassed(pass);
       router.refresh();
     });
   }
@@ -126,14 +129,18 @@ export function AnswerPanel({
           <span className="grid size-6 place-items-center rounded-full bg-accent text-accent-text">
             <Check className="size-4" aria-hidden />
           </span>
-          {saved ? `${mine.name}さんの答えを受け取りました、ありがとう!` : `${mine.name}さんの答えは保存してあります`}
+          {saved
+            ? passed
+              ? `${mine.name}さん、今回はパスで受け取りました。また誘いますね`
+              : `${mine.name}さんの答えを受け取りました、ありがとう!`
+            : `${mine.name}さんの答えは保存してあります`}
         </p>
         <button type="button" onClick={edit} disabled={pending} className={`${BUTTON_SUB} mt-3 w-full gap-2`}>
           <Pencil className="size-4" aria-hidden />
           {pending ? "読み込み中…" : "回答を直す"}
         </button>
         {/* 答えた直後がいちばん目に入るので、ここで次の幹事に誘う */}
-        {saved && (
+        {saved && !passed && (
           <Link href="/" className="mt-3 flex items-center gap-2 rounded-2xl bg-white/5 px-3 py-3 text-sm ring-1 ring-white/10 transition-colors hover:bg-white/10">
             <span className="min-w-0 flex-1">
               <span className="font-bold">{occasion}の幹事になったら</span>
@@ -193,6 +200,34 @@ export function AnswerPanel({
             placeholder="みんなが分かる名前で"
             maxLength={20}
           />
+          {/*
+            行かない人が気まずくならないよう、理由を聞かずに1回で断れるようにする。
+            全部の日を × にして送るので、催促や「まだの人」には出ない。予算や時刻は使われない値を入れておく
+          */}
+          {!editing && (
+            <button
+              type="button"
+              disabled={pending || form.name.trim() === ""}
+              onClick={() =>
+                submit(
+                  {
+                    name: form.name,
+                    dates: Object.fromEntries(dates.map((d) => [d, "no"])),
+                    arrival: partyStart ?? 1080,
+                    stay: 1440,
+                    budget: UNLIMITED_BUDGET,
+                    areas: [],
+                  },
+                  true,
+                )
+              }
+              className="mt-3 min-h-11 w-full rounded-xl text-sm text-muted underline-offset-4 transition-colors enabled:hover:text-text enabled:hover:underline disabled:opacity-60"
+            >
+              {form.name.trim() === ""
+                ? "今回は行けないときは、名前を入れて「パス」できます"
+                : "今回は行けない・見送るときは「パス」(理由は聞きません)"}
+            </button>
+          )}
         </label>
 
         <fieldset className="border-b border-border px-5 py-5">
@@ -410,7 +445,7 @@ export function AnswerPanel({
             {error}
           </p>
         )}
-        <button type="button" onClick={submit} disabled={pending || missing !== null} className={`${BUTTON_PRIMARY} mt-3 w-full`}>
+        <button type="button" onClick={() => submit()} disabled={pending || missing !== null} className={`${BUTTON_PRIMARY} mt-3 w-full`}>
           {pending ? "保存しています…" : "この内容で答える"}
         </button>
       </div>
