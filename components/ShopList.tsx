@@ -6,6 +6,7 @@ import { useState } from "react";
 import { mapsUrl } from "@/lib/maps";
 import type { Shop } from "@/lib/shops";
 import { areaLabel } from "@/lib/sendai";
+import { PrNote } from "./PrNote";
 
 const SMOKING_LABEL = { ok: "喫煙可", partial: "分煙", no: "全面禁煙" } as const;
 
@@ -164,6 +165,7 @@ export function ShopList({
           <ChevronDown className="size-4" aria-hidden />
         </button>
       )}
+      {!isSample && <PrNote className="mt-3" />}
       {/* ホットペッパーの規約で、クレジットと、写真を使うときの「画像提供」の表示が必要 */}
       {!isSample && (
         <p className="mt-3 text-xs text-muted">

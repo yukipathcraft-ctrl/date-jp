@@ -3,6 +3,7 @@
 import { ExternalLink, Heart, MapPin } from "lucide-react";
 import { toggleFavorite, useFavorites } from "@/lib/favorites";
 import { mapsUrl } from "@/lib/maps";
+import { PrNote } from "./PrNote";
 
 // 「お店を探す」のいちばん上に出す、お気に入りのお店。♡ を押すと外せる。お気に入りがなければ出さない
 
@@ -54,6 +55,7 @@ export function FavoriteShops() {
           </li>
         ))}
       </ul>
+      <PrNote className="mt-2" />
     </section>
   );
 }

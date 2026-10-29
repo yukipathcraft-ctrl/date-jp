@@ -2,6 +2,7 @@ import { ExternalLink, MapPin, PartyPopper, Store } from "lucide-react";
 import { mapsUrl } from "@/lib/maps";
 import { clock, dateLabel } from "@/lib/sendai";
 import type { Decision } from "@/lib/store/types";
+import { PrNote } from "./PrNote";
 
 // 決まった会のいちばん上。日にち・時間・お店と、お店の予約と場所をここにまとめる
 // (決まったあとは、ほかの候補のお店の一覧を出さないので、決まったお店へはここから行く)
@@ -48,6 +49,7 @@ export function DecisionCard({ decision, partyId }: { decision: Decision; partyI
               </a>
             </div>
           )}
+          {!isSampleShop(shop.id) && <PrNote className="mt-3" />}
         </>
       ) : (
         <p className="mt-1 text-center text-sm text-muted">お店はこれから決めます</p>
