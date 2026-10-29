@@ -51,18 +51,21 @@ function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; c
 
 /** start = 幹事が決めた開始時刻(分)。あれば「何時から来られる?」は聞かない(前の会は null) */
 /** occasion = 答えたあとに次の幹事に誘うときの、その時期の会の呼び方(忘年会など) */
+/** host = 幹事の画面に置くとき。まだ答えていなければ、大きな入力欄ではなく、みんなの画面への案内だけを出す */
 export function AnswerPanel({
   partyId,
   dates,
   audience,
   start: partyStart,
   occasion,
+  host = false,
 }: {
   partyId: string;
   dates: string[];
   audience: Audience;
   start: number | null;
   occasion: string;
+  host?: boolean;
 }) {
   const router = useRouter();
   const [mine, setMine] = useState<Mine | null>(null);
@@ -120,7 +123,20 @@ export function AnswerPanel({
     });
   }
 
-  if (!loaded) return <section className="mx-4 min-h-40 rounded-3xl border panel" />;
+  if (!loaded) return host ? null : <section className="mx-4 min-h-40 rounded-3xl border panel" />;
+
+  if (host && !mine && !editing) {
+    return (
+      <Link
+        href={`/p/${partyId}`}
+        className="mx-4 flex items-center gap-2 rounded-3xl border panel px-4 py-4 text-sm font-bold transition-colors hover:bg-white/5"
+      >
+        <UserRound className="size-4 shrink-0 text-accent" aria-hidden />
+        <span className="flex-1">自分も回答する(みんなの画面へ)</span>
+        <ArrowRight className="size-4 shrink-0 text-accent" aria-hidden />
+      </Link>
+    );
+  }
 
   if (mine && !editing) {
     return (
@@ -140,7 +156,7 @@ export function AnswerPanel({
           {pending ? "読み込み中…" : "回答を直す"}
         </button>
         {/* 答えた直後がいちばん目に入るので、ここで次の幹事に誘う */}
-        {saved && !passed && (
+        {saved && !passed && !host && (
           <Link href="/" className="mt-3 flex items-center gap-2 rounded-2xl bg-white/5 px-3 py-3 text-sm ring-1 ring-white/10 transition-colors hover:bg-white/10">
             <span className="min-w-0 flex-1">
               <span className="font-bold">{occasion}の幹事になったら</span>

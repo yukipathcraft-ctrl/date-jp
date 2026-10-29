@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { AdminPanel } from "@/components/AdminPanel";
+import { AnswerPanel } from "@/components/AnswerPanel";
 import { DecisionCard } from "@/components/DecisionCard";
 import { Fold } from "@/components/Fold";
 import { SecondPartyShops } from "@/components/SecondPartyShops";
@@ -53,6 +54,11 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
             <DecisionCard decision={party.decision} partyId={party.id} />
           </div>
         )}
+        {/* 幹事も自分の回答を直せるように、ここに置く(日にちを決めたあとも、お酒を飲むかなどを直せる)。
+            作った直後は、みんなに送ることを先にしてほしいので出さない */}
+        {created !== "1" && <div className="mb-4">
+          <AnswerPanel host partyId={party.id} dates={party.dates} audience={party.audience} start={party.start} occasion="" />
+        </div>}
         <AdminPanel
           // 必ず来てほしい人を変えたら、いちばん良い日を選び直す
           key={party.must.join("|")}
@@ -96,11 +102,6 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
         {party.decision && (
           <SecondPartyShops partyId={party.id} />
         )}
-        <p className="px-4 pt-6 text-center text-sm">
-          <a href={`/p/${party.id}`} className="font-bold underline">
-            自分も回答する(みんなの画面へ)
-          </a>
-        </p>
       </div>
     </PageMotion>
   );
