@@ -14,7 +14,7 @@ import { SendButtons, useCanShare } from "./SendButtons";
 import { ROUND_UNITS, WEIGHTS, splitBill, subsidyTotal, tenthsFromInput, type Weight } from "@/lib/split";
 import { BUTTON_PRIMARY, BUTTON_SUB, PILL, PILL_OFF, PILL_ON } from "./ui";
 
-// 会計。最初は傾斜(区分や倍率を選ぶ)で、「割り勘」に切り替えると全員同じ額にする。
+// 会計。最初は全員同じ額の割り勘で、「傾斜で割る」に切り替えると区分や倍率を選べる(学生やプライベートでは傾斜はあまり使わないため)。
 // 傾斜では hasuru と同じく、区分ごとに色・記号・頭文字の丸で人を見分ける(色だけに頼らない)
 
 /** weight は区分の key。自分で倍率を書いたときは "custom" にして、書いた文字を custom に持つ */
@@ -32,7 +32,7 @@ type Saved = {
   people: Person[];
   unit: number;
   organizer: number;
-  /** 傾斜で割るか。前の保存にないときは傾斜にする */
+  /** 傾斜で割るか。前の保存にないときは割り勘にする */
   weighted?: boolean;
   collection?: { id: string; token: string } | null;
   /** 会社や部署からの補助。前の保存にはない */
@@ -90,7 +90,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
   const [organizer, setOrganizer] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [collection, setCollection] = useState<Saved["collection"]>(null);
-  const [weighted, setWeighted] = useState(true);
+  const [weighted, setWeighted] = useState(false);
   // 会社や部署・部費からの補助(1人あたり、または全体でいくら)。空なら補助なし
   const [subsidyKind, setSubsidyKind] = useState<"per" | "lump">("per");
   const [subsidyYen, setSubsidyYen] = useState("");
@@ -157,7 +157,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
       setTotal(saved.total ?? "");
       setPeople(saved.people.map((p) => ({ id: p.id, name: p.name, weight: p.weight, custom: p.custom ?? "" })));
       setCollection(saved.collection ?? null);
-      setWeighted(saved.weighted ?? true);
+      setWeighted(saved.weighted ?? false);
       setSubsidyKind(saved.subsidyKind ?? "per");
       setSubsidyYen(saved.subsidyYen ?? "");
       setUnit(saved.unit ?? 100);
@@ -346,9 +346,9 @@ export function SplitClient({ from = null }: { from?: string | null }) {
         </p>
       )}
 
-      {/* 傾斜で割るか(左・最初の選択)、全員同じ額の割り勘か(右) */}
+      {/* 全員同じ額の割り勘か(左・最初の選択)、傾斜で割るか(右) */}
       <div className="mx-4 mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-surface-2 p-1" role="group" aria-label="割り方">
-        {([true, false] as const).map((v) => (
+        {([false, true] as const).map((v) => (
           <button
             key={String(v)}
             type="button"

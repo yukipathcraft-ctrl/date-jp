@@ -263,18 +263,41 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
                       <span className="mt-0.5 block text-xs font-normal text-muted">日にちだけ先に決めて、お店はあとで選びます</span>
                     </span>
                   </button>
+                  {/* 写真と目安をここで見せて、下のお店の一覧まで行かなくても、その場で選んで決められるようにする */}
                   {shownShops.map((s) => (
                     <button
                       key={s.id}
                       type="button"
                       aria-pressed={shopId === s.id}
                       onClick={() => setShopId(s.id)}
-                      className={`flex min-h-12 w-full items-center rounded-xl border px-4 text-left text-sm font-bold transition-colors ${
-                        shopId === s.id ? "border-[var(--tb)] bg-[var(--tb)] text-black" : "border-border bg-surface text-text hover:border-white/30"
+                      className={`flex w-full items-center gap-3 rounded-xl border p-2 pr-3 text-left transition-colors ${
+                        shopId === s.id ? "border-[var(--tb)] bg-[var(--ts)]" : "border-border bg-surface hover:border-white/30"
                       }`}
                     >
-                      {shopId === s.id && "✓ "}
-                      {s.name}
+                      {s.photo ? (
+                        // 外のお店の写真。最適化は使わない
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={s.photo} alt="" className="size-16 shrink-0 rounded-lg object-cover" />
+                      ) : (
+                        <span className="grid size-16 shrink-0 place-items-center rounded-lg bg-surface-2">
+                          <Store className="size-6 text-muted" aria-hidden />
+                        </span>
+                      )}
+                      <span className="min-w-0 flex-1">
+                        <span className={`block text-sm font-black ${shopId === s.id ? "text-[var(--tc)]" : ""}`}>{s.name}</span>
+                        <span className="mt-0.5 block truncate text-xs text-muted">
+                          {[s.genre, s.budgetLabel].filter(Boolean).join(" ・ ")}
+                        </span>
+                        {s.access && <span className="block truncate text-xs text-muted">{s.access}</span>}
+                      </span>
+                      <span
+                        aria-hidden
+                        className={`grid size-6 shrink-0 place-items-center rounded-full border ${
+                          shopId === s.id ? "border-[var(--tb)] bg-[var(--tb)] text-black" : "border-white/25"
+                        }`}
+                      >
+                        {shopId === s.id && <Check className="size-4" strokeWidth={3} />}
+                      </span>
                     </button>
                   ))}
                   {!allShops && shops.length > shownShops.length && (
