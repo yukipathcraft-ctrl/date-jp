@@ -282,7 +282,7 @@ export function AnswerPanel({
             options={[...ANSWER_BUDGETS.map((b) => ({ value: b, label: `${yen(b)}くらいまで` })), { value: UNLIMITED_BUDGET, label: "どこでもいい" }]}
             onChange={(b) => set({ budget: b })}
           />
-          <p className="mt-3 text-xs text-muted">気楽に行けるお店の目安を選んでください。誰が選んだかは幹事にも見えず、みんなが気楽に行けるお店に合わせます</p>
+          <p className="mt-3 text-xs text-muted">行きやすいお店の目安を選んでください。誰が選んだかは幹事にも見えず、みんなに合うお店を探します</p>
         </fieldset>
 
         <fieldset className="px-5 py-5">
