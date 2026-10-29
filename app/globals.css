@@ -64,17 +64,6 @@ body {
   word-break: auto-phrase;
 }
 
-/*
- * パソコンの大きな画面では、画面全体を大きくする。
- * 文字・余白・幅はどれも rem で決めているので、もとの文字の大きさを上げると、スマホと同じ形のまま大きくなる
- */
-@media (min-width: 1024px) {
-  html { font-size: 118.75%; }
-}
-@media (min-width: 1440px) {
-  html { font-size: 137.5%; }
-}
-
 /* 見出しは、行の長さをそろえて折り返す */
 h1,
 h2,
