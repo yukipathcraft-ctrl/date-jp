@@ -56,6 +56,19 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
+  /*
+   * 2行目に1字だけ残る折り返しを防ぐ。pretty は最後の行が短くなりすぎないように折り返し、
+   * auto-phrase は日本語を言葉の切れ目(文節)で折り返す。どちらも使えないブラウザでは、今までどおりに折り返す
+   */
+  text-wrap: pretty;
+  word-break: auto-phrase;
+}
+
+/* 見出しは、行の長さをそろえて折り返す */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
 }
 
 :focus-visible {
