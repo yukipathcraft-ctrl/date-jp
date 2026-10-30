@@ -208,7 +208,7 @@ export function SeatsClient() {
               </button>
             ))}
           </div>
-          {mode === "rank" && <p className="mt-2 text-xs text-muted">偉い人から順に名前を入れると、上座から順に並べます。上の人は各テーブルに1人ずつ分かれます</p>}
+          {mode === "rank" && <p className="mt-2 text-xs text-muted">偉い人から順に名前を入れると、上座から順に配置。上の人は各テーブルに1人ずつ</p>}
         </div>
         )}
 
@@ -345,7 +345,7 @@ export function SeatsClient() {
               {shape === "round" ? <RoundTable people={t} no={i + 1} /> : <LongTable people={t} no={i + 1} />}
             </div>
           ))}
-          {mode === "rank" && <p className="text-center text-[11px] text-white/40">数字は、そのテーブルの上座からの順番です</p>}
+          {mode === "rank" && <p className="text-center text-[11px] text-white/40">数字はテーブルごとの上座からの順番</p>}
           {mode === "lottery" && (useHonored || useGroups) && (
             <p className="text-center text-[11px] text-white/40">
               {useHonored && "冠が主役の席(上座)"}

@@ -39,7 +39,7 @@ export function StatementPaywall({ collectionId, token, title, price }: { collec
         経費精算
       </p>
       <h1 className="mt-1 text-[22px] font-black tracking-tight">名簿と金額を、そのまま貼る</h1>
-      <p className="mt-1 text-sm text-muted">{title ? `「${title}」の` : ""}会計を、会社の精算にそのまま使える形にします</p>
+      <p className="mt-1 text-sm text-muted">{title ? `「${title}」の` : ""}会計を、会社の精算にそのまま使える形に</p>
 
       <section className="mt-5 rounded-3xl border border-accent/50 bg-accent/5 px-5 py-6">
         <ul className="space-y-3">
@@ -67,11 +67,11 @@ export function StatementPaywall({ collectionId, token, title, price }: { collec
         <ul className="mt-4 space-y-1 text-xs text-muted">
           <li className="flex items-center gap-1.5">
             <Check className="size-3.5 shrink-0" aria-hidden />
-            お支払いは Stripe のページで行います。カードの番号は Date には届きません
+            お支払いは Stripe のページで。カードの番号は Date に届かない仕組み
           </li>
           <li className="flex items-center gap-1.5">
             <Check className="size-3.5 shrink-0" aria-hidden />
-            買ったあとは、この会計の名簿をいつでも開けます
+            購入後は、この会計の名簿をいつでも閲覧可能
           </li>
         </ul>
       </section>

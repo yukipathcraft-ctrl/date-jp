@@ -37,9 +37,9 @@ export function SecondPartyShops({ partyId }: { partyId: string }) {
         lead={
           result
             ? `${result.near}の近くで、23時以降も開いているお店です(${result.size}人)`
-            : "一次会のお店の近くで、遅くまで開いているお店を探しています"
+            : "一次会のお店の近くで、遅くまで開いているお店"
         }
-        empty={result ? "合うお店が見つかりませんでした。種類を変えてみてください" : "探しています…"}
+        empty={result ? "合うお店なし。種類を変えて再検索を" : "検索中…"}
       >
         <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="二次会のお店の種類">
           <button type="button" aria-pressed={genre === null} onClick={() => setGenre(null)} className={`${PILL} ${genre === null ? PILL_ON : PILL_OFF}`}>

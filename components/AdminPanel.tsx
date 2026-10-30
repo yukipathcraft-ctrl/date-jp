@@ -108,7 +108,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           tone="plain"
           icon={<Users className="size-5" />}
           title="みんなに送る"
-          note="グループやチャットに送れば、みんながそこから答えられます"
+          note="グループやチャットに送るだけで、みんなが回答"
         />
         <SendButtons
           mainLabel="共有してみんなに送る"
@@ -132,12 +132,12 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             tone="key"
             icon={<KeyRound className="size-5" />}
             title="幹事用のURLを自分に残す"
-            note="日にちとお店はこのページで決めます。人には送らず、自分だけに残してください"
+            note="日にちとお店を決めるページ。人には送らず自分用に"
           />
           <p className="mt-3 flex items-start gap-1.5 rounded-xl bg-bg/40 px-3 py-2 text-xs text-match-text">
             <Check className="mt-0.5 size-3.5 shrink-0" aria-hidden />
             <span>
-              この端末では、トップの「あなたの会」にも保存されています。別のスマホやパソコンでも開きたいときは、下から自分に送ってください
+              この端末ではトップの「あなたの会」にも保存済み。別のスマホやパソコン用には、下から自分あてに
             </span>
           </p>
           <SendButtons
@@ -162,7 +162,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             <PartyPopper className="size-5" aria-hidden />
             決まったことを知らせる
           </p>
-          <p className="mt-1 text-sm text-muted">日にちと時間、お店を入れた文をみんなに送れます</p>
+          <p className="mt-1 text-sm text-muted">日にち・時間・お店入りの案内文</p>
           <SendButtons
             mainLabel="共有して「決まったよ」を送る"
             share={{ text: decidedMessage }}
@@ -188,7 +188,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             </span>
             <span className="min-w-0 flex-1">
               <span className="block text-base font-black">この会の会計をする</span>
-              <span className="mt-0.5 block text-xs text-muted">{attendees.length}人の名前が入った状態で始められます</span>
+              <span className="mt-0.5 block text-xs text-muted">{attendees.length}人の名前を入れた状態からスタート</span>
             </span>
             <ChevronRight className="size-5 shrink-0 text-accent" aria-hidden />
           </button>
@@ -206,7 +206,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
         ranking.some((r) => r.ok > 0) && (
           <section className="mt-4 mx-4 rounded-3xl border panel px-4 py-6">
             <h2 className="text-lg font-black">幹事が決める</h2>
-            <p className="mt-1 text-sm text-muted">みんなの答えからいちばん良さそうな日とお店を先に選んでおきました</p>
+            <p className="mt-1 text-sm text-muted">みんなの答えから選んだ、いちばん良さそうな日とお店</p>
             <MustPicker partyId={partyId} token={token} names={names} must={must} />
             <StepHead tone="blue" icon={<CalendarDays className="size-4" aria-hidden />}>
               日にち
@@ -260,7 +260,7 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
                       <span className="block text-sm font-black">
                         {shopId === null && "✓ "}お店はあとで決める
                       </span>
-                      <span className="mt-0.5 block text-xs font-normal text-muted">日にちだけ先に決めて、お店はあとで選びます</span>
+                      <span className="mt-0.5 block text-xs font-normal text-muted">日にちだけ先に決定、お店はあとから</span>
                     </span>
                   </button>
                   {/* 写真と目安をここで見せて、下のお店の一覧まで行かなくても、その場で選んで決められるようにする */}

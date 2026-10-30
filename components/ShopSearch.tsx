@@ -183,7 +183,7 @@ export function ShopSearch() {
           <p className="min-w-0 flex-1 text-sm">
             <span className="block truncate font-bold">{summary}</span>
             <span className="block text-xs text-muted">
-              {pending ? "探しています" : result ? `${result.shops.length}軒見つかりました` : ""}
+              {pending ? "検索中" : result ? `${result.shops.length}軒` : ""}
             </span>
           </p>
           <a href="#filters" className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border border-border px-3 text-xs font-bold">
@@ -196,7 +196,7 @@ export function ShopSearch() {
       <div className={`mt-4 transition-opacity ${pending ? "opacity-50" : ""}`} aria-busy={pending}>
         {areas.length === 0 && (
           <p id="shops" className="mx-4 rounded-3xl border panel px-5 py-6 text-sm text-muted">
-            上で「どこで飲む?」を選ぶと、合うお店が出ます
+            上の「どこで飲む?」を選ぶと、合うお店を表示
           </p>
         )}
         {areas.length > 0 && result &&
@@ -205,14 +205,14 @@ export function ShopSearch() {
               {result.raisedTo !== null && budget !== null && (
                 <p className="mx-4 mb-3 rounded-2xl border border-accent/50 bg-surface px-4 py-3 text-sm">
                   {yen(budget)}までのお店はなかったので、
-                  {yen(result.raisedTo)}までのお店を出しています
+                  {yen(result.raisedTo)}までのお店を表示中
                 </p>
               )}
               <ShopList partyId="search" shops={result.shops} otherArea={result.otherArea} />
             </>
           ) : (
             <p id="shops" className="mx-4 rounded-3xl border panel px-5 py-6 text-sm text-muted">
-              合うお店が見つからなかったので、予算や料理の条件をゆるめてみてください
+              合うお店なし。予算や料理の条件をゆるめて再検索を
             </p>
           ))}
       </div>

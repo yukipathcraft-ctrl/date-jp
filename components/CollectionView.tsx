@@ -108,7 +108,7 @@ export function CollectionView({
         <p className="mt-1 text-sm text-muted">
           合計 {yen(c.total)}・{c.people.length}人{host ? `・幹事は${host.name}さん` : ""}
           {/* 補助があれば、引いた残りをみんなで割ったことを書く */}
-          {(c.subsidy ?? 0) > 0 && <span className="block">補助 {yen(c.subsidy!)} を引いた {yen(c.total - c.subsidy!)} をみんなで割りました</span>}
+          {(c.subsidy ?? 0) > 0 && <span className="block">補助 {yen(c.subsidy!)} を引いた {yen(c.total - c.subsidy!)} を全員で割り勘</span>}
         </p>
       </div>
 
@@ -116,7 +116,7 @@ export function CollectionView({
       {isHost && justPaid && (
         <p role="status" className="mx-4 mb-3 flex items-center gap-2 rounded-2xl border border-accent/50 bg-accent/10 px-4 py-3 text-sm font-bold text-accent">
           <Check className="size-4 shrink-0" aria-hidden />
-          お支払いが済みました。下から名簿と金額を開けます
+          お支払い完了。名簿と金額は下から
         </p>
       )}
       {isHost && (c.audience === "worker" || c.pro) && (
@@ -133,7 +133,7 @@ export function CollectionView({
       <section className="mx-4 rounded-3xl border panel px-5 py-5" aria-live="polite">
         <p className="flex items-center gap-2 font-black">
           <Wallet className="size-5" aria-hidden />
-          {payers.length}人中{payers.length - unpaid.length}人が払いました
+          {payers.length}人中{payers.length - unpaid.length}人が支払い済み
         </p>
         <div className="tier-green mt-3 h-2.5 overflow-hidden rounded-full bg-surface-2" aria-hidden>
           <div
@@ -146,7 +146,7 @@ export function CollectionView({
             <span className="tier-green anim-pop relative inline-flex items-center gap-1 font-bold text-[var(--tc)]">
               <Burst />
               <Check className="size-4" aria-hidden />
-              全員の支払いがそろいました
+              全員の支払い完了
             </span>
           ) : (
             <span className="text-muted">まだ{unpaid.length}人・あと{yen(unpaidYen)}</span>
@@ -154,7 +154,7 @@ export function CollectionView({
         </p>
         {!isHost && unpaid.length > 0 && (
           <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm">
-            自分の金額を確かめて、幹事に払ってください。幹事が受け取ると、名前に ✓ が付きます
+            自分の金額を確認して幹事へ。幹事が受け取ると名前に ✓
           </p>
         )}
       </section>
@@ -247,20 +247,20 @@ export function CollectionView({
               <Users className="size-5" aria-hidden />
               みんなにこのページを送る
             </h2>
-            <p className="mt-1 text-sm text-muted">一人ずつの金額が分かるので、金額を聞かれずに済みます。受け取ったら、ここで「受け取った」を押してください</p>
+            <p className="mt-1 text-sm text-muted">一人ずつの金額入りなので、金額の問い合わせなし。受け取ったらここで「受け取った」</p>
             <SendButtons mainLabel="共有してみんなに送る" share={{ text: askText }} copy={askText} copyLabel="送る文をコピー" canShare={canShare} />
           </section>
 
           {unpaid.length > 0 && (
             <section className="mx-4 mt-4 rounded-3xl border panel px-5 py-5">
               <h2 className="text-lg font-black">まだの人に催促する</h2>
-              <p className="mt-1 text-xs text-muted">まだの{unpaid.length}人の名前と金額だけが入ります。払った人の名前は出ません</p>
+              <p className="mt-1 text-xs text-muted">まだの{unpaid.length}人の名前と金額だけ。払った人の名前はなし</p>
               <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm leading-relaxed break-all whitespace-pre-wrap">{remind}</p>
               <SendButtons mainLabel="共有して催促を送る" share={{ text: remind }} copy={remind} copyLabel="催促の文をコピー" canShare={canShare} />
             </section>
           )}
           <p className="mx-4 mt-3 text-xs text-muted">
-            現金で受け取ったときは「受け取った」を押してください。参加した人の押し間違いも、幹事なら取り消せます
+            現金で受け取ったら「受け取った」。押し間違いの取り消しも幹事から
           </p>
         </>
       )}

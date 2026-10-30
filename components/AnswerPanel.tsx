@@ -157,7 +157,7 @@ export function AnswerPanel({
             ? passed
               ? `${mine.name}さん、今回は行けないと受け取りました。また誘いますね`
               : `${mine.name}さんの答えを受け取りました、ありがとう!`
-            : `${mine.name}さんの答えは保存してあります`}
+            : `${mine.name}さんの答え、保存済み`}
         </p>
         <button type="button" onClick={edit} disabled={pending} className={`${BUTTON_SUB} mt-3 w-full gap-2`}>
           <Pencil className="size-4" aria-hidden />
@@ -168,7 +168,7 @@ export function AnswerPanel({
           <Link href="/" className="mt-3 flex items-center gap-2 rounded-2xl bg-white/5 px-3 py-3 text-sm ring-1 ring-white/10 transition-colors hover:bg-white/10">
             <span className="min-w-0 flex-1">
               <span className="font-bold">{occasion}の幹事になったら</span>
-              <span className="text-muted">、Dateなら3分で決まります</span>
+              <span className="text-muted">、Dateなら3分で決定</span>
             </span>
             <ArrowRight className="size-4 shrink-0 text-accent" aria-hidden />
           </Link>
@@ -342,7 +342,7 @@ export function AnswerPanel({
             options={[...ANSWER_BUDGETS.map((b) => ({ value: b, label: `${yen(b)}くらいまで` })), { value: UNLIMITED_BUDGET, label: "どこでもいい" }]}
             onChange={(b) => set({ budget: b })}
           />
-          <p className="mt-3 text-xs text-muted">行きやすいお店の目安を選んでください。誰が選んだかは幹事にも見えず、みんなに合うお店を探します</p>
+          <p className="mt-3 text-xs text-muted">行きやすいお店の目安。誰が選んだかは幹事にも非公開で、みんなに合うお店探しに使用</p>
         </fieldset>
 
         <fieldset className="px-5 py-5">
@@ -379,7 +379,7 @@ export function AnswerPanel({
               飲まない
             </Choice>
           </div>
-          <p className="mt-2 text-xs text-muted">飲まないと答えると、会計で「飲まない」の区分に入ります</p>
+          <p className="mt-2 text-xs text-muted">「飲まない」なら、会計で「飲まない」の区分に</p>
 
           {/* 社会人の会(プライベート・会社)では、喫煙できるお店かどうかが大事なので聞く(人数だけを幹事に見せる) */}
           {isAdult(audience) && (
@@ -396,7 +396,7 @@ export function AnswerPanel({
                   吸わない
                 </Choice>
               </div>
-              <p className="mt-2 text-xs text-muted">吸う人がいれば、タバコが吸えるお店を先に出します。誰が吸うかは出しません</p>
+              <p className="mt-2 text-xs text-muted">吸う人がいれば、吸えるお店を優先。誰が吸うかは非公開</p>
             </>
           )}
 
@@ -423,7 +423,7 @@ export function AnswerPanel({
             maxLength={MAX_AVOID_NOTE}
             aria-label="そのほかの苦手なもの"
           />
-          <p className="mt-2 text-xs text-muted">誰が選んだか・書いたかは幹事にも見えず、「えび・かにが苦手な人が1人」のように人数と中身だけがお店選びに使われます</p>
+          <p className="mt-2 text-xs text-muted">誰が選んだか・書いたかは幹事にも非公開。「えび・かにが苦手な人が1人」のように、人数と中身だけをお店選びに使用</p>
         </fieldset>
 
         {/* 食べたいもの。多いものから、お店を自動でおすすめする */}
@@ -435,7 +435,7 @@ export function AnswerPanel({
           </p>
           {/* アレルギーと同じく、▼ で選んで足していく */}
           <AddPicker label="食べたいもの" groups={[{ options: GENRES }]} selected={form.likes ?? []} onToggle={toggleLike} tone="green" />
-          <p className="mt-2 text-xs text-muted">多かったものから、お店を自動で選びます</p>
+          <p className="mt-2 text-xs text-muted">多かったものからお店を自動で選定</p>
         </fieldset>
 
         <label className="block border-t border-border px-5 py-5">
@@ -461,7 +461,7 @@ export function AnswerPanel({
               {missing}
             </>
           ) : (
-            "赤い点の項目はすべて入っています"
+            "赤い点の項目はすべて入力済み"
           )}
         </p>
         {error && (

@@ -11,7 +11,7 @@ export function NextHost({ occasion = "次の飲み会" }: { occasion?: string }
         <LogoMark size={48} />
         <p className="min-w-0 flex-1">
           <span className="block font-black">{occasion}の幹事になったら、Dateで決めませんか</span>
-          <span className="mt-0.5 block text-xs text-muted">URLを送るだけで、日にちもお店も3分で決まります。登録はいりません</span>
+          <span className="mt-0.5 block text-xs text-muted">URLを送るだけで、日にちもお店も3分で決定。登録不要</span>
         </p>
       </div>
       <Link

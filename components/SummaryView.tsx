@@ -69,7 +69,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
     return (
       <section className="mx-4 rounded-3xl border panel px-4 py-6">
         <h2 className="text-lg font-black">みんなの答え</h2>
-        <p className="mt-2 text-sm text-muted">まだ誰も答えていません</p>
+        <p className="mt-2 text-sm text-muted">まだ回答なし</p>
       </section>
     );
   }
@@ -77,7 +77,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
     return (
       <section className="mx-4 rounded-3xl border panel px-4 py-6">
         <h2 className="text-lg font-black">みんなの答え({summary.answered}人)</h2>
-        <p className="mt-2 text-sm text-muted">どの日も全員が行けないと答えているので、候補の日を足して作り直してください</p>
+        <p className="mt-2 text-sm text-muted">どの日も全員が行けないという回答。候補の日を足して作り直しを</p>
         <WhoCanGo summary={summary} />
         <Notes notes={summary.notes} />
       </section>
@@ -86,27 +86,27 @@ export function SummaryView({ summary }: { summary: Summary }) {
 
   // いつも出すのは、日にち・時間・予算の3つだけ。場所と二次会は「くわしく」の中に入れる
   const rows = [
-    { icon: CalendarDays, label: "日にち", value: dateLabel(summary.date), sub: `${summary.attendees.length}人が行けます` },
+    { icon: CalendarDays, label: "日にち", value: dateLabel(summary.date), sub: `行ける人 ${summary.attendees.length}人` },
     {
       icon: Clock,
       label: "時間",
       value: `${clock(summary.start!)}〜${clock(summary.firstEnd!)}`,
-      sub: summary.lateJoiners.length > 0 ? `${summary.lateJoiners.join("と")}さんは途中から来ます` : "全員そろって始められます",
+      sub: summary.lateJoiners.length > 0 ? `${summary.lateJoiners.join("と")}さんは途中から参加` : "全員そろってスタート",
     },
-    { icon: Wallet, label: "お店", value: budgetLabel(summary.budget!), sub: "行く人みんなに合うお店です" },
+    { icon: Wallet, label: "お店", value: budgetLabel(summary.budget!), sub: "行く人みんなに合うお店" },
   ];
   const more = [
     {
       icon: MapPin,
       label: "場所",
       value: summary.area ? areaLabel(summary.area) : "どこでもOK",
-      sub: summary.area ? summary.areaVotes.map((v) => `${areaLabel(v.key)} ${v.votes}`).join(" / ") : "全員どこでもいいと答えています",
+      sub: summary.area ? summary.areaVotes.map((v) => `${areaLabel(v.key)} ${v.votes}`).join(" / ") : "全員どこでもOK",
     },
     {
       icon: Moon,
       label: "二次会",
       value: `${summary.secondParty.length}人`,
-      sub: summary.secondParty.length > 0 ? `${summary.secondParty.join("と")}さんが残れます` : "一次会で解散になりそうです",
+      sub: summary.secondParty.length > 0 ? `${summary.secondParty.join("と")}さんは一次会のあとも参加OK` : "一次会で解散の見込み",
     },
   ];
 

@@ -15,9 +15,9 @@ import { BUTTON_PRIMARY } from "./ui";
 type Progress = { payers: number; paid: number; unpaidYen: number };
 
 const STEPS = [
-  { title: "会計で金額を出す", note: "傾斜でも割り勘でも、出た金額がそのまま集金の額になります" },
-  { title: "集金のページをみんなに送る", note: "共有のボタンで、LINE やチャットに送れます" },
-  { title: "受け取ったら幹事が「受け取った」を押す", note: "誰が払ったかが一目で分かり、まだの人にだけ催促を送れます" },
+  { title: "会計で金額を出す", note: "傾斜でも割り勘でも、出た金額がそのまま集金の額に" },
+  { title: "集金のページをみんなに送る", note: "共有のボタンで LINE やチャットへ" },
+  { title: "受け取ったら幹事が「受け取った」を押す", note: "誰が払ったかが一目瞭然。まだの人にだけ催促" },
 ];
 
 export function CollectList() {
@@ -74,7 +74,7 @@ export function CollectList() {
                             />
                           </span>
                           <span className={`mt-1 block text-xs font-bold ${done ? "tier-green text-[var(--tc)]" : "text-text"}`}>
-                            {done ? "✓ 全員そろいました" : `${p.payers}人中${p.paid}人が払いました・あと${yen(p.unpaidYen)}`}
+                            {done ? "✓ 全員支払い済み" : `${p.payers}人中${p.paid}人が支払い済み・あと${yen(p.unpaidYen)}`}
                           </span>
                         </>
                       ) : (

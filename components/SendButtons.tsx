@@ -39,7 +39,7 @@ function CopyButton({ text, label, className }: { text: string; label: string; c
       }}
     >
       {done ? <Check className="size-4" aria-hidden /> : <Copy className="size-4" aria-hidden />}
-      {done ? "コピーしました" : label}
+      {done ? "コピー済み" : label}
     </button>
   );
 }
@@ -77,7 +77,7 @@ export function SendButtons({ mainLabel, share, copy, copyLabel = "URLをコピ�
         <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-full bg-black/85 text-accent">
           {copied ? <Check className="size-4" strokeWidth={3} /> : <ShareIcon className="size-4" strokeWidth={2.5} />}
         </span>
-        {copied ? "コピーしました。LINEなどに貼ってください" : mainLabel}
+        {copied ? "コピー済み。LINEなどに貼り付けを" : mainLabel}
       </button>
       <CopyButton text={copy} label={copyLabel} className={`${BUTTON_SUB} w-full gap-2 text-sm`} />
     </div>

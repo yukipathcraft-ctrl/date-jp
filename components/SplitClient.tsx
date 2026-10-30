@@ -342,7 +342,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
       )}
       {subsidy > 0 && (
         <p className="mx-4 mt-1 px-1 text-xs font-bold text-accent">
-          補助 {yen(subsidy)} を引いて、{yen(totalYen - subsidy)} をみんなで割ります
+          補助 {yen(subsidy)} を引いて、{yen(totalYen - subsidy)} をみんなで割る計算
         </p>
       )}
 
@@ -463,7 +463,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
                     autoFocus
                   />
                   <span className={`text-xs ${customBad ? "font-bold text-danger" : "text-muted"}`}>
-                    {customBad ? "0.1〜5.0 の数で書いてください" : "ふつうの人を 1.0 として、0.1〜5.0 で書けます"}
+                    {customBad ? "0.1〜5.0 の数で書いてください" : "ふつうの人を 1.0 として、0.1〜5.0 で入力"}
                   </span>
                 </label>
               )}
@@ -500,7 +500,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
       <section className="glow mx-4 mt-5 overflow-hidden rounded-3xl border border-accent/40 bg-surface" aria-live="polite">
         <div className="flex items-baseline justify-between px-5 pt-5">
           <h2 className="text-lg font-black">1人いくら?</h2>
-          {result && <span className="text-xs font-bold text-muted">{unit}円単位でそろえています</span>}
+          {result && <span className="text-xs font-bold text-muted">{unit}円単位</span>}
         </div>
         {result ? (
           <>
@@ -548,7 +548,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
             <p className="px-5 text-xs text-muted">
               {result.organizerDiff === 0
                 ? "端数は出ませんでした"
-                : `端数の${yen(Math.abs(result.organizerDiff))}ぶん、幹事が${result.organizerDiff > 0 ? "多め" : "少なめ"}に払います`}
+                : `端数の${yen(Math.abs(result.organizerDiff))}ぶん、幹事が${result.organizerDiff > 0 ? "多め" : "少なめ"}に`}
             </p>
             <div className="px-5 pb-5">
               <SendButtons
@@ -561,7 +561,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
             </div>
           </>
         ) : (
-          <p className="px-5 pt-2 pb-5 text-sm text-muted">合計を入れると、一人ずつの金額が出ます</p>
+          <p className="px-5 pt-2 pb-5 text-sm text-muted">合計を入れると、一人ずつの金額を表示</p>
         )}
       </section>
 
@@ -573,7 +573,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
             集金のチェック
           </h2>
           <p className="mt-1 text-sm text-muted">
-            集金のページを作ってみんなに送ると、一人ずつ自分の金額を確かめられます。受け取ったら幹事が記録するので、まだの人にだけ催促を送れます
+            集金のページをみんなに送れば、一人ずつ自分の金額を確認。受け取りは幹事が記録し、まだの人にだけ催促
           </p>
           {collectError && (
             <p role="alert" className="mt-3 text-sm font-bold text-danger">
@@ -581,7 +581,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
             </p>
           )}
           {!result ? (
-            <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm text-muted">上でお会計の合計を入れると、集金のページを作れます</p>
+            <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm text-muted">上でお会計の合計を入れると、集金のページを作成</p>
           ) : collection ? (
             <div className="mt-4 grid gap-2">
               <Link href={`/c/${collection.id}?token=${collection.token}`} className={`${BUTTON_PRIMARY} w-full gap-2`}>

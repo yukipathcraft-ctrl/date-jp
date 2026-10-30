@@ -89,7 +89,7 @@ export function CreateForm() {
     <>
       <section className="rounded-3xl bg-surface px-5 py-5 ring-1 ring-white/8">
         <div>
-          <FieldHead title="飲み会の名前" sub="みんなに送る画面の見出しになります" />
+          <FieldHead title="飲み会の名前" sub="みんなに送る画面の見出し" />
           <input
             className={`${INPUT} mt-2`}
             value={title}
@@ -101,7 +101,7 @@ export function CreateForm() {
         </div>
 
         <div className="mt-5 border-t border-white/8 pt-5">
-          <FieldHead title="何時から始める?" sub="みんなには聞きません" />
+          <FieldHead title="何時から始める?" sub="幹事だけで決定" />
           {/* KANJI のように、何時からでも自由に選べるようにする(15分ごと) */}
           <label className="relative mt-3 flex min-h-14 items-center justify-between rounded-2xl bg-white/6 px-4 ring-1 ring-white/10">
             <span className="text-sm font-bold text-white/60">開始時刻</span>
@@ -126,7 +126,7 @@ export function CreateForm() {
         </div>
 
         <div className="mt-5 border-t border-white/8 pt-5">
-          <FieldHead title="候補の日" sub={dates.length > 0 ? `${dates.length}日選んでいます` : "いくつでも選べます"} />
+          <FieldHead title="候補の日" sub={dates.length > 0 ? `${dates.length}日を選択中` : "いくつでも"} />
           {/* 候補の日はカレンダーで選ぶ */}
           {today && (
             <div className="mt-4">
@@ -148,7 +148,7 @@ export function CreateForm() {
         </div>
 
         <div className="mt-5 border-t border-white/8 pt-5">
-          <FieldHead title="回答の締め切り" sub="なくても作れます。みんなの画面に残りの日数が出ます" />
+          <FieldHead title="回答の締め切り" sub="なしでもOK。みんなの画面に残りの日数を表示" />
           <div className="mt-3 grid grid-cols-2 gap-1.5" role="group" aria-label="回答の締め切り">
             {[null, ...DEADLINE_CHOICES.map((c) => c.days)].map((days) => {
               const choice = DEADLINE_CHOICES.find((c) => c.days === days);
@@ -176,7 +176,7 @@ export function CreateForm() {
             })}
           </div>
           {dates.length > 0 && DEADLINE_CHOICES.some((c) => !choiceAllowed(deadlineOf(c.days) ?? "", dates)) && (
-            <p className="mt-2 text-[11px] text-white/45">いちばん早い候補の日より前の日だけ選べます</p>
+            <p className="mt-2 text-[11px] text-white/45">いちばん早い候補の日より前の日だけ</p>
           )}
         </div>
       </section>
@@ -189,11 +189,11 @@ export function CreateForm() {
           </p>
         ) : (
           <p className="mb-2 text-center text-[11px] text-white/40">
-            {missing ?? `登録はいらず、${AUDIENCES[audience].label}向けの予算と時間でみんなに聞きます`}
+            {missing ?? `登録不要。${AUDIENCES[audience].label}向けの予算と時間で質問`}
           </p>
         )}
         <button type="button" onClick={submit} disabled={pending || missing !== null} className={`${BUTTON_PRIMARY} w-full gap-2`}>
-          {pending ? "作っています…" : missing ? "名前と候補の日を入れてください" : (
+          {pending ? "作成中…" : missing ? "名前と候補の日を入れてください" : (
             <>
               URLを作る
               <ArrowRight className="size-4" aria-hidden />

@@ -52,7 +52,7 @@ export function DecisionCard({ decision, partyId }: { decision: Decision; partyI
           {!isSampleShop(shop.id) && <PrNote className="mt-3" />}
         </>
       ) : (
-        <p className="mt-1 text-center text-sm text-muted">お店はこれから決めます</p>
+        <p className="mt-1 text-center text-sm text-muted">お店は未定</p>
       )}
     </section>
   );

@@ -44,7 +44,7 @@ export function HistoryClient() {
     return (
       <div className="px-4">
         <p className="rounded-3xl border panel px-5 py-6 text-sm text-muted">
-          まだ記録はありません。この端末で作った会の日にちが決まると、ここに残ります
+          まだ記録なし。この端末で作った会の日にちが決まると、ここに記録
         </p>
         <Link href="/new" className={`${BUTTON_PRIMARY} mt-4 w-full`}>
           会をつくる
@@ -76,7 +76,7 @@ export function HistoryClient() {
                     <MapPin className="size-3.5 shrink-0 text-muted" aria-hidden />
                   </a>
                 ) : (
-                  <span className="text-muted">決めていません</span>
+                  <span className="text-muted">未定</span>
                 )}
               </dd>
               <dt className="flex items-center gap-1 text-muted">

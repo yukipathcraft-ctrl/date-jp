@@ -210,8 +210,8 @@ export function HomeClient() {
           <h1 className="mt-6 text-3xl font-black tracking-tight">あなたは?</h1>
           {/* 375px 幅でもきれいに2行で収まるよう、行の切れ目を決めておく */}
           <p className="mt-2 text-muted">
-            <span className="block">選んだものに合う予算・時間・お店を出します</span>
-            <span className="block">あとからでも切り替えられます</span>
+            <span className="block">選んだものに合う予算・時間・お店を表示</span>
+            <span className="block">あとから切り替えOK</span>
           </p>
           <div className="mt-8 grid gap-3">
             {AUDIENCE_ORDER.map((a) => {

@@ -15,7 +15,7 @@ export default function NewPage() {
       <div className="mx-auto max-w-xl px-4 pt-6">
         <h1 className="px-0.5 text-[22px] font-black tracking-tight">候補の日を選ぶ</h1>
         <p className="mt-1 mb-5 px-0.5 text-[11px] font-semibold text-white/40">
-          できたURLをLINEのグループに貼れば、みんながそこから答えられます
+          できたURLをLINEのグループに貼るだけで、みんなが回答
         </p>
         <CreateForm />
       </div>

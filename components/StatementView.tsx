@@ -87,7 +87,7 @@ function PasteCard({ step, title, where, text, preview }: { step: number; title:
       </div>
       <button type="button" onClick={copy} className={`${done ? BUTTON_SUB : BUTTON_PRIMARY} mt-3 w-full gap-2`} aria-live="polite">
         {done ? <Check className="size-5 text-accent" aria-hidden /> : <ClipboardCopy className="size-5" aria-hidden />}
-        {done ? "コピーしました。貼ってください" : "コピーする"}
+        {done ? "コピー済み。貼り付けを" : "コピーする"}
       </button>
     </section>
   );
@@ -151,13 +151,13 @@ export function StatementView({ collection: c }: { collection: Omit<Collection, 
           経費精算
         </p>
         <h1 className="mt-1 text-[22px] font-black tracking-tight">名簿と金額を、そのまま貼る</h1>
-        <p className="mt-1 text-sm text-muted">会社の精算システムや Excel に、コピーして貼るだけで使えます。入れたものはこの端末に残ります</p>
+        <p className="mt-1 text-sm text-muted">会社の精算システムや Excel に、コピーして貼るだけ。入れたものはこの端末に保存</p>
 
         <h2 className="mt-6 text-sm font-black">会の情報</h2>
         <div className="mt-2 space-y-3">{EVENT_FIELDS.map(input)}</div>
 
         <h2 className="mt-6 text-sm font-black">参加者の所属・関係(なくても大丈夫)</h2>
-        <p className="mt-1 text-xs text-muted">取引先との会食では、相手の会社名を入れておくと、税金の決まりで残す「参加者の関係」になります</p>
+        <p className="mt-1 text-xs text-muted">取引先との会食では、相手の会社名を入れておけば、税金の決まりで残す「参加者の関係」に</p>
         <ul className="mt-2 space-y-2">
           {c.people.map((p) => (
             <li key={p.id} className="flex items-center gap-2">
@@ -187,7 +187,7 @@ export function StatementView({ collection: c }: { collection: Omit<Collection, 
           <PasteCard
             step={3}
             title="名簿と金額の表"
-            where="Excel やスプレッドシートに貼ると、そのまま表になります"
+            where="Excel やスプレッドシートに貼ると、そのまま表に"
             text={rosterTsv(c, meta.affiliations)}
             preview={
               <table className="w-full text-left text-xs whitespace-nowrap">
@@ -232,7 +232,7 @@ export function StatementView({ collection: c }: { collection: Omit<Collection, 
               </span>
               <span className="text-xs font-bold text-muted group-open:hidden">開く</span>
             </summary>
-            <p className="mt-2 text-xs text-muted">提出先と申請者を入れると、下の明細書に入ります。PDFにするときは、印刷の画面で「PDFに保存」を選んでください</p>
+            <p className="mt-2 text-xs text-muted">提出先と申請者は下の明細書に反映。PDFは印刷の画面の「PDFに保存」から</p>
             <div className="mt-3 space-y-3">{DOC_FIELDS.map(input)}</div>
             <button type="button" onClick={() => window.print()} className={`${BUTTON_PRIMARY} mt-4 w-full gap-2`}>
               <Printer className="size-5" aria-hidden />

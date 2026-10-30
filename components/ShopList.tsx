@@ -53,7 +53,7 @@ export function ShopList({
     <section id={id} className="mt-4 mx-4 rounded-3xl border panel px-4 py-6">
       <h2 className="text-lg font-black">{heading}</h2>
       <p className="mt-1 text-sm text-muted">
-        {lead ?? (otherArea ? "その場所には合うお店がなかったので、近くのエリアから出しています" : "みんなの答えから、自動で選びました")}
+        {lead ?? (otherArea ? "その場所に合うお店がなく、近くのエリアから" : "みんなの答えから自動で選んだお店")}
       </p>
       {basis && basis.length > 0 && (
         <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="おすすめの条件">
@@ -74,7 +74,7 @@ export function ShopList({
       {shops.length === 0 && empty && <p className="mt-4 text-sm text-muted">{empty}</p>}
       {isSample && (
         <p className="mt-2 rounded-xl bg-match-soft px-3 py-2 text-xs font-bold text-match-text">
-          今出ているのは実在しない見本のお店で、お店のデータをつなぐと仙台の本物のお店に変わります
+          今は実在しない見本のお店。お店のデータをつなぐと仙台の本物のお店に
         </p>
       )}
       <ul className="mt-4 space-y-3">
@@ -137,7 +137,7 @@ export function ShopList({
               target="_blank"
               rel="nofollow noopener"
             >
-              {s.sample ? "見本なのでお店のページはありません" : "お店のページで予約する"}
+              {s.sample ? "見本のため、お店のページなし" : "お店のページで予約する"}
               {!s.sample && <ExternalLink className="size-4" aria-hidden />}
             </a>
             {/* 場所や口コミは Google マップで見てもらう(見本のお店は実在しないので出さない) */}

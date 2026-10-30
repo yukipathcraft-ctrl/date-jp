@@ -10,7 +10,7 @@ export function DeadlineNote({ state }: { state: DeadlineState }) {
       <p className="mx-4 mb-3 flex items-center gap-2 rounded-2xl bg-surface-2 px-4 py-3 text-sm text-muted">
         <CalendarCheck className="size-4 shrink-0" aria-hidden />
         <span>
-          回答の{state.text}。まだの人も、今から入れられます
+          回答の{state.text}。まだの人も今から回答OK
         </span>
       </p>
     );
