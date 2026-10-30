@@ -219,7 +219,7 @@ export function SeatsClient() {
   return (
     <div className="space-y-4">
       {decidedParties.length > 0 && (
-        <section>
+        <section className="mx-4">
           <p className="mb-2 px-1 text-[10px] font-black tracking-[0.2em] text-stone-400">決まった会から名前を読み込む</p>
           <div className="flex gap-2 overflow-x-auto pb-1">
             {decidedParties.map(({ party: p, date }) => (
