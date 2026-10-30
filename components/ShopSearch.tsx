@@ -212,7 +212,7 @@ export function ShopSearch() {
             </>
           ) : (
             <p id="shops" className="mx-4 rounded-3xl border panel px-5 py-6 text-sm text-muted">
-              合うお店なし。予算や料理の条件をゆるめて再検索を
+              合うお店なし
             </p>
           ))}
       </div>

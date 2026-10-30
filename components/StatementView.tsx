@@ -87,7 +87,7 @@ function PasteCard({ step, title, where, text, preview }: { step: number; title:
       </div>
       <button type="button" onClick={copy} className={`${done ? BUTTON_SUB : BUTTON_PRIMARY} mt-3 w-full gap-2`} aria-live="polite">
         {done ? <Check className="size-5 text-accent" aria-hidden /> : <ClipboardCopy className="size-5" aria-hidden />}
-        {done ? "コピー済み。貼り付けを" : "コピーする"}
+        {done ? "コピー済み" : "コピーする"}
       </button>
     </section>
   );
@@ -151,7 +151,7 @@ export function StatementView({ collection: c }: { collection: Omit<Collection, 
           経費精算
         </p>
         <h1 className="mt-1 text-[22px] font-black tracking-tight">名簿と金額を、そのまま貼る</h1>
-        <p className="mt-1 text-sm text-muted">会社の精算システムや Excel に、コピーして貼るだけ。入れたものはこの端末に保存</p>
+        <p className="mt-1 text-sm text-muted">精算システムや Excel にコピーして貼るだけ</p>
 
         <h2 className="mt-6 text-sm font-black">会の情報</h2>
         <div className="mt-2 space-y-3">{EVENT_FIELDS.map(input)}</div>
@@ -232,7 +232,7 @@ export function StatementView({ collection: c }: { collection: Omit<Collection, 
               </span>
               <span className="text-xs font-bold text-muted group-open:hidden">開く</span>
             </summary>
-            <p className="mt-2 text-xs text-muted">提出先と申請者は下の明細書に反映。PDFは印刷の画面の「PDFに保存」から</p>
+            <p className="mt-2 text-xs text-muted">PDFは印刷の画面の「PDFに保存」から</p>
             <div className="mt-3 space-y-3">{DOC_FIELDS.map(input)}</div>
             <button type="button" onClick={() => window.print()} className={`${BUTTON_PRIMARY} mt-4 w-full gap-2`}>
               <Printer className="size-5" aria-hidden />

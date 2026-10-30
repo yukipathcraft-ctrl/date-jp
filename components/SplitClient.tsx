@@ -573,7 +573,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
             集金のチェック
           </h2>
           <p className="mt-1 text-sm text-muted">
-            集金のページをみんなに送れば、一人ずつ自分の金額を確認。受け取りは幹事が記録し、まだの人にだけ催促
+            まだの人にだけ催促できる集金のページ
           </p>
           {collectError && (
             <p role="alert" className="mt-3 text-sm font-bold text-danger">

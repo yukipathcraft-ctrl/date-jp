@@ -21,7 +21,7 @@ export default async function SplitPage(props: PageProps<"/split">) {
       <div className="mx-auto max-w-xl pt-6 pb-16">
         <div className="px-4 pb-5">
           <h1 className="text-[22px] font-black tracking-tight">会計</h1>
-          <p className="mt-1 text-sm text-muted">合計を入れるだけで、一人ずつの金額を表示。傾斜や集金のチェックも</p>
+          <p className="mt-1 text-sm text-muted">合計を入れるだけで一人ずつの金額を表示</p>
         </div>
         <SplitClient from={typeof from === "string" ? from : null} />
       </div>

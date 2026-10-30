@@ -342,7 +342,7 @@ export function AnswerPanel({
             options={[...ANSWER_BUDGETS.map((b) => ({ value: b, label: `${yen(b)}くらいまで` })), { value: UNLIMITED_BUDGET, label: "どこでもいい" }]}
             onChange={(b) => set({ budget: b })}
           />
-          <p className="mt-3 text-xs text-muted">行きやすいお店の目安。誰が選んだかは幹事にも非公開で、みんなに合うお店探しに使用</p>
+          <p className="mt-3 text-xs text-muted">誰が選んだかは幹事にも非公開</p>
         </fieldset>
 
         <fieldset className="px-5 py-5">
@@ -396,7 +396,7 @@ export function AnswerPanel({
                   吸わない
                 </Choice>
               </div>
-              <p className="mt-2 text-xs text-muted">吸う人がいれば、吸えるお店を優先。誰が吸うかは非公開</p>
+              <p className="mt-2 text-xs text-muted">吸える店を優先・誰が吸うかは非公開</p>
             </>
           )}
 
@@ -423,7 +423,7 @@ export function AnswerPanel({
             maxLength={MAX_AVOID_NOTE}
             aria-label="そのほかの苦手なもの"
           />
-          <p className="mt-2 text-xs text-muted">誰が選んだか・書いたかは幹事にも非公開。「えび・かにが苦手な人が1人」のように、人数と中身だけをお店選びに使用</p>
+          <p className="mt-2 text-xs text-muted">誰が選んだかは幹事にも非公開</p>
         </fieldset>
 
         {/* 食べたいもの。多いものから、お店を自動でおすすめする */}

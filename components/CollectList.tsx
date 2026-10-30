@@ -17,7 +17,7 @@ type Progress = { payers: number; paid: number; unpaidYen: number };
 const STEPS = [
   { title: "会計で金額を出す", note: "傾斜でも割り勘でも、出た金額がそのまま集金の額に" },
   { title: "集金のページをみんなに送る", note: "共有のボタンで LINE やチャットへ" },
-  { title: "受け取ったら幹事が「受け取った」を押す", note: "誰が払ったかが一目瞭然。まだの人にだけ催促" },
+  { title: "受け取ったら幹事が「受け取った」を押す", note: "まだの人にだけ催促" },
 ];
 
 export function CollectList() {

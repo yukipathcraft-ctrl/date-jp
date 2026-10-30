@@ -132,12 +132,12 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             tone="key"
             icon={<KeyRound className="size-5" />}
             title="幹事用のURLを自分に残す"
-            note="日にちとお店を決めるページ。人には送らず自分用に"
+            note="日にちとお店を決める自分用のページ"
           />
           <p className="mt-3 flex items-start gap-1.5 rounded-xl bg-bg/40 px-3 py-2 text-xs text-match-text">
             <Check className="mt-0.5 size-3.5 shrink-0" aria-hidden />
             <span>
-              この端末ではトップの「あなたの会」にも保存済み。別のスマホやパソコン用には、下から自分あてに
+              この端末ではトップの「あなたの会」にも保存済み
             </span>
           </p>
           <SendButtons

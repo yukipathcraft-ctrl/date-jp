@@ -63,7 +63,7 @@ export function DeadlineEditor({
         回答の締め切り
       </p>
       <p className="mt-1 text-xs text-muted">
-        {state ? `いまは${state.text}。` : ""}みんなの画面に残りの日数を表示。過ぎても回答OK
+        {state ? `いまは${state.text}` : "過ぎても回答OK"}
       </p>
       <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="回答の締め切り">
         {choices.map((c) => {

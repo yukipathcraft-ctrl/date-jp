@@ -208,7 +208,7 @@ export function SeatsClient() {
               </button>
             ))}
           </div>
-          {mode === "rank" && <p className="mt-2 text-xs text-muted">偉い人から順に名前を入れると、上座から順に配置。上の人は各テーブルに1人ずつ</p>}
+          {mode === "rank" && <p className="mt-2 text-xs text-muted">偉い人から順に名前を入れて上座から配置</p>}
         </div>
         )}
 

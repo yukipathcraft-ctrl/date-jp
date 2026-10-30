@@ -116,7 +116,7 @@ export function CollectionView({
       {isHost && justPaid && (
         <p role="status" className="mx-4 mb-3 flex items-center gap-2 rounded-2xl border border-accent/50 bg-accent/10 px-4 py-3 text-sm font-bold text-accent">
           <Check className="size-4 shrink-0" aria-hidden />
-          お支払い完了。名簿と金額は下から
+          お支払い完了
         </p>
       )}
       {isHost && (c.audience === "worker" || c.pro) && (
@@ -154,7 +154,7 @@ export function CollectionView({
         </p>
         {!isHost && unpaid.length > 0 && (
           <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm">
-            自分の金額を確認して幹事へ。幹事が受け取ると名前に ✓
+            幹事が受け取ると名前に ✓
           </p>
         )}
       </section>
@@ -247,20 +247,20 @@ export function CollectionView({
               <Users className="size-5" aria-hidden />
               みんなにこのページを送る
             </h2>
-            <p className="mt-1 text-sm text-muted">一人ずつの金額入りなので、金額の問い合わせなし。受け取ったらここで「受け取った」</p>
+            <p className="mt-1 text-sm text-muted">一人ずつの金額入りの案内文</p>
             <SendButtons mainLabel="共有してみんなに送る" share={{ text: askText }} copy={askText} copyLabel="送る文をコピー" canShare={canShare} />
           </section>
 
           {unpaid.length > 0 && (
             <section className="mx-4 mt-4 rounded-3xl border panel px-5 py-5">
               <h2 className="text-lg font-black">まだの人に催促する</h2>
-              <p className="mt-1 text-xs text-muted">まだの{unpaid.length}人の名前と金額だけ。払った人の名前はなし</p>
+              <p className="mt-1 text-xs text-muted">まだの{unpaid.length}人の名前と金額だけ</p>
               <p className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm leading-relaxed break-all whitespace-pre-wrap">{remind}</p>
               <SendButtons mainLabel="共有して催促を送る" share={{ text: remind }} copy={remind} copyLabel="催促の文をコピー" canShare={canShare} />
             </section>
           )}
           <p className="mx-4 mt-3 text-xs text-muted">
-            現金で受け取ったら「受け取った」。押し間違いの取り消しも幹事から
+            現金で受け取ったら「受け取った」
           </p>
         </>
       )}

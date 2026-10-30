@@ -32,7 +32,7 @@ export function MustPicker({ partyId, token, names, must }: { partyId: string; t
         </span>
         必ず来てほしい人
       </p>
-      <p className="mt-0.5 text-xs text-muted">部長や主役など。その人が行ける日を優先</p>
+      <p className="mt-0.5 text-xs text-muted">部長や主役が行ける日を優先</p>
       <div className={`mt-2 flex flex-wrap gap-2 ${pending ? "opacity-60" : ""}`} role="group" aria-label="必ず来てほしい人">
         {names.map((n) => {
           const on = must.includes(n);

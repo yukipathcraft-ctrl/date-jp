@@ -67,7 +67,7 @@ export function StatementPaywall({ collectionId, token, title, price }: { collec
         <ul className="mt-4 space-y-1 text-xs text-muted">
           <li className="flex items-center gap-1.5">
             <Check className="size-3.5 shrink-0" aria-hidden />
-            お支払いは Stripe のページで。カードの番号は Date に届かない仕組み
+            カードの番号は Date に届かない仕組み
           </li>
           <li className="flex items-center gap-1.5">
             <Check className="size-3.5 shrink-0" aria-hidden />

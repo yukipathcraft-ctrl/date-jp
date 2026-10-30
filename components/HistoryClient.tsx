@@ -44,7 +44,7 @@ export function HistoryClient() {
     return (
       <div className="px-4">
         <p className="rounded-3xl border panel px-5 py-6 text-sm text-muted">
-          まだ記録なし。この端末で作った会の日にちが決まると、ここに記録
+          まだ記録なし
         </p>
         <Link href="/new" className={`${BUTTON_PRIMARY} mt-4 w-full`}>
           会をつくる

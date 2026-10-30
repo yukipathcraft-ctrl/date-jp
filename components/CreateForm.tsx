@@ -148,7 +148,7 @@ export function CreateForm() {
         </div>
 
         <div className="mt-5 border-t border-white/8 pt-5">
-          <FieldHead title="回答の締め切り" sub="なしでもOK。みんなの画面に残りの日数を表示" />
+          <FieldHead title="回答の締め切り" sub="なしでもOK" />
           <div className="mt-3 grid grid-cols-2 gap-1.5" role="group" aria-label="回答の締め切り">
             {[null, ...DEADLINE_CHOICES.map((c) => c.days)].map((days) => {
               const choice = DEADLINE_CHOICES.find((c) => c.days === days);
@@ -189,7 +189,7 @@ export function CreateForm() {
           </p>
         ) : (
           <p className="mb-2 text-center text-[11px] text-white/40">
-            {missing ?? `登録不要。${AUDIENCES[audience].label}向けの予算と時間で質問`}
+            {missing ?? `${AUDIENCES[audience].label}向けの予算と時間で質問`}
           </p>
         )}
         <button type="button" onClick={submit} disabled={pending || missing !== null} className={`${BUTTON_PRIMARY} w-full gap-2`}>

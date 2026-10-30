@@ -77,7 +77,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
     return (
       <section className="mx-4 rounded-3xl border panel px-4 py-6">
         <h2 className="text-lg font-black">みんなの答え({summary.answered}人)</h2>
-        <p className="mt-2 text-sm text-muted">どの日も全員が行けないという回答。候補の日を足して作り直しを</p>
+        <p className="mt-2 text-sm text-muted">全員が行けない日ばかり</p>
         <WhoCanGo summary={summary} />
         <Notes notes={summary.notes} />
       </section>
