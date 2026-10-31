@@ -10,7 +10,6 @@ import type { Shop } from "@/lib/shops";
 import type { Decision } from "@/lib/store/types";
 import type { DateRank } from "@/lib/summary";
 import { saveAdminToken } from "./CreateForm";
-import { DeadlineEditor } from "./DeadlineEditor";
 import { Fold } from "./Fold";
 import { MustPicker } from "./MustPicker";
 import { SendButtons, useCanShare } from "./SendButtons";
@@ -30,10 +29,6 @@ type Props = {
   attendees: { name: string; soft: boolean }[];
   /** 幹事が決めた開始時刻(分)。招待の文に添える */
   start: number | null;
-  /** 回答の締め切り。招待の文に添え、ここで変えられる */
-  deadline: string | null;
-  /** 今日(日本時間)。締め切りの残りの日数に使う */
-  today: string;
   /** 答えた人の名前と、そのうち幹事が「必ず来てほしい」にした人 */
   names: string[];
   must: string[];
@@ -69,7 +64,7 @@ function BoxHead({ icon, title, note, tone }: { icon: React.ReactNode; title: st
   );
 }
 
-export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees, start: partyStart, deadline, today, names, must }: Props) {
+export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees, start: partyStart, names, must }: Props) {
   const router = useRouter();
   const [origin, setOrigin] = useState("");
   const canShare = useCanShare();
@@ -112,20 +107,17 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
         />
         <SendButtons
           mainLabel="共有してみんなに送る"
-          share={{ text: inviteText(title, guestUrl, partyStart, deadline) }}
+          share={{ text: inviteText(title, guestUrl, partyStart) }}
           copy={guestUrl}
           canShare={canShare}
         />
-        {/* 締め切りと幹事用の URL は、いつも使うものではないので「そのほかの設定」にたたむ */}
+        {/* 幹事用の URL は、いつも使うものではないのでたたむ */}
         {/* 作った直後だけは開いておき、幹事用の URL を自分に残してもらう */}
         <details open={created} className="group mt-4 rounded-2xl bg-surface-2 px-4 py-2">
           <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-bold [&::-webkit-details-marker]:hidden">
-            <span className="flex-1">そのほかの設定(締め切り・幹事用のURL)</span>
+            <span className="flex-1">幹事用のURL</span>
             <ChevronDown className="size-4 text-muted transition-transform group-open:rotate-180" aria-hidden />
           </summary>
-        {/* 締め切りは、日にちが決まるまでのもの */}
-        {!decision && <DeadlineEditor partyId={partyId} token={token} title={title} guestUrl={guestUrl} deadline={deadline} today={today} dates={ranking.map((r) => r.date)} />}
-
         {/* スマホで作ってパソコンでも開く、といった使い方があるので、自分に送る枠は目立たせておく */}
         <div className="mt-5 rounded-2xl border border-accent/40 bg-match-soft p-4">
           <BoxHead
