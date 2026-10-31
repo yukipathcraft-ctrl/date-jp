@@ -68,9 +68,6 @@ export function createSupabaseStore(url: string, serviceRoleKey: string): Store 
     async setMust(partyId, names) {
       check(await db.from("nomi_parties").update({ must_names: names }).eq("id", partyId));
     },
-    async setDeadline(partyId, deadline) {
-      check(await db.from("nomi_parties").update({ answer_deadline: deadline }).eq("id", partyId));
-    },
     async setDecision(partyId, decision) {
       check(await db.from("nomi_parties").update({ decision }).eq("id", partyId));
     },

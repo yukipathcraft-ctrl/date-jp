@@ -4,8 +4,7 @@ import { AUDIENCES, isAudience } from "@/lib/audience";
 import { headers } from "next/headers";
 import { billingEnabled, createStatementCheckout } from "@/lib/billing";
 import { canSetPayment, isConfirmed, parseCollection, type CollectionInput } from "@/lib/collection";
-import { isValidDeadline } from "@/lib/deadline";
-import { AREAS, isAreaKey, isBudget, isGenreKey, isSecondGenreKey, upcomingDates } from "@/lib/sendai";
+import { AREAS, isAreaKey, isBudget, isGenreKey, isSecondGenreKey } from "@/lib/sendai";
 import { findShop, mergeShops, searchSecondShops, searchShops, type Shop } from "@/lib/shops";
 import { getStore } from "@/lib/store";
 import type { Decision } from "@/lib/store/types";
@@ -23,10 +22,9 @@ export async function createParty(input: {
   audience: string;
   dates: string[];
   start: number;
-  deadline?: string | null;
   via?: string;
 }): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
-  const parsed = parseParty(input, upcomingDates(new Date(), 1)[0]);
+  const parsed = parseParty(input);
   if (!parsed.ok) return parsed;
   const id = generateGroupId();
   const adminToken = generateToken();
@@ -119,16 +117,6 @@ export async function setMust(partyId: string, adminToken: string, names: string
   const answered = new Set((await store.listAnswers(partyId)).map((a) => a.name));
   const picked = [...new Set(Array.isArray(names) ? names : [])].filter((n) => typeof n === "string" && answered.has(n)).slice(0, 10);
   await store.setMust(partyId, picked);
-  return { ok: true };
-}
-
-/** 回答の締め切りを変える(幹事だけ)。null で締め切りなし */
-export async function setDeadline(partyId: string, adminToken: string, deadline: string | null): Promise<{ ok: true } | Fail> {
-  const store = getStore();
-  const party = await store.getParty(partyId);
-  if (!party || !verifyToken(adminToken, party.adminHash)) return { ok: false, error: "幹事のURLから開いてください" };
-  if (!isValidDeadline(deadline, upcomingDates(new Date(), 1)[0])) return { ok: false, error: "締め切りは今日から60日後までの日にしてください" };
-  await store.setDeadline(partyId, deadline);
   return { ok: true };
 }
 

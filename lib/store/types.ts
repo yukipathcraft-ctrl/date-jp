@@ -83,7 +83,6 @@ export interface Store {
   saveAnswer(partyId: string, answer: StoredAnswer): Promise<boolean>;
   setDecision(partyId: string, decision: Decision | null): Promise<void>;
   /** 回答の締め切りを変える。null で締め切りなし */
-  setDeadline(partyId: string, deadline: string | null): Promise<void>;
   /** 必ず来てほしい人の名前を置き換える */
   setMust(partyId: string, names: string[]): Promise<void>;
   /** お店のページへ飛んだ数(誰が押したかは残さない)。「お店を探す」から来たときは partyId が null */

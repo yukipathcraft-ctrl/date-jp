@@ -49,10 +49,6 @@ export const memoryStore: Store = {
     const p = db.parties.get(partyId);
     if (p) p.must = [...names];
   },
-  async setDeadline(partyId, deadline) {
-    const p = db.parties.get(partyId);
-    if (p) p.deadline = deadline;
-  },
   async setDecision(partyId, decision) {
     const p = db.parties.get(partyId);
     if (p) p.decision = decision;

@@ -1,5 +1,4 @@
 import { isAudience, type Audience } from "./audience";
-import { isValidDeadline } from "./deadline";
 import { isAvoidKey } from "./diet";
 import { isAnswerBudget, isArrival, isAreaKey, isGenreKey, isStay, type AreaKey } from "./sendai";
 import type { Answer, DateAnswer } from "./summary";
@@ -24,8 +23,7 @@ export function parseParty(input: {
   audience: unknown;
   dates: unknown;
   start: unknown;
-  deadline?: unknown;
-}, today: string): Result<{ title: string; audience: Audience; dates: string[]; start: number; deadline: string | null }> {
+}): Result<{ title: string; audience: Audience; dates: string[]; start: number; deadline: string | null }> {
   const title = text(input.title, "飲み会の名前", 40);
   if (!title.ok) return title;
   const raw = Array.isArray(input.dates) ? input.dates : [];
@@ -34,9 +32,7 @@ export function parseParty(input: {
   if (dates.length > MAX_DATES) return { ok: false, error: `候補の日は${MAX_DATES}つまでにしてください` };
   const audience = isAudience(input.audience) ? input.audience : "student";
   if (!isArrival(input.start)) return { ok: false, error: "何時から始めるかを選んでください" };
-  const deadline = input.deadline ?? null;
-  if (!isValidDeadline(deadline, today)) return { ok: false, error: "締め切りは今日から60日後までの日にしてください" };
-  return { ok: true, value: { title: title.value, audience, dates, start: input.start, deadline } };
+  return { ok: true, value: { title: title.value, audience, dates, start: input.start, deadline: null } };
 }
 
 export type AnswerInput = Omit<Answer, "id">;
