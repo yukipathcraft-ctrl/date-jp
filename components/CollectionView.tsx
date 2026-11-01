@@ -1,7 +1,6 @@
 "use client";
 
-import { Check, ChevronRight, Crown, FileText, RotateCcw, Users, Wallet } from "lucide-react";
-import Link from "next/link";
+import { Check, Crown, RotateCcw, Users, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { setCollectionPayment } from "@/app/actions";
@@ -11,7 +10,6 @@ import { loadMyCollections, rememberCollection } from "@/lib/myCollections";
 import { collectText, reminderText } from "@/lib/share";
 import type { Collection } from "@/lib/store/types";
 import { SendButtons, useCanShare } from "./SendButtons";
-import { BUTTON_SUB } from "./ui";
 
 // 集金のページ。払ったかどうかは幹事だけが記録する(本人が押せるとごまかせるため)。色だけでなく ✓ と文字でも分かるようにする
 
@@ -42,15 +40,9 @@ function Burst() {
 export function CollectionView({
   collection: c,
   hostToken,
-  justPaid = false,
-  statementPrice = null,
 }: {
   collection: Omit<Collection, "adminHash">;
   hostToken: string | null;
-  /** Stripe で名簿を買って戻ってきたところか */
-  justPaid?: boolean;
-  /** 名簿の値段。買っていないときだけ入る(有料にしていないときや、買ったあとは null) */
-  statementPrice?: number | null;
 }) {
   const router = useRouter();
   const canShare = useCanShare();
@@ -112,23 +104,6 @@ export function CollectionView({
         </p>
       </div>
 
-      {/* 会社に出す明細書へは、いちばん上からすぐ飛べるようにする(幹事だけ・会社の会だけ) */}
-      {isHost && justPaid && (
-        <p role="status" className="mx-4 mb-3 flex items-center gap-2 rounded-2xl border border-accent/50 bg-accent/10 px-4 py-3 text-sm font-bold text-accent">
-          <Check className="size-4 shrink-0" aria-hidden />
-          お支払い完了
-        </p>
-      )}
-      {isHost && (c.audience === "worker" || c.pro) && (
-        <div className="px-4 pb-3">
-          <Link href={`/c/${c.id}/statement?token=${encodeURIComponent(token ?? "")}`} className={`${BUTTON_SUB} w-full gap-2 text-sm`}>
-            <FileText className="size-4 text-accent" aria-hidden />
-            経費精算用の名簿と金額
-            {statementPrice !== null && <span className="text-xs font-bold text-muted">{yen(statementPrice)}</span>}
-            <ChevronRight className="size-4 text-muted" aria-hidden />
-          </Link>
-        </div>
-      )}
 
       <section className="mx-4 rounded-3xl border panel px-5 py-5" aria-live="polite">
         <p className="flex items-center gap-2 font-black">

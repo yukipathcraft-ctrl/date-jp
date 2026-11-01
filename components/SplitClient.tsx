@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Crown, ExternalLink, FileText, NotebookPen, PencilLine, Plus, RotateCcw, Users, Wallet, X } from "lucide-react";
+import { Check, Crown, ExternalLink, NotebookPen, PencilLine, Plus, RotateCcw, Users, Wallet, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
@@ -588,13 +588,6 @@ export function SplitClient({ from = null }: { from?: string | null }) {
                 <ExternalLink className="size-5" aria-hidden />
                 集金のページを開く
               </Link>
-              {/* 経費精算の名簿と金額は、会社の会だけ */}
-              {isFormal(audience) && (
-                <Link href={`/c/${collection.id}/statement?token=${collection.token}`} className={`${BUTTON_SUB} w-full gap-2 text-sm`}>
-                  <FileText className="size-4 text-accent" aria-hidden />
-                  経費精算用の名簿と金額
-                </Link>
-              )}
               <button type="button" onClick={makeCollection} disabled={collecting} className={`${BUTTON_SUB} w-full text-sm`}>
                 {collecting ? "作っています…" : "金額を変えたので作り直す"}
               </button>

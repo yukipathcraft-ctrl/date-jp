@@ -67,8 +67,6 @@ export type Collection = {
   payments: Record<number, Payment>;
   /** 会社や部署から出た補助(円)。お会計の合計からこれを引いた額を、みんなで割った。前の集金にはない */
   subsidy?: number;
-  /** 経費精算の名簿と金額を買ったか(Stripe の支払いの id と日時)。買っていなければない */
-  pro?: { sessionId: string; at: string };
 };
 
 export type AdEventKind = "view" | "click";
@@ -96,6 +94,4 @@ export interface Store {
   getCollection(id: string): Promise<Collection | null>;
   /** null なら「まだ」に戻す */
   setPayment(collectionId: string, personId: number, payment: Payment | null): Promise<void>;
-  /** 経費精算の名簿と金額を買ったことを記録する */
-  markCollectionPaid(collectionId: string, sessionId: string): Promise<void>;
 }

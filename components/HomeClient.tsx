@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Beer, Briefcase, CalendarDays, ChevronDown, ChevronRight, CircleCheck, GraduationCap, Hourglass, ListChecks, Shuffle, Store, Wrench } from "lucide-react";
+import { ArrowRight, Beer, Briefcase, CalendarDays, ChevronDown, ChevronRight, CircleCheck, GraduationCap, Heart, Hourglass, ListChecks, Shuffle, Store, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { partyStatuses, type PartyStatus } from "@/app/actions";
@@ -93,7 +93,7 @@ function PartyGroup({
 
 /**
  * 学生・プライベート・会社で変えるところ。見出しの一言、2つの道具の説明、その下の小さな道具。
- * 会社だけの道具(経費精算・役職の順の席次)は、会社のときだけ出す
+ * 会社だけの道具(役職の順の席次)は、会社のときだけ出す
  */
 const HOME_BY_AUDIENCE: Record<
   Audience,
@@ -122,7 +122,7 @@ const HOME_BY_AUDIENCE: Record<
     shops: "個室・喫煙できるお店も",
     split: "会社の補助も、上司多めも",
     extras: [
-      { href: "/collect", label: "集金・経費精算", sub: "名簿と金額をそのまま", icon: "collect" },
+      { href: "/collect", label: "集金のチェック", sub: "誰が払ったかを確かめる", icon: "collect" },
       { href: "/seats", label: "役職の順に席次", sub: "上座から順に", icon: "seats" },
     ],
   },
@@ -338,7 +338,7 @@ export function HomeClient() {
         <div className="grid grid-cols-2 gap-2.5">
           <ToolTile href="/shops" icon={<Store className="size-6" aria-hidden />} title="お店を探す" sub={home.shops} />
           <ToolTile href="/split" icon={tierIcon} title="会計をする" sub={home.split} />
-          {/* 4つとも同じ大きさで並べる。会社のときだけ、経費精算と役職の順の席次になる */}
+          {/* 4つとも同じ大きさで並べる。会社のときだけ、役職の順の席次になる */}
           {home.extras.map((x) => (
             <ToolTile
               key={x.href}
@@ -356,11 +356,20 @@ export function HomeClient() {
         <HomeRow href="/history" icon={<CircleCheck className="size-4" aria-hidden />} title="これまでの会を見る" sub={`${past}件 ・ お店・人数・金額`} />
       )}
 
-            <p className="pt-2 text-center text-xs">
-        <Link href="/legal" className="inline-flex min-h-11 items-center text-white/60 underline underline-offset-2 hover:text-white/60">
-          特定商取引法に基づく表記
-        </Link>
-      </p>
+      {/* 応援(OFUSE)。見返りのない投げ銭なので、色を使わず控えめに置く */}
+      {process.env.SUPPORT_URL && (
+        <p className="pt-2 text-center text-xs">
+          <a
+            href={process.env.SUPPORT_URL}
+            target="_blank"
+            rel="noopener"
+            className="inline-flex min-h-11 items-center gap-1.5 font-bold text-white/60 underline underline-offset-2 hover:text-white/80"
+          >
+            <Heart className="size-3.5" aria-hidden />
+            Date を応援する(OFUSE)
+          </a>
+        </p>
+      )}
     </div>
   );
 }

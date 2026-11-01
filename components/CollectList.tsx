@@ -1,10 +1,9 @@
 "use client";
 
-import { ChevronRight, FileText, ListChecks, Wallet } from "lucide-react";
+import { ChevronRight, ListChecks, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { collectionProgress } from "@/app/actions";
-import { isFormal, loadAudience } from "@/lib/audience";
 import { loadMyCollections, type MyCollection } from "@/lib/myCollections";
 import { yen } from "@/lib/sendai";
 import { BUTTON_PRIMARY } from "./ui";
@@ -23,14 +22,10 @@ const STEPS = [
 export function CollectList() {
   const [items, setItems] = useState<MyCollection[] | null>(null);
   const [progress, setProgress] = useState<Record<string, Progress>>({});
-  const [company, setCompany] = useState(false);
 
   useEffect(() => {
     const list = loadMyCollections();
-    const a = loadAudience();
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCompany(a !== null && isFormal(a));
-     
     setItems(list);
     if (list.length === 0) return;
     collectionProgress(list.map((c) => c.id))
@@ -83,16 +78,6 @@ export function CollectList() {
                     </span>
                     <ChevronRight className="size-5 shrink-0 text-muted" aria-hidden />
                   </Link>
-                  {/* 会社に出す明細書へ、集金のページを通らずに飛べる(会社を選んでいる人だけ) */}
-                  {company && (
-                  <Link
-                    href={`/c/${c.id}/statement?token=${c.token}`}
-                    className="flex min-h-11 items-center gap-1.5 border-t border-border px-5 text-xs font-bold text-muted transition-colors hover:bg-surface-2/60 hover:text-text"
-                  >
-                    <FileText className="size-3.5 text-accent" aria-hidden />
-                    経費精算用の名簿と金額
-                  </Link>
-                  )}
                 </li>
               );
             })}
