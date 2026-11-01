@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Beer, Briefcase, CalendarDays, ChevronDown, ChevronRight, CircleCheck, Clock, GraduationCap, Hourglass, ListChecks, MapPin, Shuffle, Store, Wallet, Wrench } from "lucide-react";
+import { ArrowRight, Beer, Briefcase, CalendarDays, ChevronDown, ChevronRight, CircleCheck, GraduationCap, Hourglass, ListChecks, Shuffle, Store, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { partyStatuses, type PartyStatus } from "@/app/actions";
@@ -10,7 +10,6 @@ import { clock, dateLabel } from "@/lib/sendai";
 import { WEIGHTS } from "@/lib/split";
 import { Wordmark } from "./Logo";
 import { SplashIntro } from "./SplashIntro";
-import { SECTION_LABEL } from "./ui";
 
 
 type Phase = "loading" | "splash" | "choose" | "home";
@@ -24,8 +23,8 @@ function HomeRow({ href, icon, title, sub }: { href: string; icon: React.ReactNo
     >
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/6 text-accent">{icon}</span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[13px] font-black tracking-tight text-white/85">{title}</span>
-        <span className="mt-0.5 block truncate text-[10px] text-white/35">{sub}</span>
+        <span className="block truncate text-[15px] font-black tracking-tight text-white/90">{title}</span>
+        <span className="mt-0.5 block truncate text-xs font-medium text-white/60">{sub}</span>
       </span>
       <ChevronRight className="size-4 shrink-0 text-white/30" aria-hidden />
     </Link>
@@ -41,8 +40,8 @@ function ToolTile({ href, icon, title, sub }: { href: string; icon: React.ReactN
     >
       <span className="grid size-12 place-items-center rounded-xl border border-accent/40 text-accent">{icon}</span>
       <span>
-        <span className="block text-[13px] font-black tracking-tight text-white/85">{title}</span>
-        <span className="mt-0.5 block text-[10px] text-white/35">{sub}</span>
+        <span className="block text-[15px] font-black tracking-tight text-white/90">{title}</span>
+        <span className="mt-1 block text-xs font-medium text-white/60">{sub}</span>
       </span>
     </Link>
   );
@@ -50,8 +49,8 @@ function ToolTile({ href, icon, title, sub }: { href: string; icon: React.ReactN
 
 function SectionTitle({ children, icon }: { children: React.ReactNode; icon: React.ReactNode }) {
   return (
-    <h2 className={`${SECTION_LABEL} mb-3`}>
-      <span className="text-stone-500">{icon}</span>
+    <h2 className="mb-3 flex items-center gap-2 text-xs font-black tracking-[0.1em] text-stone-300">
+      <span className="text-stone-400">{icon}</span>
       {children}
     </h2>
   );
@@ -101,7 +100,7 @@ const HOME_BY_AUDIENCE: Record<
   { lead: string; shops: string; split: string; extras: { href: string; label: string; sub: string; icon: "collect" | "seats" }[] }
 > = {
   student: {
-    lead: "サークル・ゼミの飲み会を、URLひとつで",
+    lead: "仙台のサークル・ゼミの飲み会を、URLひとつで",
     shops: "学割・飲み放題のお店",
     split: "先輩多めの傾斜も割り勘も",
     extras: [
@@ -110,7 +109,7 @@ const HOME_BY_AUDIENCE: Record<
     ],
   },
   private: {
-    lead: "友達との飲み会を、URLひとつで",
+    lead: "仙台での友達との飲み会を、URLひとつで",
     shops: "飲み放題・個室のお店",
     split: "割り勘も、年上多めも",
     extras: [
@@ -119,7 +118,7 @@ const HOME_BY_AUDIENCE: Record<
     ],
   },
   worker: {
-    lead: "歓送迎会・忘年会を、URLひとつで",
+    lead: "仙台の歓送迎会・忘年会を、URLひとつで",
     shops: "個室・喫煙できるお店も",
     split: "会社の補助も、上司多めも",
     extras: [
@@ -129,13 +128,17 @@ const HOME_BY_AUDIENCE: Record<
   },
 };
 
-/** トップの見出しの下に並べる、みんなの答えから決まるもの */
-const HERO_ITEMS = [
-  { Icon: CalendarDays, label: "日にち" },
-  { Icon: Clock, label: "時間" },
-  { Icon: Wallet, label: "予算" },
-  { Icon: MapPin, label: "お店" },
+/**
+ * トップの見本。みんなの ○ △ × が集まると、いちばん行ける人が多い日に ★ が付く様子を見せる
+ * (アイコンを並べるより、開いてすぐ何ができるアプリか伝わるように)
+ */
+const SAMPLE_ROWS = [
+  { date: "11/7(金)", marks: "○○○○△", ok: 4, best: true },
+  { date: "11/8(土)", marks: "○○△××", ok: 2, best: false },
+  { date: "11/14(金)", marks: "○△×××", ok: 1, best: false },
 ] as const;
+
+const MARK_CLASS: Record<string, string> = { "○": "text-ok", "△": "text-white/60", "×": "text-white/30" };
 
 /**
  * 乾杯の演出を、アプリを開いたこの回にもう出したか。ページを読み込み直すと false に戻るので、
@@ -273,7 +276,7 @@ export function HomeClient() {
           type="button"
           onClick={() => setPhase("choose")}
           aria-label={`学生・プライベート・会社を選び直す(いまは${AUDIENCES[audience].label})`}
-          className="-mr-1 flex h-9 items-center gap-1 rounded-full px-3 text-[12px] font-bold text-white/70 ring-1 ring-white/20 transition hover:text-white hover:ring-white/40 active:scale-95"
+          className="-mr-1 flex h-11 items-center gap-1 rounded-full px-4 text-[13px] font-bold text-white/80 ring-1 ring-white/20 transition hover:text-white hover:ring-white/40 active:scale-95"
         >
           {AUDIENCES[audience].label}
           <ChevronDown className="size-3.5" aria-hidden />
@@ -283,23 +286,31 @@ export function HomeClient() {
       {/* 会をつくる。ここだけ金の光をまとわせ、日にち・時間・予算・お店が決まる流れを見せる */}
       <Link href="/new" className="hero block overflow-hidden rounded-3xl transition active:scale-[0.99]">
         <div className="flex flex-col px-6 pt-7 pb-6">
-          <ul className="flex items-end justify-center" aria-label="みんなの答えから決まること">
-            {HERO_ITEMS.map(({ Icon, label }, i) => (
-              <li key={label} className="flex items-center">
-                {i > 0 && <span aria-hidden className="mx-1.5 mb-5 h-px w-3 bg-white/10" />}
-                <span className="anim-stagger flex flex-col items-center gap-1.5" style={{ "--i": i + 2 } as React.CSSProperties}>
-                  <span className="grid size-11 place-items-center rounded-xl border border-white/8 bg-white/4 text-accent/80">
-                    <Icon className="size-5" aria-hidden />
-                  </span>
-                  <span className="text-[9px] font-bold text-white/40">{label}</span>
+          <ul className="space-y-1" aria-label="見本: みんなの答えから、いちばん行ける人が多い日に★">
+            {SAMPLE_ROWS.map((r, i) => (
+              <li
+                key={r.date}
+                style={{ "--i": i + 2 } as React.CSSProperties}
+                className={`anim-stagger flex min-h-9 items-center gap-3 rounded-xl px-3 text-[13px] font-bold ${
+                  r.best ? "bg-match-soft text-match-text ring-1 ring-accent/50" : "text-white/60"
+                }`}
+              >
+                <span className="w-[4.5rem] shrink-0">{r.date}</span>
+                <span className="flex-1 tracking-[0.15em]" aria-label={`○${r.ok}人`}>
+                  {[...r.marks].map((m, j) => (
+                    <span key={j} className={MARK_CLASS[m]}>
+                      {m}
+                    </span>
+                  ))}
                 </span>
+                <span className="shrink-0 text-xs">{r.best ? "★ この日" : `○${r.ok}人`}</span>
               </li>
             ))}
           </ul>
-          <p className="mt-5 text-[22px] font-black tracking-tight text-white">飲み会をつくる</p>
-          <p className="mt-1 text-[11px] font-semibold text-white/40">{home.lead}</p>
+          <p className="mt-6 text-[22px] font-black tracking-tight text-white">飲み会をつくる</p>
+          <p className="mt-1 text-[13px] font-medium text-white/60">{home.lead}</p>
           <span className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 text-[14px] font-black tracking-tight text-black">
-            会をつくる
+            URLをつくる
             <ArrowRight className="size-4" aria-hidden />
           </span>
         </div>
@@ -345,9 +356,8 @@ export function HomeClient() {
         <HomeRow href="/history" icon={<CircleCheck className="size-4" aria-hidden />} title="これまでの会を見る" sub={`${past}件 ・ お店・人数・金額`} />
       )}
 
-      <p className="pt-2 text-center text-[10px] font-bold tracking-[0.2em] text-white/25">仙台限定</p>
-      <p className="text-center text-[10px]">
-        <Link href="/legal" className="text-white/30 underline underline-offset-2 hover:text-white/60">
+            <p className="pt-2 text-center text-xs">
+        <Link href="/legal" className="inline-flex min-h-11 items-center text-white/60 underline underline-offset-2 hover:text-white/60">
           特定商取引法に基づく表記
         </Link>
       </p>
