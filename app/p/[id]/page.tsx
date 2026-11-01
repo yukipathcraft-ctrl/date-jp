@@ -4,7 +4,6 @@ import { connection } from "next/server";
 import { AnswerPanel } from "@/components/AnswerPanel";
 import { DecisionCard } from "@/components/DecisionCard";
 import { Fold } from "@/components/Fold";
-import { GreetingCard } from "@/components/GreetingCard";
 import { NextHost } from "@/components/NextHost";
 import { SecondPartyShops } from "@/components/SecondPartyShops";
 import { ShopList } from "@/components/ShopList";
@@ -46,8 +45,6 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
         <div className={party.decision ? "mt-4" : ""}>
           <AnswerPanel partyId={party.id} dates={party.dates} audience={party.audience} start={party.start} occasion={occasion} />
         </div>
-        {/* 決まったら、乾杯と締めの挨拶の文(乾杯の音頭は幹事以外が取ることも多いので、みんなの画面にも出す) */}
-        {party.decision && <GreetingCard title={party.title} audience={party.audience} />}
         {/* 決まったあとは、みんなの答えはたたんでおく。お店まで決まったら、ほかの候補のお店は出さない */}
         {party.decision ? (
           <Fold title={`みんなの答え(${summary.answered}人)`} note="日にち・時間・予算・場所">

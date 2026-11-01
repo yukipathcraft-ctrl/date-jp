@@ -5,7 +5,6 @@ import { AdminPanel } from "@/components/AdminPanel";
 import { AnswerPanel } from "@/components/AnswerPanel";
 import { DecisionCard } from "@/components/DecisionCard";
 import { Fold } from "@/components/Fold";
-import { GreetingCard } from "@/components/GreetingCard";
 import { SecondPartyShops } from "@/components/SecondPartyShops";
 import { ShopList } from "@/components/ShopList";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -75,8 +74,6 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
           names={summary.names}
           must={party.must}
         />
-        {/* 決まったら、乾杯と締めの挨拶の文 */}
-        {party.decision && <GreetingCard title={party.title} audience={party.audience} />}
         {created === "1" && (
           <div className="mt-4">
             <AnswerPanel host hostOpen partyId={party.id} dates={party.dates} audience={party.audience} start={party.start} occasion="" />
