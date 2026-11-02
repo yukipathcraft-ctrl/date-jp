@@ -133,12 +133,27 @@ const HOME_BY_AUDIENCE: Record<
  * (アイコンを並べるより、開いてすぐ何ができるアプリか伝わるように)
  */
 const SAMPLE_ROWS = [
-  { date: "11/7(金)", marks: "○○○○△", ok: 4, best: true },
-  { date: "11/8(土)", marks: "○○△××", ok: 2, best: false },
-  { date: "11/14(金)", marks: "○△×××", ok: 1, best: false },
+  { marks: "○○○○△", ok: 4, best: true },
+  { marks: "○○△××", ok: 2, best: false },
+  { marks: "○△×××", ok: 1, best: false },
 ] as const;
 
-const MARK_CLASS: Record<string, string> = { "○": "text-ok", "△": "text-white/60", "×": "text-white/30" };
+/** ○ は金の丸、△ は白の縁、× は薄い文字。色だけでなく記号でも分かるようにする */
+const MARK_CLASS: Record<string, string> = {
+  "○": "bg-ok text-black",
+  "△": "ring-1 ring-white/40 text-white/80",
+  "×": "text-white/40",
+};
+
+/** 見本の日付。開いた日から見て次の金曜(3日以上先)、その土曜、翌週の金曜。いつ開いても先の日になる */
+function sampleDates(today: string): string[] {
+  const [y, m, d] = today.split("-").map(Number);
+  const base = new Date(Date.UTC(y, m - 1, d));
+  let ahead = (5 - base.getUTCDay() + 7) % 7;
+  if (ahead < 3) ahead += 7;
+  const at = (n: number) => new Date(base.getTime() + n * 86400000).toISOString().slice(0, 10);
+  return [at(ahead), at(ahead + 1), at(ahead + 7)];
+}
 
 /**
  * 乾杯の演出を、アプリを開いたこの回にもう出したか。ページを読み込み直すと false に戻るので、
@@ -286,24 +301,29 @@ export function HomeClient() {
       {/* 会をつくる。ここだけ金の光をまとわせ、日にち・時間・予算・お店が決まる流れを見せる */}
       <Link href="/new" className="hero block overflow-hidden rounded-3xl transition active:scale-[0.99]">
         <div className="flex flex-col px-6 pt-7 pb-6">
-          <ul className="space-y-1" aria-label="見本: みんなの答えから、いちばん行ける人が多い日に★">
+          <p className="mb-2 text-xs font-bold text-white/60">見本 ・ みんなの答えから日が決まる</p>
+          <ul className="space-y-1.5" aria-label="見本: みんなの答えから、いちばん行ける人が多い日に★">
             {SAMPLE_ROWS.map((r, i) => (
               <li
-                key={r.date}
+                key={i}
                 style={{ "--i": i + 2 } as React.CSSProperties}
-                className={`anim-stagger flex min-h-9 items-center gap-3 rounded-xl px-3 text-[13px] font-bold ${
-                  r.best ? "bg-match-soft text-match-text ring-1 ring-accent/50" : "text-white/60"
+                className={`anim-stagger flex min-h-11 items-center gap-2 rounded-xl px-3 ${
+                  r.best ? "bg-match-soft ring-1 ring-accent/60" : "bg-white/4"
                 }`}
               >
-                <span className="w-[4.5rem] shrink-0">{r.date}</span>
-                <span className="flex-1 tracking-[0.15em]" aria-label={`○${r.ok}人`}>
+                <span className={`w-[4.75rem] shrink-0 text-sm font-black ${r.best ? "text-match-text" : "text-white/85"}`}>
+                  {today ? dateLabel(sampleDates(today)[i]) : ""}
+                </span>
+                <span className="flex flex-1 gap-1" aria-label={`行ける${r.ok}人`}>
                   {[...r.marks].map((m, j) => (
-                    <span key={j} className={MARK_CLASS[m]}>
+                    <span key={j} aria-hidden className={`grid size-6 place-items-center rounded-full text-xs font-black ${MARK_CLASS[m]}`}>
                       {m}
                     </span>
                   ))}
                 </span>
-                <span className="shrink-0 text-xs">{r.best ? "★ この日" : `○${r.ok}人`}</span>
+                <span className={`shrink-0 text-xs font-black ${r.best ? "text-match-text" : "text-white/60"}`}>
+                  {r.best ? "★ この日" : `${r.ok}人`}
+                </span>
               </li>
             ))}
           </ul>
