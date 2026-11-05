@@ -1,5 +1,6 @@
 import { summarizeDiet, type DietSummary } from "./diet";
 import { AREAS, FIRST_PARTY_MINUTES, GENRES, type AreaKey, type GenreKey } from "./sendai";
+import { meetingStation, stationVotes, type Station } from "./stations";
 
 // みんなの回答から、日・時刻・予算・場所・残れる人を決める。純粋関数
 
@@ -15,7 +16,10 @@ export type Answer = {
   stay: number;
   /** 1人あたりの予算の上限(円) */
   budget: number;
+  /** 前の答えの、仙台の決まったエリア。今は station で答える */
   areas: AreaKey[];
+  /** 行きやすい駅。なければ「どこでもいい」 */
+  station?: Station | null;
   /** ひとこと。みんなに見える(予定の事情や、2次会は無理など) */
   memo?: string;
   /** 苦手なもの・アレルギー(lib/diet.ts の key)。人数だけを出し、誰が選んだかは出さない */
@@ -66,6 +70,10 @@ export type Summary = {
   budget: number | null;
   area: AreaKey | null;
   areaVotes: { key: AreaKey; votes: number }[];
+  /** 行く人の駅から決めた、みんなが集まりやすい駅。誰も駅を選んでいなければ null */
+  meeting: Station | null;
+  /** 駅ごとの人数(誰かは持たない) */
+  stationVotes: { station: Station; votes: number }[];
   /** 行く人の食べたいもの(多い順) */
   likes: { key: GenreKey; label: string; votes: number }[];
 };
@@ -136,6 +144,8 @@ export function summarize(dates: string[], answers: Answer[], fixedDate?: string
     budget: going.length > 0 ? Math.min(...going.map((a) => a.budget)) : null,
     area: topArea?.key ?? null,
     areaVotes: areaVotes.sort((x, y) => y.votes - x.votes),
+    meeting: meetingStation(going.flatMap((a) => (a.station ? [a.station] : []))),
+    stationVotes: stationVotes(going.flatMap((a) => (a.station ? [a.station] : []))),
     likes: GENRES.map((g) => ({ key: g.key, label: g.label, votes: going.filter((a) => a.likes?.includes(g.key)).length }))
       .filter((g) => g.votes > 0)
       .sort((x, y) => y.votes - x.votes),

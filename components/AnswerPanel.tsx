@@ -7,9 +7,10 @@ import { useEffect, useState, useTransition } from "react";
 import { getMyAnswer, saveAnswer } from "@/app/actions";
 import { AUDIENCES, isAdult, type Audience } from "@/lib/audience";
 import { AVOIDS } from "@/lib/diet";
-import { ANSWER_BUDGETS, AREAS, GENRES, STAY_CHOICES, UNLIMITED_BUDGET, clock, dateLabel, stayLabel, yen, type AreaKey } from "@/lib/sendai";
+import { ANSWER_BUDGETS, GENRES, STAY_CHOICES, UNLIMITED_BUDGET, clock, dateLabel, stayLabel, yen } from "@/lib/sendai";
 import { AddPicker } from "./AddPicker";
 import { Picker } from "./Picker";
+import { StationPicker } from "./StationPicker";
 import type { DateAnswer } from "@/lib/summary";
 import { MAX_AVOID_NOTE, MAX_MEMO, type AnswerInput } from "@/lib/validation";
 import { Required } from "./Required";
@@ -180,8 +181,6 @@ export function AnswerPanel({
   // 続けて押しても前の選択が消えないよう、いつも最新の値から作る
   const set = (patch: Partial<AnswerInput>) => setForm((f) => ({ ...f, ...patch }));
   const setDate = (d: string, v: DateAnswer) => setForm((f) => ({ ...f, dates: { ...f.dates, [d]: v } }));
-  const toggleArea = (k: AreaKey) =>
-    setForm((f) => ({ ...f, areas: f.areas.includes(k) ? f.areas.filter((a) => a !== k) : [...f.areas, k] }));
   const toggleLike = (k: string) =>
     setForm((f) => {
       const cur = f.likes ?? [];
@@ -205,7 +204,6 @@ export function AnswerPanel({
           : form.budget === 0
             ? "どのくらいのお店がいいかを選んでください"
             : null;
-  const areas = opts.areas.map((k) => AREAS.find((a) => a.key === k)!);
 
   return (
     <section>
@@ -349,19 +347,11 @@ export function AnswerPanel({
           <legend className="sr-only">行きやすい場所</legend>
           <p className={LABEL} aria-hidden>
             <MapPin className="size-4" />
-            行きやすい場所 <span className="font-normal">(いくつでも)</span>
+            行きやすい駅
           </p>
-          <div className="flex flex-wrap gap-2">
-            {/* どこでもいい人は場所を選ばない(場所はほかの人の答えで決まる) */}
-            <Choice on={form.areas.length === 0} onClick={() => set({ areas: [] })}>
-              どこでもいい
-            </Choice>
-            {areas.map((a) => (
-              <Choice key={a.key} on={form.areas.includes(a.key)} onClick={() => toggleArea(a.key)}>
-                {a.label}
-              </Choice>
-            ))}
-          </div>
+          {/* 駅は全国から選べる。みんなの駅から、集まりやすい駅の近くでお店を探す */}
+          <StationPicker value={form.station ?? null} onChange={(station) => set({ station, areas: [] })} />
+          <p className="mt-3 text-xs text-muted">みんなの駅から集まりやすい駅を自動で決定</p>
         </fieldset>
 
         {/* お酒と、苦手なもの・アレルギー。幹事に言い出しにくいことを、答えと一緒に聞く */}

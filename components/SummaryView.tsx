@@ -99,8 +99,13 @@ export function SummaryView({ summary }: { summary: Summary }) {
     {
       icon: MapPin,
       label: "場所",
-      value: summary.area ? areaLabel(summary.area) : "どこでもOK",
-      sub: summary.area ? summary.areaVotes.map((v) => `${areaLabel(v.key)} ${v.votes}`).join(" / ") : "全員どこでもOK",
+      // 駅で答えた人がいれば、みんなが集まりやすい駅。前の答え(仙台のエリア)だけなら、エリア
+      value: summary.meeting ? `${summary.meeting.name}駅` : summary.area ? areaLabel(summary.area) : "どこでもOK",
+      sub: summary.meeting
+        ? `集まりやすい駅 ・ ${summary.stationVotes.map((v) => `${v.station.name} ${v.votes}`).join(" / ")}`
+        : summary.area
+          ? summary.areaVotes.map((v) => `${areaLabel(v.key)} ${v.votes}`).join(" / ")
+          : "全員どこでもOK",
     },
     {
       icon: Moon,

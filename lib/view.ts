@@ -31,6 +31,7 @@ export async function loadParty(id: string): Promise<(PartyView & { adminHash: s
   const budget = summary.budget !== null && summary.budget >= UNLIMITED_BUDGET ? null : summary.budget;
   const query = {
     area,
+    point: summary.meeting,
     // 全員が「上限なし」なら、予算で絞らない
     budget,
     size: summary.attendees.length,
@@ -45,7 +46,11 @@ export async function loadParty(id: string): Promise<(PartyView & { adminHash: s
     ? [
         `${summary.attendees.length}人`,
         budget === null ? "金額はどこでもOK" : `1人${budget.toLocaleString("ja-JP")}円くらいまで`,
-        summary.area ? areaLabel(area) : `場所はどこでもOK(${areaLabel(area)})`,
+        summary.meeting
+          ? `${summary.meeting.name}駅の近く`
+          : summary.area
+            ? areaLabel(area)
+            : `場所はどこでもOK(${areaLabel(area)})`,
         ...(byLikes ? [`${summary.likes.filter((l) => genres.includes(l.key)).map((l) => l.label).join("・")}が食べたい人が多い`] : []),
         ...(summary.diet.smokers > 0 ? ["タバコが吸えるお店を先に"] : []),
       ]

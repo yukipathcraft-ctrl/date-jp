@@ -36,6 +36,8 @@ export const smokeFriendly = (s: Shop) => s.smoking === "ok" || s.smoking === "p
 
 export type ShopQuery = {
   area: AreaKey;
+  /** 集まりやすい駅の場所。あれば area の場所の代わりにここで探す(仙台の外でも探せる) */
+  point?: { lat: number; lng: number } | null;
   /** 予算の上限。null なら指定なし */
   budget: number | null;
   size: number;
@@ -231,7 +233,7 @@ async function callHotpepper(key: string, params: Record<string, string>): Promi
 export async function searchShops(q: ShopQuery, limit = 3): Promise<{ shops: Shop[]; otherArea: boolean }> {
   const key = cleanEnv(process.env.HOTPEPPER_API_KEY);
   if (!key) return pickSamples(q, limit);
-  const area = AREAS.find((a) => a.key === q.area)!;
+  const area = q.point ?? AREAS.find((a) => a.key === q.area)!;
   try {
     // 予算は API に渡すと2つの価格帯しか選べず、安いお店が抜けるので、多めに取ってからこちらで上限を切る
     const params = {

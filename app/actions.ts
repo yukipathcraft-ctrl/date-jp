@@ -9,6 +9,7 @@ import type { Decision } from "@/lib/store/types";
 import { findSponsor } from "@/lib/sponsors";
 import { loadParty } from "@/lib/view";
 import { summarize } from "@/lib/summary";
+import { normalizeStationQuery, type Station } from "@/lib/stations";
 import { generateGroupId, generateToken, hashToken, verifyToken } from "@/lib/tokens";
 import { parseAnswer, parseParty, type AnswerInput } from "@/lib/validation";
 
@@ -65,7 +66,7 @@ export async function saveAnswer(
 export async function getMyAnswer(partyId: string, answerId: string, token: string): Promise<AnswerInput | null> {
   const answer = (await getStore().listAnswers(partyId)).find((a) => a.id === answerId);
   if (!answer || !verifyToken(token, answer.tokenHash)) return null;
-  const { name, dates, arrival, stay, budget, areas, memo, avoids, drinks, smokes, likes, avoidNote } = answer;
+  const { name, dates, arrival, stay, budget, areas, station, memo, avoids, drinks, smokes, likes, avoidNote } = answer;
   return {
     name,
     dates,
@@ -73,6 +74,7 @@ export async function getMyAnswer(partyId: string, answerId: string, token: stri
     stay,
     budget,
     areas,
+    station: station ?? null,
     ...(memo ? { memo } : {}),
     avoids: avoids ?? [],
     drinks: drinks !== false,
@@ -240,7 +242,10 @@ export async function findSecondShops(
   const decision = party.decision!;
   const first = decision.shopId ? await findShop(decision.shopId) : null;
   const area = AREAS.find((a) => a.key === summary.area) ?? AREAS[0];
-  const base = first?.lat != null && first.lng != null ? { lat: first.lat, lng: first.lng } : { lat: area.lat, lng: area.lng };
+  const base =
+    first?.lat != null && first.lng != null
+      ? { lat: first.lat, lng: first.lng }
+      : summary.meeting ?? { lat: area.lat, lng: area.lng };
   const size = summary.secondParty.length || summary.attendees.length;
   const shops = await searchSecondShops({
     ...base,
@@ -249,7 +254,36 @@ export async function findSecondShops(
     exclude: decision.shopId,
     area: area.key,
   });
-  return { shops, size, near: first?.lat != null ? (decision.shopName ?? first.name) : area.label };
+  return {
+    shops,
+    size,
+    near: first?.lat != null ? (decision.shopName ?? first.name) : summary.meeting ? `${summary.meeting.name}駅` : area.label,
+  };
+}
+
+/**
+ * 駅名から駅を探す(全国)。HeartRails Express の無料の駅データを使う。
+ * 同じ駅の路線ちがいは1つにまとめ、名前と都道府県と場所だけを返す
+ */
+export async function searchStations(query: string): Promise<Station[]> {
+  const q = typeof query === "string" ? normalizeStationQuery(query) : "";
+  if (!q) return [];
+  try {
+    const res = await fetch(`https://express.heartrails.com/api/json?method=getStations&name=${encodeURIComponent(q)}`, {
+      next: { revalidate: 60 * 60 * 24 },
+    });
+    if (!res.ok) return [];
+    const body = (await res.json()) as { response?: { station?: { name: string; prefecture: string; x: number; y: number }[] } };
+    const out: Station[] = [];
+    for (const s of body.response?.station ?? []) {
+      if (out.some((o) => o.name === s.name && o.pref === s.prefecture)) continue;
+      out.push({ name: s.name, pref: s.prefecture, lat: Number(s.y), lng: Number(s.x) });
+    }
+    return out.slice(0, 8);
+  } catch (e) {
+    console.error("[stations] 駅を探せませんでした", e);
+    return [];
+  }
 }
 
 /** 広告が画面に出たことを数える。lib/sponsors.ts にある広告だけを数える */
