@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { connection } from "next/server";
 import { AnswerPanel } from "@/components/AnswerPanel";
 import { DecisionCard } from "@/components/DecisionCard";
@@ -30,6 +31,9 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
   const view = await loadParty(id);
   if (!view) notFound();
   const { party, summary, shops, otherArea } = view;
+  // カレンダーの予定に入れる、この会のページの URL
+  const h = await headers();
+  const pageUrl = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("x-forwarded-host") ?? h.get("host")}/p/${party.id}`;
   // 答えた人を次の幹事に誘うときの、その時期の会の呼び方(忘年会・新歓など)
   const occasion = nextOccasion(monthInJapan(new Date()), party.audience);
 
@@ -41,7 +45,7 @@ export default async function PartyPage(props: PageProps<"/p/[id]">) {
           <p className="text-sm font-bold text-muted">飲み会の日程とお店{party.start !== null ? ` ・ ${clock(party.start)}から` : ""}</p>
           <h1 className="mt-1 text-[22px] font-black tracking-tight">{party.title}</h1>
         </div>
-        {party.decision && <DecisionCard decision={party.decision} partyId={party.id} />}
+        {party.decision && <DecisionCard decision={party.decision} partyId={party.id} title={party.title} url={pageUrl} />}
         <div className={party.decision ? "mt-4" : ""}>
           <AnswerPanel partyId={party.id} dates={party.dates} audience={party.audience} start={party.start} occasion={occasion} />
         </div>

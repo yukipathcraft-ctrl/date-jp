@@ -60,3 +60,13 @@ export function collectText(title: string, url: string, audience: Audience = "st
 export function decidedText(title: string, date: string, start: number, shopName: string | null, url: string): string {
   return [`「${title}」決まりました`, `${dateLabel(date)} ${clock(start)}〜${shopName ? ` ${shopName}` : ""}`, url].join("\n");
 }
+
+/** 前日のお知らせ。グループに送るので、名前は出さない */
+export function dayBeforeText(title: string, date: string, start: number, shopName: string | null, url: string): string {
+  return [`明日は「${title}」`, `${dateLabel(date)} ${clock(start)}〜${shopName ? ` ${shopName}` : ""}`, "場所と地図はこちら", url].join("\n");
+}
+
+/** まだ答えていない人に、もう一度お願いする文。誰がまだかは書かない(グループに送るので、名指しにしない) */
+export function answerNudgeText(title: string, url: string, answered: number): string {
+  return [`「${title}」の日程、いま${answered}人が回答済み`, "まだの人は30秒で入れてください", url].join("\n");
+}

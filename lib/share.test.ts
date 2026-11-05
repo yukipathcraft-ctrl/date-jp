@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { collectText, inviteText, reminderText, teamsShareUrl } from "./share";
+import { answerNudgeText, collectText, dayBeforeText, inviteText, reminderText, teamsShareUrl } from "./share";
 
 describe("reminderText", () => {
   it("まだの人の名前と金額だけを並べる", () => {
@@ -39,5 +39,19 @@ describe("プライベートの会", () => {
     expect(reminderText("private", "", [{ name: "山田", amount: 3000 }]).startsWith("この前の飲み会のお会計、まだの人お願いします")).toBe(true);
     expect(reminderText("worker", "", [{ name: "山田", amount: 3000 }]).startsWith("お疲れさまです。")).toBe(true);
     expect(collectText("同期会", "https://x", "private")).toBe("「同期会」のお会計です\n自分の金額を見て、幹事に払ってね\nhttps://x");
+  });
+});
+
+describe("dayBeforeText", () => {
+  it("明日の会の日時とお店と URL", () => {
+    expect(dayBeforeText("忘年会", "2026-11-13", 1140, "有頂天", "https://x")).toBe(
+      "明日は「忘年会」\n11/13(金) 19:00〜 有頂天\n場所と地図はこちら\nhttps://x",
+    );
+  });
+});
+
+describe("answerNudgeText", () => {
+  it("答えた人数だけを書き、誰がまだかは書かない", () => {
+    expect(answerNudgeText("忘年会", "https://x", 3)).toBe("「忘年会」の日程、いま3人が回答済み\nまだの人は30秒で入れてください\nhttps://x");
   });
 });

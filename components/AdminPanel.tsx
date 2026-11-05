@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { decide } from "@/app/actions";
 import { dateLabel } from "@/lib/sendai";
-import { decidedText, inviteText } from "@/lib/share";
+import { answerNudgeText, dayBeforeText, decidedText, inviteText } from "@/lib/share";
 import type { Shop } from "@/lib/shops";
 import type { Decision } from "@/lib/store/types";
 import type { DateRank } from "@/lib/summary";
@@ -32,6 +32,8 @@ type Props = {
   /** 答えた人の名前と、そのうち幹事が「必ず来てほしい」にした人 */
   names: string[];
   must: string[];
+  /** 決めた日に「たぶん」の人の数(予約の人数の目安に使う) */
+  maybes: number;
 };
 
 /** 「幹事が決める」の中の小見出し。選ぶものごとに色(tier-*)を変え、アイコンを添える */
@@ -64,7 +66,7 @@ function BoxHead({ icon, title, note, tone }: { icon: React.ReactNode; title: st
   );
 }
 
-export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees, start: partyStart, names, must }: Props) {
+export function AdminPanel({ partyId, title, token, created, ranking, bestDate, shops, decision, attendees, start: partyStart, names, must, maybes }: Props) {
   const router = useRouter();
   const [origin, setOrigin] = useState("");
   const canShare = useCanShare();
@@ -86,6 +88,8 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
   const adminUrl = `${origin}/p/${partyId}/admin?token=${token}`;
   const adminNote = `「${title}」の幹事用URL(自分用)`;
   const decidedMessage = decision ? decidedText(title, decision.date, decision.start, decision.shopName, guestUrl) : "";
+  const dayBeforeMessage = decision ? dayBeforeText(title, decision.date, decision.start, decision.shopName, guestUrl) : "";
+  const nudgeMessage = answerNudgeText(title, guestUrl, names.length);
 
   function submit(choice: { date: string; shopId: string | null } | null) {
     setError(null);
@@ -111,6 +115,14 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
           copy={guestUrl}
           canShare={canShare}
         />
+        {/* 返事が来ないのが幹事のいちばんの悩み。答えた人数を添えて、もう一度お願いする(誰がまだかは書かない) */}
+        {!decision && names.length > 0 && (
+          <div className="mt-5 border-t border-border pt-4">
+            <p className="text-sm font-bold">まだの人にもう一度送る</p>
+            <p className="mt-0.5 text-xs text-muted">いま{names.length}人が回答済み ・ 名前は出さない文</p>
+            <SendButtons mainLabel="共有してお願いを送る" share={{ text: nudgeMessage }} copy={nudgeMessage} copyLabel="送る文をコピー" canShare={canShare} />
+          </div>
+        )}
         {/* 幹事用の URL は、いつも使うものではないのでたたむ */}
         {/* 作った直後だけは開いておき、幹事用の URL を自分に残してもらう */}
         <details open={created} className="group mt-4 rounded-2xl bg-surface-2 px-4 py-2">
@@ -155,6 +167,11 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             決まったことを知らせる
           </p>
           <p className="mt-1 text-sm text-muted">日にち・時間・お店入りの案内文</p>
+          {/* お店に予約するときの人数の目安。「たぶん」の人は別に数える */}
+          <p className="mt-3 rounded-xl bg-surface-2 px-4 py-3 text-sm">
+            予約の人数: <span className="font-black">{attendees.length}人</span>
+            {maybes > 0 && <span className="text-muted">(たぶんの人を入れると{attendees.length + maybes}人)</span>}
+          </p>
           <SendButtons
             mainLabel="共有して「決まったよ」を送る"
             share={{ text: decidedMessage }}
@@ -162,6 +179,11 @@ export function AdminPanel({ partyId, title, token, created, ranking, bestDate, 
             copyLabel="送る文をコピー"
             canShare={canShare}
           />
+          <div className="mt-5 border-t border-border pt-4">
+            <p className="text-sm font-bold">前日のお知らせ</p>
+            <p className="mt-0.5 text-xs text-muted">会の前の日に、グループへ</p>
+            <SendButtons mainLabel="共有して前日のお知らせを送る" share={{ text: dayBeforeMessage }} copy={dayBeforeMessage} copyLabel="送る文をコピー" canShare={canShare} />
+          </div>
           <div className="mt-5 border-t border-border pt-4" />
           <button
             type="button"

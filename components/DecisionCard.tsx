@@ -1,4 +1,5 @@
-import { ExternalLink, MapPin, PartyPopper, Store } from "lucide-react";
+import { CalendarPlus, ExternalLink, MapPin, PartyPopper, Store } from "lucide-react";
+import { googleCalendarUrl } from "@/lib/calendar";
 import { mapsUrl } from "@/lib/maps";
 import { clock, dateLabel } from "@/lib/sendai";
 import type { Decision } from "@/lib/store/types";
@@ -10,7 +11,9 @@ import { PrNote } from "./PrNote";
 /** 見本のお店(s1, s2…)は実在しないので、予約や地図のリンクを出さない */
 const isSampleShop = (id: string) => /^s\d+$/.test(id);
 
-export function DecisionCard({ decision, partyId }: { decision: Decision; partyId: string }) {
+/** title = 会の名前、url = 会のページ(カレンダーの予定に入れる) */
+export function DecisionCard({ decision, partyId, title, url }: { decision: Decision; partyId: string; title: string; url: string }) {
+  const calendar = { title, date: decision.date, start: decision.start, location: decision.shopName, url };
   const shop = decision.shopId && decision.shopName ? { id: decision.shopId, name: decision.shopName } : null;
   return (
     <section className="anim-rise mx-4 rounded-3xl border border-match bg-match-soft px-4 py-6">
@@ -54,6 +57,26 @@ export function DecisionCard({ decision, partyId }: { decision: Decision; partyI
       ) : (
         <p className="mt-1 text-center text-sm text-muted">お店は未定</p>
       )}
+      {/* カレンダーに入れると、前日のお知らせは各自のスマホが出す(Date は連絡先を持たない) */}
+      <p className="mt-4 text-center text-xs font-bold text-match-text">カレンダーに入れる</p>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <a
+          href={googleCalendarUrl(calendar)}
+          target="_blank"
+          rel="noopener"
+          className="flex min-h-11 items-center justify-center gap-1 rounded-xl bg-bg/50 px-2 text-sm font-bold"
+        >
+          <CalendarPlus className="size-4" aria-hidden />
+          Google
+        </a>
+        <a
+          href={`/p/${partyId}/calendar.ics`}
+          className="flex min-h-11 items-center justify-center gap-1 rounded-xl bg-bg/50 px-2 text-sm font-bold"
+        >
+          <CalendarPlus className="size-4" aria-hidden />
+          iPhone
+        </a>
+      </div>
     </section>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { connection } from "next/server";
 import { AdminPanel } from "@/components/AdminPanel";
 import { AnswerPanel } from "@/components/AnswerPanel";
@@ -24,6 +25,9 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
   const view = await loadParty(id);
   if (!view) notFound();
   const { party, summary, shops, otherArea, adminHash } = view;
+  // カレンダーの予定に入れる、この会のページの URL
+  const h = await headers();
+  const pageUrl = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("x-forwarded-host") ?? h.get("host")}/p/${party.id}`;
 
   if (typeof token !== "string" || !verifyToken(token, adminHash)) {
     return (
@@ -50,7 +54,7 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
         </div>
         {party.decision && (
           <div className="mb-4">
-            <DecisionCard decision={party.decision} partyId={party.id} />
+            <DecisionCard decision={party.decision} partyId={party.id} title={party.title} url={pageUrl} />
           </div>
         )}
         {/* 幹事も自分の予定を入れたり直したりできるように、ここに置く(日にちを決めたあとも、お酒を飲むかなどを直せる)。
@@ -72,6 +76,7 @@ export default async function AdminPage(props: PageProps<"/p/[id]/admin">) {
           attendees={summary.attendees.map((a) => ({ name: a.name, soft: a.soft }))}
           start={party.start}
           names={summary.names}
+          maybes={summary.maybes.length}
           must={party.must}
         />
         {created === "1" && (
