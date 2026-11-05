@@ -14,9 +14,9 @@ const jp = Noto_Sans_JP({
 const logo = Poppins({ weight: "700", subsets: ["latin"], display: "swap", variable: "--font-poppins" });
 
 export const metadata: Metadata = {
-  title: { default: "Date | 仙台の飲み会セッティング", template: "%s | Date" },
+  title: { default: "Date | 飲み会セッティング", template: "%s | Date" },
   description:
-    "URLをLINEに貼ってみんなが30秒で答えるだけで、仙台での飲み会の日にちと予算とお店が決まります",
+    "URLをLINEに貼ってみんなが30秒で答えるだけで、飲み会の日にちと予算とお店が決まります",
   applicationName: "Date",
   appleWebApp: { title: "Date", statusBarStyle: "black-translucent", capable: true },
 };

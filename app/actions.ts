@@ -2,14 +2,14 @@
 
 import { AUDIENCES, isAudience } from "@/lib/audience";
 import { canSetPayment, isConfirmed, parseCollection, type CollectionInput } from "@/lib/collection";
-import { AREAS, isAreaKey, isBudget, isGenreKey, isSecondGenreKey } from "@/lib/sendai";
-import { findShop, mergeShops, searchSecondShops, searchShops, type Shop } from "@/lib/shops";
+import { AREAS, isBudget, isGenreKey, isSecondGenreKey } from "@/lib/sendai";
+import { findShop, searchSecondShops, searchShops, type Shop } from "@/lib/shops";
 import { getStore } from "@/lib/store";
 import type { Decision } from "@/lib/store/types";
 import { findSponsor } from "@/lib/sponsors";
 import { loadParty } from "@/lib/view";
 import { summarize } from "@/lib/summary";
-import { normalizeStationQuery, type Station } from "@/lib/stations";
+import { isStation, normalizeStationQuery, type Station } from "@/lib/stations";
 import { generateGroupId, generateToken, hashToken, verifyToken } from "@/lib/tokens";
 import { parseAnswer, parseParty, type AnswerInput } from "@/lib/validation";
 
@@ -122,7 +122,8 @@ export async function setMust(partyId: string, adminToken: string, names: string
 
 /** 「お店を探す」から使う。条件はすべて選択肢の中から受け取る */
 export async function findShops(input: {
-  areas: string[];
+  /** 飲む場所の駅(全国) */
+  station: unknown;
   genres: string[];
   budget: number | null;
   privateRoom: boolean;
@@ -130,37 +131,28 @@ export async function findShops(input: {
   smoking?: boolean;
   audience: string;
 }): Promise<{ shops: Shop[]; otherArea: boolean; raisedTo: number | null }> {
-  const areas = [...new Set(Array.isArray(input.areas) ? input.areas : [])].filter(isAreaKey);
-  if (areas.length === 0) return { shops: [], otherArea: false, raisedTo: null };
+  if (!isStation(input.station)) return { shops: [], otherArea: false, raisedTo: null };
+  const point = { lat: input.station.lat, lng: input.station.lng };
   const genres = [...new Set(Array.isArray(input.genres) ? input.genres : [])].filter(isGenreKey);
   const audience = isAudience(input.audience) ? input.audience : "student";
   const budgets = AUDIENCES[audience].budgets;
   // 予算を「決めない」にしても、学生なら6,000円、社会人なら8,000円までのお店にとどめる
   const asked = isBudget(input.budget) ? input.budget : Math.max(...budgets);
-  // 場所をいくつか選んだら、場所ごとに探して交互に並べる
-  const search = async (budget: number) => {
-    const perArea = areas.length === 1 ? 10 : 6;
-    const results = await Promise.all(
-      areas.map((area) =>
-        searchShops(
-          {
-            area,
-            genres,
-            budget,
-            privateRoom: input.privateRoom === true,
-            ...(input.smoking === true ? { smoking: "only" as const } : {}),
-            size: 2,
-            audience,
-          },
-          perArea,
-        ),
-      ),
+  // 選んだ駅の近く(500m、足りなければ1km)で探す
+  const search = (budget: number) =>
+    searchShops(
+      {
+        area: "station",
+        point,
+        genres,
+        budget,
+        privateRoom: input.privateRoom === true,
+        ...(input.smoking === true ? { smoking: "only" as const } : {}),
+        size: 2,
+        audience,
+      },
+      10,
     );
-    return {
-      shops: mergeShops(results.map((r) => r.shops), areas.length === 1 ? 10 : 16),
-      otherArea: results.every((r) => r.otherArea || r.shops.length === 0) && results.some((r) => r.otherArea),
-    };
-  };
   const first = await search(asked);
   if (first.shops.length > 0) return { ...first, raisedTo: null };
   // 1軒もなければ、見つかるまで予算を1段ずつ上げる

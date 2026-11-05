@@ -4,14 +4,16 @@ import { Check, Cigarette, DoorClosed, MapPin, SlidersHorizontal, UtensilsCrosse
 import { useEffect, useState, useTransition } from "react";
 import { findShops } from "@/app/actions";
 import { AUDIENCES, isAdult, loadAudience, type Audience } from "@/lib/audience";
-import { AREAS, GENRES, areaLabel, yen, type AreaKey, type GenreKey } from "@/lib/sendai";
+import { GENRES, yen, type GenreKey } from "@/lib/sendai";
 import type { Shop } from "@/lib/shops";
+import type { Station } from "@/lib/stations";
 import { ShopList } from "./ShopList";
+import { StationPicker } from "./StationPicker";
 import { LABEL } from "./ui";
 
 // お店を探す。条件を押すたびに、その場で絞りこむ(探すボタンは置かない)。
-// 選択肢は横にすべらせず、折り返して全部見えるように並べる。場所には「どんな所か」も添える。
-// 場所と料理はいくつでも選べる(印を四角にして、1つだけ選ぶ予算と見分ける)
+// 選択肢は横にすべらせず、折り返して全部見えるように並べる。場所は駅を1つ選ぶ(全国)。
+// 料理はいくつでも選べる(印を四角にして、1つだけ選ぶ予算と見分ける)
 
 function Option({
   on,
@@ -59,8 +61,8 @@ function Option({
 
 export function ShopSearch() {
   const [audience, setAudience] = useState<Audience | null>(null);
-  // 場所は最初は選ばない(選ぶまではお店を出さない)
-  const [areas, setAreas] = useState<AreaKey[]>([]);
+  // 駅は最初は選ばない(選ぶまではお店を出さない)
+  const [station, setStation] = useState<Station | null>(null);
   const [genres, setGenres] = useState<GenreKey[]>([]);
   const [budget, setBudget] = useState<number | null>(null);
   const [privateRoom, setPrivateRoom] = useState(false);
@@ -79,24 +81,22 @@ export function ShopSearch() {
   // 条件が変わるたびに探し直す
   useEffect(() => {
     if (!audience) return;
-    if (areas.length === 0) {
+    if (!station) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setResult(null);
       return;
     }
     start(async () => {
-      setResult(await findShops({ areas, genres, budget, privateRoom, smoking: audience !== null && isAdult(audience) && smoking, audience }));
+      setResult(await findShops({ station, genres, budget, privateRoom, smoking: audience !== null && isAdult(audience) && smoking, audience }));
     });
-  }, [areas, genres, budget, privateRoom, smoking, audience]);
+  }, [station, genres, budget, privateRoom, smoking, audience]);
 
-  const toggleArea = (k: AreaKey) => setAreas((cur) => (cur.includes(k) ? cur.filter((a) => a !== k) : [...cur, k]));
   const toggleGenre = (k: GenreKey) =>
     setGenres((cur) => (cur.includes(k) ? cur.filter((g) => g !== k) : [...cur, k]));
 
   const opts = AUDIENCES[audience ?? "student"];
-  const areaOptions = opts.areas.map((k) => AREAS.find((a) => a.key === k)!);
   const summary = [
-    areas.length > 0 ? areas.map(areaLabel).join("・") : "場所はまだ",
+    station ? `${station.name}駅` : "場所はまだ",
     budget === null ? "予算は決めない" : `${yen(budget)}まで`,
     genres.length > 0 ? genres.map((k) => GENRES.find((g) => g.key === k)!.label).join("・") : null,
     privateRoom ? "個室あり" : null,
@@ -113,13 +113,8 @@ export function ShopSearch() {
           <p className={LABEL} aria-hidden>
             <MapPin className="size-4" />
             どこで飲む?
-            <span className="ml-auto text-xs font-normal">いくつでも選べます</span>
           </p>
-          <div className="grid grid-cols-2 gap-2">
-            {areaOptions.map((a) => (
-              <Option multi key={a.key} on={areas.includes(a.key)} onClick={() => toggleArea(a.key)} title={a.label} note={a.note} />
-            ))}
-          </div>
+          <StationPicker value={station} onChange={setStation} anyLabel={null} />
         </fieldset>
 
         <fieldset className="border-b border-border px-4 py-5">
@@ -194,12 +189,12 @@ export function ShopSearch() {
       </div>
 
       <div className={`mt-4 transition-opacity ${pending ? "opacity-50" : ""}`} aria-busy={pending}>
-        {areas.length === 0 && (
+        {!station && (
           <p id="shops" className="mx-4 rounded-3xl border panel px-5 py-6 text-sm text-muted">
-            上の「どこで飲む?」を選ぶと、合うお店を表示
+            上の「どこで飲む?」で駅を選ぶと、近くのお店を表示
           </p>
         )}
-        {areas.length > 0 && result &&
+        {station && result &&
           (result.shops.length > 0 ? (
             <>
               {result.raisedTo !== null && budget !== null && (

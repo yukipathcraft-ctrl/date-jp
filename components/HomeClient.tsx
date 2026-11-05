@@ -100,7 +100,7 @@ const HOME_BY_AUDIENCE: Record<
   { lead: string; shops: string; split: string; extras: { href: string; label: string; sub: string; icon: "collect" | "seats" }[] }
 > = {
   student: {
-    lead: "仙台のサークル・ゼミの飲み会を、URLひとつで",
+    lead: "サークル・ゼミの飲み会を、URLひとつで",
     shops: "学割・飲み放題のお店",
     split: "先輩多めの傾斜も割り勘も",
     extras: [
@@ -109,7 +109,7 @@ const HOME_BY_AUDIENCE: Record<
     ],
   },
   private: {
-    lead: "仙台での友達との飲み会を、URLひとつで",
+    lead: "友達との飲み会を、URLひとつで",
     shops: "飲み放題・個室のお店",
     split: "割り勘も、年上多めも",
     extras: [
@@ -118,7 +118,7 @@ const HOME_BY_AUDIENCE: Record<
     ],
   },
   worker: {
-    lead: "仙台の歓送迎会・忘年会を、URLひとつで",
+    lead: "歓送迎会・忘年会を、URLひとつで",
     shops: "個室・喫煙できるお店も",
     split: "会社の補助も、上司多めも",
     extras: [

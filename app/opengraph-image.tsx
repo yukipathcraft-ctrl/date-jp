@@ -1,6 +1,6 @@
 import { OG_SIZE, ogImage } from "@/lib/og";
 
-export const alt = "Date 仙台の飲み会を、URLを貼るだけで決める";
+export const alt = "Date 飲み会を、URLを貼るだけで決める";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 

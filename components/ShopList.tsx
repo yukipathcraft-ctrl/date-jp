@@ -3,7 +3,7 @@
 import { Check, ChevronDown, Cigarette, CigaretteOff, ExternalLink, Heart, MapPin, Store } from "lucide-react";
 import { toggleFavorite, useFavorites } from "@/lib/favorites";
 import { useState } from "react";
-import { mapsUrl } from "@/lib/maps";
+import { accessHint, mapsUrl } from "@/lib/maps";
 import type { Shop } from "@/lib/shops";
 import { areaLabel } from "@/lib/sendai";
 import { PrNote } from "./PrNote";
@@ -143,7 +143,7 @@ export function ShopList({
             {/* 場所や口コミは Google マップで見てもらう(見本のお店は実在しないので出さない) */}
             {!s.sample && (
               <a
-                href={mapsUrl(s.name)}
+                href={mapsUrl(s.name, accessHint(s.access))}
                 target="_blank"
                 rel="noopener"
                 className="mt-2 flex min-h-11 items-center justify-center gap-1 rounded-xl text-sm font-bold text-muted transition-colors hover:text-text"

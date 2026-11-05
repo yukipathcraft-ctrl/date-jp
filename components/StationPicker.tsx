@@ -9,7 +9,16 @@ import { INPUT, PILL, PILL_OFF, PILL_ON } from "./ui";
 // 行きやすい駅を1つ選ぶ。駅名を入れて探し、出てきた駅から選ぶ(全国)。
 // 選ばなければ「どこでもいい」(場所はほかの人の駅で決まる)
 
-export function StationPicker({ value, onChange }: { value: Station | null; onChange: (s: Station | null) => void }) {
+/** anyLabel = 「選ばない」の選択肢の名前。null なら出さない(お店を探すでは駅が要る) */
+export function StationPicker({
+  value,
+  onChange,
+  anyLabel = "どこでもいい",
+}: {
+  value: Station | null;
+  onChange: (s: Station | null) => void;
+  anyLabel?: string | null;
+}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Station[] | null>(null);
   const [pending, start] = useTransition();
@@ -23,10 +32,12 @@ export function StationPicker({ value, onChange }: { value: Station | null; onCh
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        <button type="button" aria-pressed={value === null} onClick={() => onChange(null)} className={`${PILL} px-3 ${value === null ? PILL_ON : PILL_OFF}`}>
-          {value === null && <Check className="size-3.5 shrink-0" aria-hidden />}
-          どこでもいい
-        </button>
+        {anyLabel && (
+          <button type="button" aria-pressed={value === null} onClick={() => onChange(null)} className={`${PILL} px-3 ${value === null ? PILL_ON : PILL_OFF}`}>
+            {value === null && <Check className="size-3.5 shrink-0" aria-hidden />}
+            {anyLabel}
+          </button>
+        )}
         {value && (
           <span className={`${PILL} px-3 ${PILL_ON}`}>
             <Check className="size-3.5 shrink-0" aria-hidden />
