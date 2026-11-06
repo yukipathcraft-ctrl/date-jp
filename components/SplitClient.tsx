@@ -1,10 +1,11 @@
 "use client";
 
-import { Check, Crown, ExternalLink, NotebookPen, PencilLine, Plus, RotateCcw, Users, Wallet, X } from "lucide-react";
+import { Check, Crown, ExternalLink, Lock, NotebookPen, PencilLine, Plus, RotateCcw, Users, Wallet, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { partyAttendees, partyStatuses, startCollection } from "@/app/actions";
+import { ProPaywall, useProAccess } from "./ProGate";
 import { isFormal, loadAudience, type Audience } from "@/lib/audience";
 import { rememberCollection } from "@/lib/myCollections";
 import { loadMyParties, type MyParty } from "@/lib/myParties";
@@ -91,6 +92,10 @@ export function SplitClient({ from = null }: { from?: string | null }) {
   const [loaded, setLoaded] = useState(false);
   const [collection, setCollection] = useState<Saved["collection"]>(null);
   const [weighted, setWeighted] = useState(false);
+  // 傾斜と集金のページは買い切りの有料機能(有料にしていないあいだは誰でも使える)
+  const pro = useProAccess();
+  const locked = pro.enabled && !pro.unlocked;
+  const [paywall, setPaywall] = useState<string | null>(null);
   // 会社や部署・部費からの補助(1人あたり、または全体でいくら)。空なら補助なし
   const [subsidyKind, setSubsidyKind] = useState<"per" | "lump">("per");
   const [subsidyYen, setSubsidyYen] = useState("");
@@ -193,6 +198,11 @@ export function SplitClient({ from = null }: { from?: string | null }) {
     setCollection(null);
   }
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (locked && weighted) setWeighted(false);
+  }, [locked, weighted]);
+
   const weights = WEIGHTS[audience];
   const normal = weights.find((w) => w.key === "normal")!;
   /** 割り勘のとき。全員同じ倍率で、区分の印は出さない */
@@ -232,6 +242,10 @@ export function SplitClient({ from = null }: { from?: string | null }) {
   /** 集金のページを作る。金額はサーバーで計算し直し、幹事の画面へ移る */
   function makeCollection() {
     setCollectError(null);
+    if (locked) {
+      setPaywall("集金のページ");
+      return;
+    }
     startCollecting(async () => {
       const r = await startCollection({
         title,
@@ -244,7 +258,7 @@ export function SplitClient({ from = null }: { from?: string | null }) {
           const w = weightOf(p);
           return { name: nameOf(p, i), tenths: w.tenths, label: w.label, mark: w.mark, tone: w.tone };
         }),
-      });
+      }, pro.license);
       if (!r.ok) {
         setCollectError(r.error);
         return;
@@ -353,15 +367,16 @@ export function SplitClient({ from = null }: { from?: string | null }) {
             key={String(v)}
             type="button"
             aria-pressed={weighted === v}
-            onClick={() => setWeighted(v)}
+            onClick={() => (v && locked ? setPaywall("傾斜で割る") : setWeighted(v))}
             className={`min-h-11 rounded-xl text-sm font-bold transition-colors ${
               weighted === v ? "bg-surface text-text shadow" : "text-muted hover:text-text"
             }`}
           >
-            {v ? "傾斜で割る" : "割り勘"}
+            {v ? <span className="inline-flex items-center gap-1">傾斜で割る{locked && <Lock className="size-3.5" aria-label="有料" />}</span> : "割り勘"}
           </button>
         ))}
       </div>
+      {paywall && <ProPaywall feature={paywall} price={pro.price} onClose={() => setPaywall(null)} />}
 
       {/* 区分の見本 */}
       {weighted && (

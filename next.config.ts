@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   env: {
     AFFILIATE_ON: process.env.AFFILIATE_URL_TEMPLATE?.includes("{url}") ? "1" : "",
     SUPPORT_URL: process.env.SUPPORT_URL ?? "",
+    // 有料の機能を売っているか(Stripe のキーと鍵の秘密がそろっているか)。特定商取引法の表記へのリンクに使う。キーの中身は渡さない
+    BILLING_ON: process.env.STRIPE_SECRET_KEY && process.env.LICENSE_SECRET ? "1" : "",
   },
   images: { remotePatterns: [{ protocol: "https", hostname: "imgfp.hotp.jp" }] },
   async headers() {

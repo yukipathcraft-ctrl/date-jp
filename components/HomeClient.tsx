@@ -9,6 +9,7 @@ import { loadMyParties, type MyParty } from "@/lib/myParties";
 import { clock, dateLabel } from "@/lib/sendai";
 import { WEIGHTS } from "@/lib/split";
 import { Wordmark } from "./Logo";
+import { InstallHint } from "./InstallHint";
 import { SplashIntro } from "./SplashIntro";
 
 
@@ -323,6 +324,8 @@ export function HomeClient() {
         <HomeRow href="/history" icon={<CircleCheck className="size-4" aria-hidden />} title="これまでの会を見る" sub={`${past}件 ・ お店・人数・金額`} />
       )}
 
+      <InstallHint />
+
       {/* 応援(OFUSE)。見返りのない投げ銭なので、色を使わず控えめに置く */}
       {process.env.SUPPORT_URL && (
         <p className="pt-2 text-center text-xs">
@@ -335,6 +338,14 @@ export function HomeClient() {
             <Heart className="size-3.5" aria-hidden />
             Date を応援する(OFUSE)
           </a>
+        </p>
+      )}
+      {/* 有料の機能を売っているときだけ、特定商取引法の表記を置く */}
+      {process.env.BILLING_ON === "1" && (
+        <p className="text-center text-xs">
+          <Link href="/legal" className="inline-flex min-h-11 items-center text-white/60 underline underline-offset-2 hover:text-white/80">
+            特定商取引法に基づく表記
+          </Link>
         </p>
       )}
     </div>

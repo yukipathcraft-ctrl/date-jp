@@ -1,6 +1,8 @@
 "use server";
 
+import { headers } from "next/headers";
 import { AUDIENCES, isAudience } from "@/lib/audience";
+import { billingEnabled, createProCheckout, hasPro, licenseForEmail, proPrice } from "@/lib/billing";
 import { canSetPayment, isConfirmed, parseCollection, type CollectionInput } from "@/lib/collection";
 import { AREAS, isBudget, isGenreKey, isSecondGenreKey } from "@/lib/sendai";
 import { findShop, searchSecondShops, searchShops, type Shop } from "@/lib/shops";
@@ -164,7 +166,9 @@ export async function findShops(input: {
 }
 
 /** 傾斜会計から集金のページを作る。金額はサーバーで計算し直す */
-export async function startCollection(input: CollectionInput): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
+/** license = この端末の買い切りの鍵。有料にしているときは、鍵がないと集金のページは作れない */
+export async function startCollection(input: CollectionInput, license?: string | null): Promise<{ ok: true; id: string; adminToken: string } | Fail> {
+  if (!hasPro(license)) return { ok: false, error: "集金のページは、会計・集金の機能を買うと使えます" };
   const parsed = parseCollection(input);
   if (!parsed.ok) return parsed;
   const id = generateGroupId();
@@ -322,4 +326,38 @@ export async function partyAttendees(
   if (!party?.decision || !verifyToken(adminToken, party.adminHash)) return null;
   const summary = summarize(party.dates, await store.listAnswers(party.id), party.decision.date);
   return { title: party.title, date: party.decision.date, attendees: summary.attendees.map((a) => ({ name: a.name, soft: a.soft })) };
+}
+
+/** 買い切りの機能が使えるか。有料にしていなければ、いつでも使える(enabled = false) */
+export async function proStatus(license: string | null): Promise<{ enabled: boolean; unlocked: boolean; price: number }> {
+  return { enabled: billingEnabled(), unlocked: hasPro(license), price: proPrice() };
+}
+
+/** 買い切りのお会計のページを開く。back = 買ったあとに戻るページ(このサイトの中だけ) */
+export async function buyPro(back: string): Promise<{ ok: true; url: string } | Fail> {
+  if (!billingEnabled()) return { ok: false, error: "いまは支払いを受け付けていません" };
+  const path = typeof back === "string" && /^\/[A-Za-z0-9/_?=&.-]*$/.test(back) && !back.startsWith("//") ? back : "/split";
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  try {
+    return { ok: true, url: await createProCheckout(`${proto}://${host}`, path) };
+  } catch (e) {
+    console.error("[billing] お会計のページを作れませんでした", e);
+    return { ok: false, error: "お会計のページを開けませんでした。少し待ってからもう一度お試しください" };
+  }
+}
+
+/** 別の端末で使うとき。買ったときのメールアドレスから、支払いを確かめて鍵を返す */
+export async function restorePro(email: string): Promise<{ ok: true; license: string } | Fail> {
+  if (!billingEnabled()) return { ok: false, error: "いまは支払いを受け付けていません" };
+  const e = typeof email === "string" ? email.trim().toLowerCase() : "";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) || e.length > 200) return { ok: false, error: "メールアドレスを確かめてください" };
+  try {
+    const license = await licenseForEmail(e);
+    return license ? { ok: true, license } : { ok: false, error: "このメールアドレスでの購入が見つかりません" };
+  } catch (err) {
+    console.error("[billing] 購入を確かめられませんでした", err);
+    return { ok: false, error: "確かめられませんでした。少し待ってからもう一度お試しください" };
+  }
 }
